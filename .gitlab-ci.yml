@@ -1,0 +1,49 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  NODE_VERSION: "18"
+
+# Build Frontend
+build_frontend:
+  stage: build
+  image: node:${NODE_VERSION}
+  script:
+    - cd frontend
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist/
+    expire_in: 1 day
+  only:
+    - main
+
+# Build Backend (optional - just install dependencies)
+build_backend:
+  stage: build
+  image: node:${NODE_VERSION}
+  script:
+    - cd backend
+    - npm install
+  artifacts:
+    paths:
+      - backend/node_modules/
+    expire_in: 1 day
+  only:
+    - main
+
+# Deploy (manual trigger)
+deploy_production:
+  stage: deploy
+  script:
+    - echo "Deploy to production server"
+    - echo "Frontend build is in frontend/dist/"
+    - echo "Upload to Hostcreator via FTP/SFTP"
+  dependencies:
+    - build_frontend
+    - build_backend
+  when: manual
+  only:
+    - main
