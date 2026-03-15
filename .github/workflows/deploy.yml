@@ -1,0 +1,124 @@
+name: Build and Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout main branch
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+
+      # 3. Install frontend dependencies
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      # 4. Build frontend
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      # 5. Install backend dependencies (production only)
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci --production
+
+      # 6. Prepare production files
+      - name: Prepare production files
+        run: |
+          mkdir -p production-deploy
+
+          # Copy frontend build
+          cp -r frontend/dist/* production-deploy/
+
+          # Copy backend files (bez node_modules, pridáme ich potom)
+          mkdir -p production-deploy/api
+          cp -r backend/*.js production-deploy/api/
+          cp -r backend/config production-deploy/api/
+          cp -r backend/middleware production-deploy/api/
+          cp -r backend/routes production-deploy/api/
+          cp backend/package.json production-deploy/api/
+          cp backend/package-lock.json production-deploy/api/
+          cp backend/.env.example production-deploy/api/.env.example
+
+          # Copy backend node_modules
+          cp -r backend/node_modules production-deploy/api/
+
+          # Create .htaccess for routing
+          cat > production-deploy/.htaccess << 'EOF'
+          RewriteEngine On
+
+          # API requests -> backend
+          RewriteRule ^api/(.*)$ /api/server.js/$1 [L,QSA]
+
+          # Frontend routing (React Router)
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^ index.html [L]
+          EOF
+
+          # Create README for production branch
+          cat > production-deploy/README.md << 'EOF'
+          # MONTIO APP - Production Build
+
+          This branch contains the built/compiled version of the MONTIO application.
+
+          ## Structure:
+          - `/` - Frontend static files (React build)
+          - `/api/` - Backend Node.js application
+          - `.htaccess` - Apache routing configuration
+
+          ## Automatic Deployment:
+          This branch is automatically updated by GitHub Actions when code is pushed to the `main` branch.
+
+          **DO NOT EDIT FILES IN THIS BRANCH MANUALLY!**
+
+          All changes should be made in the `main` branch.
+
+          ---
+
+          Generated: $(date)
+          Commit: ${{ github.sha }}
+          EOF
+
+      # 7. Deploy to production branch
+      - name: Deploy to production branch
+        run: |
+          cd production-deploy
+          git init
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Deploy from main branch - ${{ github.sha }}"
+          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:production
+
+      # 8. Summary
+      - name: Deployment summary
+        run: |
+          echo "✅ Build successful!"
+          echo "📦 Frontend built from: frontend/"
+          echo "📦 Backend copied from: backend/"
+          echo "🚀 Deployed to: production branch"
+          echo "📝 Commit: ${{ github.sha }}"
+          echo "🔗 Repository: ${{ github.repository }}"
