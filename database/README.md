@@ -7,7 +7,7 @@
 mysql -u u46895_montio -p -h localhost d46895_montio
 ```
 
-Heslo: `x52D_Z-lb!UX6n5`
+Heslo: `QH4!d!9F!0cL6mt.`
 
 ### Cez phpMyAdmin (ak máš na hostingu):
 1. Prihlás sa do phpMyAdmin
@@ -72,9 +72,9 @@ V databáze je vytvorená testovacia firma:
 
 Tento token môžeš použiť na testovanie registrácie novej firmy.
 
-## Čo obsahuje schema.sql?
+## Čo obsahuje init.sql?
 
-✅ 7 tabuliek:
+✅ 8 tabuliek:
 - `companies` - Firmy
 - `users` - Používatelia
 - `order_types` - Typy montáží
@@ -82,11 +82,58 @@ Tento token môžeš použiť na testovanie registrácie novej firmy.
 - `orders` - Zákazky
 - `order_stages` - Etapy zákaziek (obhliadka, ponuka, montáž)
 - `invoices` - Faktúry
+- **`activity_logs`** - **Audit trail (logging všetkých akcií)**
 
 ✅ Super admin účet
 ✅ Testovacia firma pre vývoj
+✅ Testovacie účty (superadmin, companyadmin, employee)
 ✅ Foreign keys a indexy
 ✅ UTF-8 encoding
+
+---
+
+## 📋 Activity Logging System
+
+### Účel
+- **Debugging:** Sledovanie chýb a problémov
+- **Bezpečnosť:** Audit používateľských akcií
+- **Compliance:** Právne požiadavky na evidenciu
+- **Analytika:** Analýza správania používateľov
+
+### Logované akcie
+| Akcia | Popis |
+|-------|-------|
+| `user.login` | Prihlásenie používateľa |
+| `user.logout` | Odhlásenie používateľa |
+| `company.create` | Vytvorenie firmy |
+| `company.update` | Úprava firmy |
+| `order.create` | Vytvorenie zákazky |
+| `order.update` | Úprava zákazky |
+| `order.complete` | Dokončenie zákazky |
+| `invoice.create` | Vytvorenie faktúry |
+| `invoice.paid` | Zaplatenie faktúry |
+| `employee.create` | Pridanie zamestnanca |
+| `employee.update` | Úprava zamestnanca |
+| `settings.update` | Zmena nastavení |
+
+### Kde to vidím?
+- Super Admin: `/superadmin/company/:id` - Detail firmy zobrazuje posledných 50 logov
+- Activity log tabuľka s IP adresou, časom, používateľom a akciou
+
+### Štruktúra logu
+```json
+{
+  "user_id": 1,
+  "company_id": 5,
+  "action": "order.create",
+  "entity_type": "order",
+  "entity_id": 42,
+  "details": {"order_number": "MONTIO-2026-001"},
+  "ip_address": "192.168.1.100",
+  "user_agent": "Mozilla/5.0...",
+  "created_at": "2026-03-15 14:30:00"
+}
+```
 
 ## Problémy?
 

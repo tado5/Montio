@@ -45,10 +45,15 @@ Montio/
 ✅ bcrypt password hashing
 ✅ Role-based middleware
 ✅ MariaDB connection
+✅ Activity logging middleware (audit trail)
 ✅ Auth routes:
   - POST /api/auth/register (invite token check)
   - POST /api/auth/login (JWT token)
   - GET /api/auth/companies (superadmin only)
+✅ Company routes:
+  - POST /api/companies (create company + invite token generation)
+  - GET /api/companies/:id (company detail + users + logs)
+  - GET /api/companies/:id/logs (activity logs with pagination)
 
 ### Frontend
 ✅ React + Vite
@@ -56,20 +61,47 @@ Montio/
 ✅ React Router
 ✅ AuthContext (global state)
 ✅ ProtectedRoute component
-✅ Login page
-✅ SuperAdminDashboard
+✅ Role-based routing (auto-redirect)
+✅ Quick login (development mode)
+✅ Modern UI Design:
+  - Gradient backgrounds
+  - Smooth animations & transitions
+  - Glassmorphism effects
+  - Timeline view for activity logs
+  - Interactive hover effects
+  - Custom scrollbar styling
+  - Sidebar navigation
+  - User menu dropdown
+✅ Components:
+  - Sidebar (role-based navigation menu)
+  - UserMenu (dropdown s avatárom)
+  - CreateCompanyModal (modal pre vytvorenie firmy)
+  - ProtectedRoute (role guard)
+✅ Pages:
+  - Login (animated gradient + quick login buttons)
+  - SuperAdminDashboard (sidebar + create company + table)
+  - CompanyDetail (sidebar + timeline logs + stats)
+  - CompanyAdminDashboard (sidebar + placeholders)
+  - EmployeeDashboard (sidebar + employee portal)
 ✅ Axios HTTP client
 ✅ Token storage (localStorage)
 
 ## Ďalšie kroky
 
-### FÁZA 3-9 (čakajú na špecifikáciu):
-- Company admin dashboard
-- Employee views
+### FÁZA 3-9 (čakajú na implementáciu):
+- Company onboarding wizard (6 krokov)
+- Company admin dashboard (KPI + kalendár)
+- Employee portal (úlohy + kalendár)
 - Order workflow (obhliadka → ponuka → montáž)
-- PDF generation
-- Calendar & scheduling
-- Invoice system
-- Analytics
-- File upload (photos)
-- Mobile responsiveness optimization
+- PDF generation (protokoly + faktúry)
+- Calendar & scheduling (FullCalendar)
+- Invoice system (auto-numbering + QR)
+- Analytics (Recharts + dashboard)
+- File upload (photos + logo)
+- Mobile PWA optimization
+
+---
+
+## Design System
+
+Pre detaily o dizajne, farbách, komponentoch a animáciách pozri **DESIGN_NOTES.md**

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
+import { logActivity } from '../middleware/logger.js';
 
 const router = express.Router();
 
@@ -71,7 +72,7 @@ router.post('/login', async (req, res) => {
 
     // Nájdenie používateľa
     const [users] = await pool.query(
-      'SELECT id, email, password_hash, role, company_id FROM users WHERE email = ?',
+      'SELECT id, email, password_hash, role, company_id, theme FROM users WHERE email = ?',
       [email]
     );
 
@@ -100,13 +101,29 @@ router.post('/login', async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
+    // Log successful login
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    logActivity(
+      user.id,
+      'user.login',
+      'user',
+      user.id,
+      { email: user.email, role: user.role },
+      user.company_id,
+      ipAddress,
+      userAgent
+    ).catch(err => console.error('Login logging failed:', err));
+
     res.json({
       token,
       user: {
         id: user.id,
         email: user.email,
         role: user.role,
-        company_id: user.company_id
+        company_id: user.company_id,
+        theme: user.theme || 'light'
       }
     });
 
@@ -127,6 +144,43 @@ router.get('/companies', verifyToken, requireRole('superadmin'), async (req, res
 
   } catch (error) {
     console.error('Get companies error:', error);
+    res.status(500).json({ message: 'Chyba servera.' });
+  }
+});
+
+// PUT /api/auth/theme - Update user theme preference
+router.put('/theme', verifyToken, async (req, res) => {
+  try {
+    const { theme } = req.body;
+
+    if (!theme || !['light', 'dark'].includes(theme)) {
+      return res.status(400).json({ message: 'Neplatná hodnota témy.' });
+    }
+
+    await pool.query(
+      'UPDATE users SET theme = ? WHERE id = ?',
+      [theme, req.user.id]
+    );
+
+    // Log theme change
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    logActivity(
+      req.user.id,
+      'user.theme_change',
+      'user',
+      req.user.id,
+      { theme },
+      req.user.company_id,
+      ipAddress,
+      userAgent
+    ).catch(err => console.error('Theme change logging failed:', err));
+
+    res.json({ message: 'Téma bola zmenená.', theme });
+
+  } catch (error) {
+    console.error('Update theme error:', error);
     res.status(500).json({ message: 'Chyba servera.' });
   }
 });
