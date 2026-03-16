@@ -1,0 +1,94 @@
+{
+  "version": "1.1.0",
+  "buildNumber": 8,
+  "buildDate": "2026-03-16",
+  "name": "MONTIO APP",
+  "description": "Company Management System",
+  "author": "TSDigital",
+  "changelog": {
+    "1.1.0": {
+      "date": "2026-03-16",
+      "type": "minor",
+      "changes": [
+        "Nový brand gradient z TSDigital loga",
+        "Amber-Orange-Red namiesto Purple-Pink",
+        "Všetky gradienty aktualizované",
+        "Konzistentný TSDigital branding"
+      ]
+    },
+    "1.0.6": {
+      "date": "2026-03-16",
+      "type": "patch",
+      "changes": [
+        "Modal zavrie na ESC klávesu",
+        "Modal zavrie kliknutím mimo",
+        "Lepšia UX pre Info modal",
+        "useEffect ESC key listener"
+      ]
+    },
+    "1.0.5": {
+      "date": "2026-03-16",
+      "type": "patch",
+      "changes": [
+        "Fixed Info button v collapsed móde",
+        "Jeden klik otvorí modal priamo",
+        "Controlled state pre AppInfo modal",
+        "Lepšie UX v collapsed sidebar"
+      ]
+    },
+    "1.0.4": {
+      "date": "2026-03-16",
+      "type": "patch",
+      "changes": [
+        "Fixed sidebar full height",
+        "h-screen layout fix",
+        "Flex-shrink-0 na header a footer",
+        "Min-h-0 na middle container"
+      ]
+    },
+    "1.0.3": {
+      "date": "2026-03-16",
+      "type": "minor",
+      "changes": [
+        "Redesign sidebar - collapse hore",
+        "Menší a kompaktnejší sidebar (w-16)",
+        "Krajší collapse button design",
+        "AppInfo menší a dole",
+        "Optimalizovaná navigácia"
+      ]
+    },
+    "1.0.2": {
+      "date": "2026-03-16",
+      "type": "patch",
+      "changes": [
+        "Kompaktnejší header a footer",
+        "Footer cez celú šírku stránky",
+        "Sidebar medzi headerom a footerom",
+        "Optimalizovaný layout pre všetky stránky"
+      ]
+    },
+    "1.0.1": {
+      "date": "2026-03-16",
+      "type": "minor",
+      "changes": [
+        "App Info modal s verziou a autormi",
+        "Footer s TSDigital logom",
+        "Compact header design",
+        "TSDigital branding na login page",
+        "Version management systém"
+      ]
+    },
+    "1.0.0": {
+      "date": "2026-03-15",
+      "type": "major",
+      "changes": [
+        "Initial release",
+        "Dark mode support",
+        "Dashboard enhancements",
+        "Company management",
+        "User authentication",
+        "Activity logging"
+      ]
+    }
+  }
+}

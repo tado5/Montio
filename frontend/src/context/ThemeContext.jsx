@@ -5,38 +5,39 @@ import { useAuth } from './AuthContext'
 const ThemeContext = createContext(null)
 
 export const ThemeProvider = ({ children }) => {
-  const { user } = useAuth()
-  const [theme, setTheme] = useState('light')
-
-  // Load theme from user preferences or localStorage
-  useEffect(() => {
-    if (user?.theme) {
-      setTheme(user.theme)
-      if (user.theme === 'dark') {
-        document.documentElement.classList.add('dark')
-      } else {
-        document.documentElement.classList.remove('dark')
+  const { user, updateUser } = useAuth()
+  const [theme, setTheme] = useState(() => {
+    // Initialize from localStorage or user preference
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('user')
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser)
+        return parsedUser.theme || 'light'
       }
-    } else {
-      const savedTheme = localStorage.getItem('theme') || 'light'
-      setTheme(savedTheme)
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark')
-      } else {
-        document.documentElement.classList.remove('dark')
-      }
+      return localStorage.getItem('theme') || 'light'
     }
-  }, [user])
+    return 'light'
+  })
 
-  const toggleTheme = async () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light'
-    setTheme(newTheme)
-
-    if (newTheme === 'dark') {
+  // Apply theme to document on mount and when theme changes
+  useEffect(() => {
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark')
     } else {
       document.documentElement.classList.remove('dark')
     }
+  }, [theme])
+
+  // Load theme when user logs in (only once)
+  useEffect(() => {
+    if (user?.theme) {
+      setTheme(user.theme)
+    }
+  }, [user?.id]) // Only depend on user ID, not the whole user object
+
+  const toggleTheme = async () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light'
+    setTheme(newTheme)
 
     // Save to localStorage for non-authenticated users
     localStorage.setItem('theme', newTheme)
@@ -46,11 +47,9 @@ export const ThemeProvider = ({ children }) => {
       try {
         await axios.put('/api/auth/theme', { theme: newTheme })
 
-        // Update user in localStorage
-        const savedUser = JSON.parse(localStorage.getItem('user'))
-        if (savedUser) {
-          savedUser.theme = newTheme
-          localStorage.setItem('user', JSON.stringify(savedUser))
+        // Update user in AuthContext and localStorage
+        if (updateUser) {
+          updateUser({ theme: newTheme })
         }
       } catch (error) {
         console.error('Failed to save theme:', error)

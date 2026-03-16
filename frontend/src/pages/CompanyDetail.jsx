@@ -5,6 +5,7 @@ import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
 import DeactivateCompanyModal from '../components/DeactivateCompanyModal'
+import Footer from '../components/Footer'
 
 const CompanyDetail = () => {
   const { id } = useParams()
@@ -58,7 +59,7 @@ const CompanyDetail = () => {
       'user.logout': 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
       'company.create': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
       'company.update': 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
-      'order.create': 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
+      'order.create': 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200',
       'order.complete': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
       'invoice.create': 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
       'invoice.paid': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
@@ -72,7 +73,7 @@ const CompanyDetail = () => {
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-200 dark:border-purple-700 border-t-purple-600 dark:border-t-purple-400 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-200 dark:border-orange-700 border-t-orange-600 dark:border-t-orange-400 mb-4"></div>
             <p className="text-gray-600 dark:text-gray-400 font-medium">Načítavanie...</p>
           </div>
         </div>
@@ -86,10 +87,10 @@ const CompanyDetail = () => {
         <Sidebar />
         <div className="flex-1 flex flex-col">
           <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-5 flex justify-between items-center">
+            <div className="px-6 py-3 flex justify-between items-center">
               <button
                 onClick={() => navigate('/superadmin')}
-                className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold inline-flex items-center gap-2 transition-all duration-200 group"
+                className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-semibold inline-flex items-center gap-2 transition-all duration-200 group"
               >
                 <span className="transform group-hover:-translate-x-1 transition-transform duration-200">←</span>
                 Späť
@@ -110,38 +111,33 @@ const CompanyDetail = () => {
   const { company, users, logs, stats } = data
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
-          <div className="px-6 py-5">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="px-6 py-2">
             <button
               onClick={() => navigate('/superadmin')}
-              className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold text-sm mb-3 inline-flex items-center gap-2 transition-all duration-200 group"
+              className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-semibold text-xs mb-2 inline-flex items-center gap-2 transition-all duration-200 group"
             >
               <span className="transform group-hover:-translate-x-1 transition-transform duration-200">←</span>
               Späť na zoznam firiem
             </button>
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {company.logo_url ? (
                   <img
                     src={company.logo_url}
                     alt={company.name}
-                    className="w-14 h-14 rounded-xl object-cover shadow-lg"
+                    className="w-10 h-10 rounded-xl object-cover shadow-lg"
                   />
                 ) : (
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-lg">
                     {company.name.charAt(0)}
                   </div>
                 )}
                 <div>
-                  <h1 className="text-3xl font-black text-gray-900 dark:text-white">{company.name}</h1>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold">Detail firmy</p>
+                  <h1 className="text-xl font-black text-gray-900 dark:text-white">{company.name}</h1>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Detail firmy</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -169,6 +165,11 @@ const CompanyDetail = () => {
           </div>
         </header>
 
+      {/* Main Container with Sidebar */}
+      <div className="flex flex-1 overflow-hidden min-h-0">
+        {/* Sidebar */}
+        <Sidebar />
+
         {/* Page Content */}
         <main className="flex-1 px-6 py-8 overflow-y-auto">
         {/* Stats Cards */}
@@ -178,7 +179,7 @@ const CompanyDetail = () => {
             <div className="text-4xl font-black text-white">{stats.users}</div>
           </div>
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
-            <div className="text-purple-100 text-sm font-semibold mb-2 uppercase tracking-wide">🔧 Typy montáží</div>
+            <div className="text-orange-100 text-sm font-semibold mb-2 uppercase tracking-wide">🔧 Typy montáží</div>
             <div className="text-4xl font-black text-white">{stats.order_types}</div>
           </div>
           <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
@@ -201,6 +202,12 @@ const CompanyDetail = () => {
             </div>
             <div className="p-6">
               <dl className="space-y-4">
+                <div>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">ID</dt>
+                  <dd className="mt-1 text-xs font-mono text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 p-2 rounded break-all">
+                    {company.id}
+                  </dd>
+                </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
                   <dd className="mt-1">
@@ -250,7 +257,7 @@ const CompanyDetail = () => {
             <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
                 👥 Používatelia
-                <span className="text-sm font-bold bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full">
+                <span className="text-sm font-bold bg-gradient-to-r from-orange-500 to-red-600 text-white px-3 py-1 rounded-full">
                   {users.length}
                 </span>
               </h2>
@@ -267,7 +274,7 @@ const CompanyDetail = () => {
                     <li key={user.id} className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 transform hover:scale-[1.02]">
                       <div className="flex justify-between items-start">
                         <div className="flex items-start gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md">
+                          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md">
                             {(user.first_name || user.email).charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -327,7 +334,7 @@ const CompanyDetail = () => {
                 {logs.map((log, index) => (
                   <div
                     key={log.id}
-                    className="relative pl-8 pb-4 border-l-4 border-gray-200 dark:border-gray-700 last:border-0 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 group"
+                    className="relative pl-8 pb-4 border-l-4 border-gray-200 dark:border-gray-700 last:border-0 hover:border-orange-300 dark:hover:border-purple-600 transition-all duration-200 group"
                   >
                     {/* Timeline dot */}
                     <div className={`absolute left-[-10px] top-0 w-5 h-5 rounded-full shadow-lg ${getActionBadge(log.action)} flex items-center justify-center group-hover:scale-125 transition-transform duration-200`}>
@@ -338,7 +345,7 @@ const CompanyDetail = () => {
                     <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 group-hover:from-blue-50 group-hover:to-purple-50 dark:group-hover:from-blue-900/30 dark:group-hover:to-purple-900/30 rounded-xl p-4 transition-all duration-200">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-sm">
+                          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-sm">
                             {log.user_email.charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -383,6 +390,9 @@ const CompanyDetail = () => {
         </div>
         </main>
       </div>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Deactivate Modal */}
       <DeactivateCompanyModal

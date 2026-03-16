@@ -29,7 +29,7 @@ const UserMenu = () => {
   const getRoleColor = () => {
     switch (user?.role) {
       case 'superadmin':
-        return 'from-purple-500 to-pink-500'
+        return 'from-amber-500 to-red-600'
       case 'companyadmin':
         return 'from-green-500 to-emerald-500'
       case 'employee':
@@ -103,10 +103,10 @@ const UserMenu = () => {
                 setIsOpen(false)
                 navigate('/')
               }}
-              className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 flex items-center gap-3 group"
+              className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-red-50 dark:hover:from-blue-900/30 dark:hover:to-red-900/30 transition-all duration-200 flex items-center gap-3 group"
             >
               <span className="text-xl group-hover:scale-110 transition-transform duration-200">🏠</span>
-              <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-purple-700 dark:group-hover:text-purple-400">
+              <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400">
                 Dashboard
               </span>
             </button>
@@ -116,10 +116,10 @@ const UserMenu = () => {
                 setIsOpen(false)
                 // Navigate to profile (coming soon)
               }}
-              className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 flex items-center gap-3 group"
+              className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-red-50 dark:hover:from-blue-900/30 dark:hover:to-red-900/30 transition-all duration-200 flex items-center gap-3 group"
             >
               <span className="text-xl group-hover:scale-110 transition-transform duration-200">👤</span>
-              <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-purple-700 dark:group-hover:text-purple-400">
+              <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400">
                 Profil
               </span>
             </button>
@@ -129,10 +129,10 @@ const UserMenu = () => {
                 setIsOpen(false)
                 // Navigate to settings (coming soon)
               }}
-              className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 flex items-center gap-3 group"
+              className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-red-50 dark:hover:from-blue-900/30 dark:hover:to-red-900/30 transition-all duration-200 flex items-center gap-3 group"
             >
               <span className="text-xl group-hover:scale-110 transition-transform duration-200">⚙️</span>
-              <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-purple-700 dark:group-hover:text-purple-400">
+              <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400">
                 Nastavenia
               </span>
             </button>
@@ -143,12 +143,12 @@ const UserMenu = () => {
                 e.stopPropagation()
                 toggleTheme()
               }}
-              className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 flex items-center gap-3 group"
+              className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-red-50 dark:hover:from-blue-900/30 dark:hover:to-red-900/30 transition-all duration-200 flex items-center gap-3 group"
             >
               <span className="text-xl group-hover:scale-110 transition-transform duration-200">
                 {theme === 'light' ? '🌙' : '☀️'}
               </span>
-              <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-purple-700 dark:group-hover:text-purple-400">
+              <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400">
                 {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
               </span>
             </button>

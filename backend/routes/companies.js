@@ -3,6 +3,7 @@ import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
 import { logActivity } from '../middleware/logger.js';
 import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
 
@@ -31,14 +32,15 @@ router.post('/', verifyToken, requireRole('superadmin'), async (req, res) => {
       return res.status(400).json({ message: 'Tento email už existuje v systéme.' });
     }
 
-    // Generate unique invite token
+    // Generate unique invite token and public ID
     const inviteToken = crypto.randomBytes(32).toString('hex');
+    const publicId = uuidv4();
 
     // Create pending company (without details)
     const [result] = await pool.query(
-      `INSERT INTO companies (name, invite_token, status)
-       VALUES (?, ?, 'pending')`,
-      [`Nová firma (${email})`, inviteToken]
+      `INSERT INTO companies (public_id, name, invite_token, status)
+       VALUES (?, ?, ?, 'pending')`,
+      [publicId, `Nová firma (${email})`, inviteToken]
     );
 
     const companyId = result.insertId;
@@ -80,17 +82,17 @@ router.post('/', verifyToken, requireRole('superadmin'), async (req, res) => {
   }
 });
 
-// GET /api/companies/:id - Get company detail (superadmin only)
-router.get('/:id', verifyToken, requireRole('superadmin'), async (req, res) => {
+// GET /api/companies/:publicId - Get company detail (superadmin only)
+router.get('/:publicId', verifyToken, requireRole('superadmin'), async (req, res) => {
   try {
-    const { id } = req.params;
+    const { publicId } = req.params;
 
     // Get company info
     const [companies] = await pool.query(
-      `SELECT id, name, logo_url, ico, dic, address, billing_data, invite_token, status, created_at
+      `SELECT id, public_id, name, logo_url, ico, dic, address, billing_data, invite_token, status, created_at
        FROM companies
-       WHERE id = ?`,
-      [id]
+       WHERE public_id = ?`,
+      [publicId]
     );
 
     if (companies.length === 0) {
@@ -107,7 +109,7 @@ router.get('/:id', verifyToken, requireRole('superadmin'), async (req, res) => {
        LEFT JOIN employees e ON u.id = e.user_id
        WHERE u.company_id = ?
        ORDER BY u.role, u.created_at DESC`,
-      [id]
+      [company.id]
     );
 
     // Get activity logs for this company (last 50)
@@ -120,29 +122,32 @@ router.get('/:id', verifyToken, requireRole('superadmin'), async (req, res) => {
        WHERE al.company_id = ? OR al.entity_type = 'company' AND al.entity_id = ?
        ORDER BY al.created_at DESC
        LIMIT 50`,
-      [id, id]
+      [company.id, company.id]
     );
 
     // Get order types count
     const [orderTypesCount] = await pool.query(
       'SELECT COUNT(*) as count FROM order_types WHERE company_id = ?',
-      [id]
+      [company.id]
     );
 
     // Get orders count
     const [ordersCount] = await pool.query(
       'SELECT COUNT(*) as count FROM orders WHERE company_id = ?',
-      [id]
+      [company.id]
     );
 
     // Get invoices count
     const [invoicesCount] = await pool.query(
       'SELECT COUNT(*) as count FROM invoices WHERE company_id = ?',
-      [id]
+      [company.id]
     );
 
     res.json({
-      company,
+      company: {
+        ...company,
+        id: company.public_id // Return public_id as id for frontend
+      },
       users,
       logs,
       stats: {
@@ -159,19 +164,31 @@ router.get('/:id', verifyToken, requireRole('superadmin'), async (req, res) => {
   }
 });
 
-// GET /api/companies/:id/logs - Get company activity logs with pagination (superadmin only)
-router.get('/:id/logs', verifyToken, requireRole('superadmin'), async (req, res) => {
+// GET /api/companies/:publicId/logs - Get company activity logs with pagination (superadmin only)
+router.get('/:publicId/logs', verifyToken, requireRole('superadmin'), async (req, res) => {
   try {
-    const { id } = req.params;
+    const { publicId } = req.params;
     const { page = 1, limit = 50 } = req.query;
     const offset = (page - 1) * limit;
+
+    // Get company internal ID from public_id
+    const [companies] = await pool.query(
+      'SELECT id FROM companies WHERE public_id = ?',
+      [publicId]
+    );
+
+    if (companies.length === 0) {
+      return res.status(404).json({ message: 'Firma nenájdená.' });
+    }
+
+    const companyId = companies[0].id;
 
     // Get total count
     const [countResult] = await pool.query(
       `SELECT COUNT(*) as total
        FROM activity_logs
        WHERE company_id = ? OR (entity_type = 'company' AND entity_id = ?)`,
-      [id, id]
+      [companyId, companyId]
     );
 
     // Get logs with pagination
@@ -184,7 +201,7 @@ router.get('/:id/logs', verifyToken, requireRole('superadmin'), async (req, res)
        WHERE al.company_id = ? OR (al.entity_type = 'company' AND al.entity_id = ?)
        ORDER BY al.created_at DESC
        LIMIT ? OFFSET ?`,
-      [id, id, parseInt(limit), parseInt(offset)]
+      [companyId, companyId, parseInt(limit), parseInt(offset)]
     );
 
     res.json({
@@ -203,16 +220,16 @@ router.get('/:id/logs', verifyToken, requireRole('superadmin'), async (req, res)
   }
 });
 
-// PUT /api/companies/:id/deactivate - Deactivate company (superadmin only)
-router.put('/:id/deactivate', verifyToken, requireRole('superadmin'), async (req, res) => {
+// PUT /api/companies/:publicId/deactivate - Deactivate company (superadmin only)
+router.put('/:publicId/deactivate', verifyToken, requireRole('superadmin'), async (req, res) => {
   try {
-    const { id } = req.params;
+    const { publicId } = req.params;
     const { companyName } = req.body;
 
     // Get company
     const [companies] = await pool.query(
-      'SELECT id, name, status FROM companies WHERE id = ?',
-      [id]
+      'SELECT id, public_id, name, status FROM companies WHERE public_id = ?',
+      [publicId]
     );
 
     if (companies.length === 0) {
@@ -233,7 +250,7 @@ router.put('/:id/deactivate', verifyToken, requireRole('superadmin'), async (req
     // Deactivate company
     await pool.query(
       'UPDATE companies SET status = ? WHERE id = ?',
-      ['inactive', id]
+      ['inactive', company.id]
     );
 
     // Log activity
@@ -244,7 +261,7 @@ router.put('/:id/deactivate', verifyToken, requireRole('superadmin'), async (req
       req.user.id,
       'company.deactivate',
       'company',
-      id,
+      company.id,
       { company_name: company.name, deactivated_by: req.user.email },
       null,
       ipAddress,
@@ -253,7 +270,7 @@ router.put('/:id/deactivate', verifyToken, requireRole('superadmin'), async (req
 
     res.json({
       message: 'Firma bola deaktivovaná.',
-      company: { id, name: company.name, status: 'inactive' }
+      company: { id: company.public_id, name: company.name, status: 'inactive' }
     });
 
   } catch (error) {
@@ -262,15 +279,15 @@ router.put('/:id/deactivate', verifyToken, requireRole('superadmin'), async (req
   }
 });
 
-// PUT /api/companies/:id/activate - Activate company (superadmin only)
-router.put('/:id/activate', verifyToken, requireRole('superadmin'), async (req, res) => {
+// PUT /api/companies/:publicId/activate - Activate company (superadmin only)
+router.put('/:publicId/activate', verifyToken, requireRole('superadmin'), async (req, res) => {
   try {
-    const { id } = req.params;
+    const { publicId } = req.params;
 
     // Get company
     const [companies] = await pool.query(
-      'SELECT id, name, status FROM companies WHERE id = ?',
-      [id]
+      'SELECT id, public_id, name, status FROM companies WHERE public_id = ?',
+      [publicId]
     );
 
     if (companies.length === 0) {
@@ -286,7 +303,7 @@ router.put('/:id/activate', verifyToken, requireRole('superadmin'), async (req, 
     // Activate company
     await pool.query(
       'UPDATE companies SET status = ? WHERE id = ?',
-      ['active', id]
+      ['active', company.id]
     );
 
     // Log activity
@@ -297,7 +314,7 @@ router.put('/:id/activate', verifyToken, requireRole('superadmin'), async (req, 
       req.user.id,
       'company.activate',
       'company',
-      id,
+      company.id,
       { company_name: company.name, activated_by: req.user.email },
       null,
       ipAddress,
@@ -306,7 +323,7 @@ router.put('/:id/activate', verifyToken, requireRole('superadmin'), async (req, 
 
     res.json({
       message: 'Firma bola aktivovaná.',
-      company: { id, name: company.name, status: 'active' }
+      company: { id: company.public_id, name: company.name, status: 'active' }
     });
 
   } catch (error) {
