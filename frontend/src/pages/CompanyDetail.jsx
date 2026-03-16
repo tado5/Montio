@@ -131,7 +131,7 @@ const CompanyDetail = () => {
                     className="w-10 h-10 rounded-xl object-cover shadow-lg"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-lg">
                     {company.name.charAt(0)}
                   </div>
                 )}
@@ -182,11 +182,11 @@ const CompanyDetail = () => {
             <div className="text-orange-100 text-sm font-semibold mb-2 uppercase tracking-wide">🔧 Typy montáží</div>
             <div className="text-4xl font-black text-white">{stats.order_types}</div>
           </div>
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
-            <div className="text-green-100 text-sm font-semibold mb-2 uppercase tracking-wide">📝 Zákazky</div>
+          <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
+            <div className="text-orange-100 text-sm font-semibold mb-2 uppercase tracking-wide">📝 Zákazky</div>
             <div className="text-4xl font-black text-white">{stats.orders}</div>
           </div>
-          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
+          <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
             <div className="text-orange-100 text-sm font-semibold mb-2 uppercase tracking-wide">💰 Faktúry</div>
             <div className="text-4xl font-black text-white">{stats.invoices}</div>
           </div>
@@ -257,7 +257,7 @@ const CompanyDetail = () => {
             <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
                 👥 Používatelia
-                <span className="text-sm font-bold bg-gradient-to-r from-orange-500 to-red-600 text-white px-3 py-1 rounded-full">
+                <span className="text-sm font-bold bg-gradient-to-r from-orange-400 to-red-500 text-white px-3 py-1 rounded-full">
                   {users.length}
                 </span>
               </h2>
@@ -274,8 +274,12 @@ const CompanyDetail = () => {
                     <li key={user.id} className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 transform hover:scale-[1.02]">
                       <div className="flex justify-between items-start">
                         <div className="flex items-start gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md">
-                            {(user.first_name || user.email).charAt(0).toUpperCase()}
+                          <div className="w-12 h-12 rounded-lg overflow-hidden shadow-md bg-white dark:bg-gray-700">
+                            <img
+                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+                              alt="Avatar"
+                              className="w-full h-full"
+                            />
                           </div>
                           <div>
                             <div className="font-bold text-gray-900 dark:text-gray-100 text-lg">
@@ -317,7 +321,7 @@ const CompanyDetail = () => {
           <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
               📋 Activity Log
-              <span className="text-sm font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full">
+              <span className="text-sm font-bold bg-gradient-to-r from-orange-400 to-red-500 text-white px-3 py-1 rounded-full">
                 {logs.length}
               </span>
             </h2>
@@ -345,8 +349,12 @@ const CompanyDetail = () => {
                     <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 group-hover:from-blue-50 group-hover:to-purple-50 dark:group-hover:from-blue-900/30 dark:group-hover:to-purple-900/30 rounded-xl p-4 transition-all duration-200">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-sm">
-                            {log.user_email.charAt(0).toUpperCase()}
+                          <div className="w-10 h-10 rounded-lg overflow-hidden shadow-md bg-white dark:bg-gray-700">
+                            <img
+                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(log.user_email)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+                              alt="Avatar"
+                              className="w-full h-full"
+                            />
                           </div>
                           <div>
                             <div className="font-bold text-gray-900 dark:text-gray-100">{log.user_email}</div>

@@ -36,11 +36,11 @@ router.post('/', verifyToken, requireRole('superadmin'), async (req, res) => {
     const inviteToken = crypto.randomBytes(32).toString('hex');
     const publicId = uuidv4();
 
-    // Create pending company (without details)
+    // Create pending company (with email)
     const [result] = await pool.query(
-      `INSERT INTO companies (public_id, name, invite_token, status)
-       VALUES (?, ?, ?, 'pending')`,
-      [publicId, `Nová firma (${email})`, inviteToken]
+      `INSERT INTO companies (public_id, email, name, invite_token, status)
+       VALUES (?, ?, ?, ?, 'pending')`,
+      [publicId, email, `Nová firma (${email})`, inviteToken]
     );
 
     const companyId = result.insertId;
@@ -60,8 +60,9 @@ router.post('/', verifyToken, requireRole('superadmin'), async (req, res) => {
       userAgent
     );
 
-    // Generate invite link
-    const inviteLink = `${req.protocol}://${req.get('host')}/register?token=${inviteToken}`;
+    // Generate invite link (Frontend URL, not backend)
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const inviteLink = `${frontendUrl}/register/${inviteToken}`;
 
     // TODO: Send email via NodeMailer
     // await sendInviteEmail(email, inviteLink);

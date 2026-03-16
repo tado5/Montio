@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Companies table
 CREATE TABLE IF NOT EXISTS `companies` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `public_id` VARCHAR(36) UNIQUE,
+  `email` VARCHAR(255),
   `name` VARCHAR(255) NOT NULL,
   `logo_url` TEXT,
   `ico` VARCHAR(20),

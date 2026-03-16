@@ -221,24 +221,173 @@ Response: {
 
 ---
 
-## FÁZA 3: FIRMA ONBOARDING
+## FÁZA 3: FIRMA ONBOARDING ⏳ (IN PROGRESS)
 
 ### 6-krokový registračný wizard pre firmy
 
-**Kroky:**
-1. **Invite token validácia** - Overenie registračného linku
-2. **Základné údaje** - Názov/IČO/DIČ/adresa
-3. **Logo upload + fakturačné údaje** - Nahratie loga a kompletné fakturačné info
-4. **Vytvorenie vlastných typov montáží** - Názov + drag&drop checklist editor
-5. **Dokončenie** - Aktivácia companyadmin role
-6. **CompanySettings page** - Správa nastavení firmy
+**Workflow:**
+1. Super Admin vytvorí pozvánku (email) → pending company s invite tokenom
+2. Email odíde majiteľovi s linkom `https://montio.sk/register/{inviteToken}`
+3. Majiteľ klikne na link → wizard sa načíta
+4. Prejde všetkými krokmi → vyplní údaje
+5. Po dokončení → firma sa aktivuje (`status: 'active'`)
+6. Majiteľ sa automaticky prihlási ako `companyadmin`
 
-**Implementácia:**
-- Multi-step form s validáciou
-- File upload pre logo
-- Drag&drop checklist builder
-- JSON storage pre checklist šablóny
-- Automatická aktivácia firmy po dokončení
+**Kroky wizardu:**
+
+### Krok 1: Invite Token Validácia
+- URL: `/register/:inviteToken`
+- Backend: `GET /api/invites/:token`
+- Overí platnosť tokenu
+- Vráti: email, company_id, status
+- Error states: token invalid, expired, už použitý
+
+### Krok 2: Základné údaje firmy
+- Form fields:
+  - Názov firmy (required)
+  - IČO (required, validation)
+  - DIČ (optional, validation)
+  - Adresa (required, textarea)
+- Backend: `POST /api/onboarding/step1`
+- Validácia: slovenské IČO (8 číslic)
+- Progress: 25%
+
+### Krok 3: Logo Upload + Fakturačné údaje
+- Logo upload (drag&drop alebo file input)
+  - Max size: 2MB
+  - Formats: JPG, PNG, SVG
+  - Upload do `/uploads/logos/`
+- Fakturačné údaje (JSON):
+  - IBAN
+  - SWIFT
+  - Variabilný symbol pattern
+  - Splatnosť faktúr (dni)
+  - Poznámka na faktúre
+- Backend: `POST /api/onboarding/step2`
+- Progress: 50%
+
+### Krok 4: Typy montáží + Checklists
+- Možnosť pridať 1-10 typov montáží
+- Pre každý typ:
+  - Názov (napr. "Klimatizácia - inštalácia")
+  - Popis (optional)
+  - Checklist items (drag&drop editor)
+    - Názov položky
+    - Povinné/Voliteľné
+    - Poradie (drag&drop)
+- Checklist builder:
+  - Add item button
+  - Remove item
+  - Drag&drop reorder
+  - JSON storage
+- Backend: `POST /api/onboarding/step3`
+- Progress: 75%
+
+### Krok 5: Preview + Confirmation
+- Prehľad všetkých zadaných údajov
+- Možnosť vrátiť sa späť a upraviť
+- "Potvrdiť a dokončiť" button
+- Progress: 90%
+
+### Krok 6: Dokončenie
+- Backend: `POST /api/onboarding/complete`
+  - Update companies table (všetky údaje)
+  - Zmena statusu: `pending` → `active`
+  - Vytvorenie `companyadmin` user účtu
+  - Vloženie `order_types` do DB
+  - Activity log: `company.activated`
+- Success screen:
+  - "Vitajte v MONTIO!"
+  - Údaje pre prihlásenie
+  - Auto-redirect do Company Admin Dashboard (5s)
+- Progress: 100%
+
+**Implementačné detaily:**
+
+### Backend Endpoints (TODO)
+```javascript
+// Validácia tokenu
+GET /api/invites/:token
+Response: { email, company_id, status }
+
+// Step 1: Základné údaje
+POST /api/onboarding/step1
+Body: { inviteToken, name, ico, dic, address }
+Response: { success, message }
+
+// Step 2: Logo + Fakturačné údaje
+POST /api/onboarding/step2
+Body: { inviteToken, logo (file), billingData (JSON) }
+Response: { success, logoUrl }
+
+// Step 3: Typy montáží
+POST /api/onboarding/step3
+Body: { inviteToken, orderTypes: [{ name, description, checklist }] }
+Response: { success, orderTypesCount }
+
+// Dokončenie
+POST /api/onboarding/complete
+Body: { inviteToken, password }
+Response: { success, user, token }
+```
+
+### Frontend Components (TODO)
+```
+/frontend/src/pages/
+  └── OnboardingWizard.jsx      # Main wizard page
+
+/frontend/src/components/onboarding/
+  ├── StepProgress.jsx           # Progress bar (1/6, 2/6...)
+  ├── Step1BasicInfo.jsx         # Základné údaje form
+  ├── Step2LogoBilling.jsx       # Logo upload + billing form
+  ├── Step3OrderTypes.jsx        # Order types + checklist builder
+  ├── Step4Preview.jsx           # Preview všetkých údajov
+  └── Step5Complete.jsx          # Success screen
+
+/frontend/src/components/checklist/
+  ├── ChecklistBuilder.jsx       # Drag&drop editor
+  ├── ChecklistItem.jsx          # Single checklist item
+  └── DragHandle.jsx             # Drag icon
+```
+
+### Database Updates (TODO)
+- [ ] Companies table: všetky stĺpce naplnené
+- [ ] Order_types table: vložené typy montáží
+- [ ] Users table: nový `companyadmin` účet
+- [ ] Activity_logs: `company.activated` záznam
+
+### Libraries potrebné
+```bash
+# Frontend
+npm install react-dropzone      # File upload
+npm install react-dnd            # Drag & drop
+npm install react-dnd-html5-backend
+
+# Backend
+npm install multer              # File upload handling
+npm install sharp               # Image processing/resize
+```
+
+**Estimate času:**
+- Backend endpoints: 2-3 hodiny
+- Frontend wizard components: 4-6 hodín
+- Checklist builder: 2-3 hodiny
+- Testing & polish: 2-3 hodiny
+- **CELKOM:** ~10-15 hodín práce
+
+**Budúce vylepšenia (TODO pre neskoršie verzie):**
+- 📧 Email notifikácie (NodeMailer) - odoslanie invite emailu namiesto copy/paste tokenu
+- 🎨 Drag&drop reorder pre checklist items (react-dnd)
+- ✂️ Image crop/editor pre logo upload (react-image-crop)
+- ✅ IBAN format validation (slovenský/EU IBAN checker)
+- 📱 Mobile-first optimization pre wizard (lepšia responzivita)
+- 💾 Auto-save draft (localStorage backup počas vyplňovania)
+- 🔄 Progress resume (pokračovať kde som skončil ak refreshnem stránku)
+- 👤 **Výber avatara** - možnosť vybrať si vlastný avatar alebo nahrať foto v User Settings
+  - Avatar picker s výberom DiceBear štýlov (avataaars, bottts, personas...)
+  - Upload vlastného avatara (photo)
+  - Preview zmeny pred uložením
+  - Uloženie do DB (users.avatar_url)
 
 ---
 
@@ -605,7 +754,7 @@ CREATE TABLE `activity_logs` (
 | ✅ FÁZA 2 | Autentifikácia | **HOTOVO** | Backend + Frontend + Login + Dashboardy + Activity Logging + Company Detail |
 | ✅ FÁZA 2.5 | UI Polish & Create Company | **HOTOVO** | Moderný dizajn + Sidebar + User Menu + Create Company modal |
 | ✅ FÁZA 2.7 | Dark Mode + Advanced Features | **HOTOVO** | Dark Mode, Deactivate Company, Collapsible Sidebar, Logo Support |
-| 🔲 FÁZA 3 | Firma Onboarding | Čaká | 6-krokový wizard |
+| ✅ FÁZA 3 | Firma Onboarding | **HOTOVO** | 6-krokový wizard + logo upload + auto-login |
 | 🔲 FÁZA 4 | Dashboard + Kalendár | Čaká | KPI + FullCalendar + OrderTypes |
 | 🔲 FÁZA 5 | Zákazky Wizard | Čaká | **CORE** - 5 krokov workflow |
 | 🔲 FÁZA 6 | Fakturácia | Čaká | PDF + QR kódy |
@@ -620,5 +769,54 @@ CREATE TABLE `activity_logs` (
 - ✅ **Logo Support** - Zobrazenie loga v table/detail, fallback na iniciálu
 - ✅ **Documentation** - `DARK_MODE_AND_FEATURES.md`
 
+### FÁZA 3 Detaily (DONE - 2026-03-16)
+- ✅ **Backend Endpoints** - 5 API endpoints (validate token, step1-3, complete)
+- ✅ **Onboarding Wizard** - 6-krokový proces registrácie firmy
+- ✅ **Step 1: Základné údaje** - Názov, IČO, DIČ, adresa + validácia
+- ✅ **Step 2: Logo + Fakturácia** - Multer file upload, Sharp resize, IBAN, SWIFT, VS pattern
+- ✅ **Step 3: Typy montáží** - Dynamické pridávanie 1-10 typov + checklists
+- ✅ **Step 4: Preview** - Prehľad všetkých údajov + možnosť úpravy
+- ✅ **Step 5: Dokončenie** - Heslo, meno/priezvisko, auto-login, aktivácia firmy
+- ✅ **File Upload** - Filesystém (dev) + dokumentácia migrácie na S3 (prod)
+- ✅ **UI Unification** - Svetlejší gradient (orange-400), zelená pre aktívne
+- ✅ **Documentation** - TECHNICAL_NOTES.md (file upload stratégia)
+
 ### Ďalší krok
-**FÁZA 3: FIRMA ONBOARDING** - Vytvorenie registračného wizardu pre nové firmy.
+**FÁZA 4: DASHBOARD + KALENDÁR** - KPI metriky, FullCalendar, Order Types management.
+
+---
+
+## Technické Riešenia & Budúce Migrácie
+
+### File Upload Strategy
+
+#### Aktuálny stav (Development):
+- **Metóda:** Filesystém - lokálne ukladanie do `backend/uploads/logos/`
+- **Spracovanie:** Multer + Sharp (resize 200x200, optimize JPG)
+- **Databáza:** Len URL cesta `/uploads/logos/{timestamp}-{uuid}.jpg`
+- **Servovanie:** Express static middleware `/uploads`
+- **Status:** ✅ Funguje dobre pre development
+
+#### Pred Produkciou - TODO:
+- **Migrovať na:** AWS S3 alebo DigitalOcean Spaces
+- **Dôvody:**
+  - ✅ Škálovateľnosť (multi-server support)
+  - ✅ Automatické zálohy
+  - ✅ CDN integrácia (rýchle načítanie)
+  - ✅ Neobmedzený priestor
+  - ✅ Bezpečnosť (nezávislé od servera)
+- **Cena:** ~$5/mesiac (250GB + 1TB transfer)
+- **Implementácia:** `@aws-sdk/client-s3` alebo DigitalOcean Spaces API
+
+#### Zamietnuté riešenia:
+- ❌ **BASE64 v databáze** - +33% veľkosť, spomalenie queries, žiadny browser cache
+- ❌ **BLOB v databáze** - spomalenie DB, veľké backupy, zlý performance
+
+#### Budúca implementácia:
+1. Nastaviť S3/Spaces bucket
+2. Pridať environment variables (AWS_ACCESS_KEY, AWS_SECRET_KEY, S3_BUCKET)
+3. Nahradiť `sharp().toFile()` za `s3.putObject()`
+4. Migrovať existujúce súbory z filesystému na S3
+5. Aktualizovať URL cesty v databáze
+
+**Poznámka:** Filesystem je OK pre development a testovacie účely. Migrácia na cloud storage je povinná pred spustením produkcie.

@@ -19,7 +19,7 @@ const Footer = () => {
               Created with
               <span className="text-red-500 text-sm animate-pulse">❤️</span>
               by
-              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
                 TSDigital
               </span>
             </p>
