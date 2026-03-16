@@ -48,7 +48,7 @@ const Sidebar = () => {
       <div className="p-2 border-b-2 border-gray-200 dark:border-gray-800">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className={`w-full flex items-center ${isCollapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2'} gap-2 bg-gradient-to-r from-amber-500 to-red-600 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95`}
+          className={`w-full flex items-center ${isCollapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2'} gap-2 bg-gradient-to-r from-orange-400 to-red-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95`}
           title={isCollapsed ? 'Rozbaliť menu' : 'Zbaliť menu'}
         >
           {isCollapsed ? (
@@ -75,7 +75,7 @@ const Sidebar = () => {
                 disabled={item.disabled}
                 className={`w-full flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-3'} rounded-lg font-semibold transition-all duration-200 group relative ${
                   isActive(item.path)
-                    ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-orange-400 to-red-500 text-white shadow-lg'
                     : item.disabled
                     ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-red-50 dark:hover:from-blue-900/30 dark:hover:to-red-900/30 hover:text-orange-600 dark:hover:text-orange-400'

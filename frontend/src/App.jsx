@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import Login from './pages/Login'
+import OnboardingWizard from './pages/OnboardingWizard'
 import SuperAdminDashboard from './pages/SuperAdminDashboard'
 import CompanyDetail from './pages/CompanyDetail'
 import CompanyAdminDashboard from './pages/CompanyAdminDashboard'
@@ -40,6 +41,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register/:inviteToken" element={<OnboardingWizard />} />
 
             <Route
               path="/superadmin"

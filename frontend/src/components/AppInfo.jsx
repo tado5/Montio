@@ -48,7 +48,7 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-amber-500 to-red-600 px-6 py-4">
+            <div className="bg-gradient-to-r from-orange-400 to-red-500 px-6 py-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold text-white">O aplikácii</h3>
                 <button
@@ -75,7 +75,7 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
               </div>
 
               {/* Version Info */}
-              <div className="bg-gradient-to-r from-amber-50 to-red-50 dark:from-amber-900/20 dark:to-red-900/20 rounded-2xl p-4 border border-orange-200 dark:border-orange-800">
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-4 border border-orange-200 dark:border-orange-800">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Verzia</p>
@@ -114,7 +114,7 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
                     className="w-12 h-12"
                   />
                   <div>
-                    <p className="text-xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+                    <p className="text-xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
                       TSDigital
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -145,7 +145,7 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
             <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full bg-gradient-to-r from-amber-500 to-red-600 text-white font-bold py-3 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                className="w-full bg-gradient-to-r from-orange-400 to-red-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
               >
                 Zavrieť
               </button>

@@ -27,16 +27,8 @@ const UserMenu = () => {
   }
 
   const getRoleColor = () => {
-    switch (user?.role) {
-      case 'superadmin':
-        return 'from-amber-500 to-red-600'
-      case 'companyadmin':
-        return 'from-green-500 to-emerald-500'
-      case 'employee':
-        return 'from-orange-500 to-amber-500'
-      default:
-        return 'from-gray-500 to-gray-600'
-    }
+    // TSDigital brand gradient for all users
+    return 'from-orange-400 to-red-500'
   }
 
   const getRoleLabel = () => {
@@ -67,10 +59,12 @@ const UserMenu = () => {
             {user.email}
           </p>
         </div>
-        <div className={`w-10 h-10 bg-gradient-to-br ${getRoleColor()} rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200 transform group-hover:scale-110`}>
-          <span className="text-white text-lg font-bold">
-            {user.email.charAt(0).toUpperCase()}
-          </span>
+        <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl transition-all duration-200 transform group-hover:scale-110 bg-white dark:bg-gray-700">
+          <img
+            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+            alt="Avatar"
+            className="w-full h-full"
+          />
         </div>
       </button>
 
@@ -80,10 +74,12 @@ const UserMenu = () => {
           {/* User Info */}
           <div className="px-4 py-3 border-b-2 border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 bg-gradient-to-br ${getRoleColor()} rounded-xl flex items-center justify-center shadow-lg`}>
-                <span className="text-white text-xl font-bold">
-                  {user.email.charAt(0).toUpperCase()}
-                </span>
+              <div className="w-12 h-12 rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-700">
+                <img
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+                  alt="Avatar"
+                  className="w-full h-full"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">

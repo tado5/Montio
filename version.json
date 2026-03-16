@@ -1,11 +1,23 @@
 {
-  "version": "1.2.0",
-  "buildNumber": 9,
+  "version": "1.3.0",
+  "buildNumber": 10,
   "buildDate": "2026-03-16",
   "name": "MONTIO APP",
   "description": "Company Management System",
   "author": "TSDigital",
   "changelog": {
+    "1.3.0": {
+      "date": "2026-03-16",
+      "type": "minor",
+      "changes": [
+        "Svetlejší TSDigital brand gradient (orange-400 to red-500)",
+        "Zelená farba pre aktívne firmy (green-500 to emerald-500)",
+        "Zjednotené pozadia pre všetkých (gray-50 to gray-100)",
+        "Konzistentné farby v light/dark mode",
+        "File upload stratégia dokumentácia (TECHNICAL_NOTES.md)",
+        "Kompletná dokumentácia migrácie na S3/Spaces"
+      ]
+    },
     "1.2.0": {
       "date": "2026-03-16",
       "type": "minor",

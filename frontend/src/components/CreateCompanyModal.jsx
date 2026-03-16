@@ -131,14 +131,14 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
               </div>
 
               {/* Info Box */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-6">
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-2 border-orange-200 dark:border-orange-800 rounded-xl p-6">
                 <div className="flex gap-3">
                   <div className="text-3xl">📧</div>
                   <div>
-                    <p className="text-sm text-green-900 dark:text-green-300 font-bold mb-2">
+                    <p className="text-sm text-orange-900 dark:text-orange-300 font-bold mb-2">
                       Email bol odoslaný na adresu majiteľa firmy
                     </p>
-                    <p className="text-xs text-green-800 dark:text-green-400">
+                    <p className="text-xs text-orange-800 dark:text-orange-400">
                       Majiteľ dostane registračný link, cez ktorý si vyplní všetky údaje o firme.
                       Po dokončení registrácie bude firma aktivovaná.
                     </p>
@@ -162,7 +162,7 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
                     />
                     <button
                       onClick={handleCopyLink}
-                      className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-blue-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg font-bold transition-all duration-200 whitespace-nowrap"
+                      className="bg-gradient-to-r from-orange-400 to-red-500 hover:from-blue-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg font-bold transition-all duration-200 whitespace-nowrap"
                     >
                       {copied ? '✓ OK' : '📋'}
                     </button>
@@ -172,7 +172,7 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
 
               <button
                 onClick={handleClose}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                className="w-full bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-600 hover:to-red-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
               >
                 ✓ Hotovo
               </button>
