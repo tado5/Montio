@@ -1,11 +1,22 @@
 {
-  "version": "1.1.0",
-  "buildNumber": 8,
+  "version": "1.2.0",
+  "buildNumber": 9,
   "buildDate": "2026-03-16",
   "name": "MONTIO APP",
   "description": "Company Management System",
   "author": "TSDigital",
   "changelog": {
+    "1.2.0": {
+      "date": "2026-03-16",
+      "type": "minor",
+      "changes": [
+        "UUID v4 pre company IDs (security)",
+        "Odstránený stĺpec IČO z tabuľky",
+        "Pridaný stĺpec Vytvorené s dátumom",
+        "Upravené šírky stĺpcov pre lepší layout",
+        "ID zobrazené v Company Detail page"
+      ]
+    },
     "1.1.0": {
       "date": "2026-03-16",
       "type": "minor",
