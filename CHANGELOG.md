@@ -1,5 +1,112 @@
 # MONTIO - Changelog
 
+## [1.2.0] - 2026-03-16 - UUID Company IDs & Table Improvements 🔐
+
+### 🔐 Security Enhancement - UUID Implementation
+- **UUID v4 pre company IDs** namiesto sekvenčných čísel (1, 2, 3...)
+  - Príklad: `890f7443-90ff-41d5-ae71-55a6013b54af`
+  - Žiadne information leakage o počte firiem
+  - Nemožnosť enumerácie company IDs
+  - Globálne jedinečné identifikátory
+
+### 🏗️ Backend Changes
+- ✅ Pridaný `uuid` package (npm install uuid)
+- ✅ Nový stĺpec `public_id VARCHAR(36) UNIQUE` v companies table
+- ✅ Všetky API routes používajú `:publicId` parameter
+  - `GET /api/companies/:publicId`
+  - `PUT /api/companies/:publicId/activate`
+  - `PUT /api/companies/:publicId/deactivate`
+  - `GET /api/companies/:publicId/logs`
+- ✅ Fixed bugs: undefined `id` → `company.id` v queries
+- ✅ Response mapuje `public_id` ako `id` pre frontend
+- ✅ Pridané `created_at` do companies list endpoint
+- ✅ Interné INT `id` stále používané pre foreign keys a performance
+
+### 🎨 Frontend - Table Layout Improvements
+- ✅ **Odstránený stĺpec IČO** (duplicitný s DIČ)
+- ✅ **Pridaný stĺpec "Vytvorené"** s dátumom vytvorenia
+  - Formát: DD.MM.YYYY (sk-SK locale)
+  - Sortovateľný (od najnovších/najstarších)
+- ✅ **Upravené šírky stĺpcov** pre lepší balance:
+  - ID: `w-80` (široký pre UUID)
+  - Názov: auto (flex)
+  - DIČ: `w-40`
+  - Vytvorené: `w-48`
+  - Status: `w-44`
+  - Akcie: `w-40`
+- ✅ **Default sort** zmenený z 'id' na 'name'
+- ✅ **ID zobrazenie**: text-xs font-mono namiesto malého krúžku
+- ✅ **Sortovanie**: Názov, Vytvorené, Status (odstránené IČO, DIČ, ID)
+
+### 📋 Company Detail Page
+- ✅ Pridané **ID field** na začiatok sekcie "Informácie o firme"
+  - Celé UUID zobrazené v monospace fonte
+  - Break-all pre správne zalamovanie dlhých UUID
+- ✅ DeactivateCompanyModal: skrátené UUID na prvých 8 znakov
+  - Príklad: `890f7443...`
+
+### 🗄️ Database Structure
+```sql
+-- Internal INT id pre foreign keys & performance
+id INT AUTO_INCREMENT PRIMARY KEY
+
+-- External UUID pre API
+public_id VARCHAR(36) UNIQUE
+
+-- Usage
+- FK relations: company_id (INT)
+- API routes: public_id (UUID)
+- Frontend: receives UUID as 'id'
+```
+
+### 🔧 Technical Details
+**Route Changes:**
+```javascript
+// BEFORE
+GET /api/companies/:id
+PUT /api/companies/:id/activate
+
+// AFTER
+GET /api/companies/:publicId
+PUT /api/companies/:publicId/activate
+
+// Query lookup
+const [companies] = await pool.query(
+  'SELECT id FROM companies WHERE public_id = ?',
+  [publicId]
+)
+```
+
+**Date Sorting:**
+```javascript
+if (sortField === 'created_at') {
+  aVal = aVal ? new Date(aVal).getTime() : 0
+  bVal = bVal ? new Date(bVal).getTime() : 0
+}
+```
+
+### 📦 Modified Files
+```
+backend/
+  ├── package.json                  # Added uuid dependency
+  ├── routes/companies.js           # UUID routes + bug fixes
+  └── routes/auth.js                # Added created_at to response
+
+frontend/src/
+  ├── pages/SuperAdminDashboard.jsx # Table improvements
+  ├── pages/CompanyDetail.jsx       # Added ID display
+  └── components/DeactivateCompanyModal.jsx # Shortened UUID
+```
+
+### ✅ Benefits
+- 🔒 **Security**: Nemožnosť uhádnuť company IDs
+- 📊 **Privacy**: Skrytý počet firiem v systéme
+- 🌍 **Unique**: Globálne jedinečné bez kolízií
+- ⚡ **Performance**: Interné INT ID stále rýchle pre JOIN queries
+- 🎨 **UX**: Lepší table layout s relevantnejšími stĺpcami
+
+---
+
 ## [1.1.0] - 2026-03-16 - TSDigital Brand Gradient 🎨
 
 ### 🎨 Brand Identity Update
