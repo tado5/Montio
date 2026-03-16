@@ -1,27 +1,28 @@
 import { useAuth } from '../context/AuthContext'
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
+import Footer from '../components/Footer'
 
 const CompanyAdminDashboard = () => {
   const { user } = useAuth()
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
-          <div className="px-6 py-5 flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-black text-gray-900 dark:text-white">Company Dashboard</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Spravujte svoju firmu</p>
-            </div>
-            <UserMenu />
+    <div className="flex flex-col h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="px-6 py-2 flex justify-between items-center">
+          <div>
+            <h1 className="text-lg font-black text-gray-900 dark:text-white">Company Dashboard</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Spravujte svoju firmu</p>
           </div>
-        </header>
+          <UserMenu />
+        </div>
+      </header>
+
+      {/* Main Container with Sidebar */}
+      <div className="flex flex-1 overflow-hidden min-h-0">
+        {/* Sidebar */}
+        <Sidebar />
 
         {/* Page Content */}
         <main className="flex-1 px-6 py-8 overflow-y-auto">
@@ -51,12 +52,12 @@ const CompanyAdminDashboard = () => {
               </div>
 
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
-                <div className="relative bg-white dark:bg-gray-700 border-2 border-dashed border-purple-300 rounded-2xl p-6 text-gray-600 transform hover:scale-105 transition-all duration-200 hover:shadow-xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-red-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
+                <div className="relative bg-white dark:bg-gray-700 border-2 border-dashed border-orange-300 rounded-2xl p-6 text-gray-600 transform hover:scale-105 transition-all duration-200 hover:shadow-xl">
                   <div className="text-4xl mb-3">📅</div>
                   <h3 className="font-bold text-lg mb-2 text-gray-800">Kalendár</h3>
                   <p className="text-sm mb-3">Plánovanie zákaziek</p>
-                  <span className="inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-gradient-to-r from-amber-500 to-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
                     FÁZA 4
                   </span>
                 </div>
@@ -121,6 +122,9 @@ const CompanyAdminDashboard = () => {
         </div>
         </main>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

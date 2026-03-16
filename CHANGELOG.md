@@ -1,5 +1,376 @@
 # MONTIO - Changelog
 
+## [1.1.0] - 2026-03-16 - TSDigital Brand Gradient 🎨
+
+### 🎨 Brand Identity Update
+- **Nový gradient z TSDigital loga**
+  - Z loga SVG: `#ffc500` (žltá/amber) → `#c21500` (červená)
+  - Tailwind: `from-amber-500 to-red-600`
+  - Nahradené všetky purple-pink gradienty
+
+### 🔄 Zmeny gradientov
+
+**Pred (Purple-Pink):**
+```css
+from-purple-500 to-pink-500      /* Primary */
+from-purple-600 to-pink-600      /* Hover */
+from-blue-500 to-purple-500      /* Accent */
+```
+
+**Po (Amber-Orange-Red):**
+```css
+from-amber-500 to-red-600        /* Primary */
+from-amber-600 to-red-700        /* Hover */
+from-orange-500 to-red-600       /* Accent */
+```
+
+### 📦 Aktualizované komponenty
+```
+✅ Sidebar - collapse button, active states
+✅ AppInfo - header, footer button
+✅ UserMenu - avatar, menu items
+✅ Footer - version text
+✅ CreateCompanyModal - buttons
+✅ SuperAdminDashboard - buttons, logo, KPI
+✅ CompanyAdminDashboard - phase badges
+✅ EmployeeDashboard - phase badges
+✅ CompanyDetail - logos, back button, status
+✅ Login - quick login buttons
+```
+
+### 🎯 Text Colors
+```
+text-purple-700 → text-orange-600
+text-purple-600 → text-orange-600
+text-purple-500 → text-orange-500
+text-purple-400 → text-orange-400
+text-purple-200 → text-orange-200
+```
+
+### 🌈 Background & Hover
+```
+hover:from-blue-50 hover:to-purple-50 → hover:from-orange-50 hover:to-red-50
+hover:from-purple-100 hover:to-pink-100 → hover:from-amber-100 hover:to-red-100
+bg-purple-100 → bg-orange-100
+```
+
+### ✨ Výsledok
+Aplikácia teraz používa konzistentný TSDigital brand gradient naprieč celým UI!
+
+---
+
+## [1.0.6] - 2026-03-16 - Modal Close Enhancements ⌨️
+
+### ✨ Features
+- **ESC klávesa zatvorí modal** - useEffect listener pre Escape key
+- **Klik mimo modal ho zatvorí** - onClick na backdrop
+- **Klik na X button** - už existujúce (stále funguje)
+
+### 🎨 UX Improvements
+Používateľ má teraz 3 spôsoby ako zatvoriť Info modal:
+1. ✅ Stlačiť **ESC** klávesu
+2. ✅ Kliknúť **mimo modalu** (na backdrop)
+3. ✅ Kliknúť na **X** button
+
+### 🔧 Technical Implementation
+```jsx
+// 1. ESC key listener
+useEffect(() => {
+  const handleEscape = (event) => {
+    if (event.key === 'Escape' && isOpen) {
+      setIsOpen(false)
+    }
+  }
+  document.addEventListener('keydown', handleEscape)
+  return () => document.removeEventListener('keydown', handleEscape)
+}, [isOpen, setIsOpen])
+
+// 2. Backdrop click
+<div onClick={() => setIsOpen(false)}>
+
+// 3. Prevent modal content from closing
+<div onClick={(e) => e.stopPropagation()}>
+  {/* Modal content */}
+</div>
+```
+
+### 📦 Modified Files
+```
+/frontend/src/components/AppInfo.jsx   # ESC + backdrop close
+/version.json                          # v1.0.6, Build #7
+```
+
+---
+
+## [1.0.5] - 2026-03-16 - Info Button UX Fix 🔧
+
+### 🐛 Bug Fix
+- **Fixed Info button v collapsed móde**
+  - PRED: Prvý klik rozbalil sidebar, druhý klik otvoril modal
+  - PO: Jeden klik priamo otvorí modal
+  - Sidebar zostane collapsed
+
+### 🎨 UX Improvement
+- AppInfo komponent teraz podporuje controlled state
+- Props: `showButton`, `isOpen`, `onOpenChange`
+- V collapsed móde: ikona rovno otvorí modal
+- V expanded móde: button s textom otvorí modal
+
+### 🔧 Technical Changes
+```jsx
+// Sidebar state
+const [isInfoOpen, setIsInfoOpen] = useState(false)
+
+// Collapsed mode - direct modal open
+<button onClick={() => setIsInfoOpen(true)}>
+  <span>ℹ️</span>
+</button>
+<AppInfo showButton={false} isOpen={isInfoOpen} onOpenChange={setIsInfoOpen} />
+
+// Expanded mode - normal button
+<AppInfo isOpen={isInfoOpen} onOpenChange={setIsInfoOpen} />
+```
+
+### 📦 Modified Files
+```
+/frontend/src/components/AppInfo.jsx   # Controlled state support
+/frontend/src/components/Sidebar.jsx   # Fixed collapsed mode behavior
+/version.json                          # v1.0.5, Build #6
+```
+
+---
+
+## [1.0.4] - 2026-03-16 - Sidebar Full Height Fix 📏
+
+### 🐛 Bug Fixes
+- **Sidebar teraz na celú výšku** medzi headerom a footerom
+  - Fixed: `min-h-screen` → `h-screen` na wrapper
+  - Fixed: `flex-shrink-0` na header a footer (nezmenšujú sa)
+  - Fixed: `min-h-0` na middle container (flex fix)
+  - Sidebar správne vyplní priestor `h-full`
+
+### 🔧 Technical Changes
+```css
+/* PRED - nefungoval správne flex */
+.wrapper { min-h-screen }
+.header { }
+.middle { flex: 1 }
+.footer { }
+
+/* PO - flex funguje správne */
+.wrapper { h-screen }           ← Fixed výška
+.header { flex-shrink-0 }       ← Nezmenšuje sa
+.middle { flex: 1, min-h-0 }    ← Flex fix
+.footer { flex-shrink-0 }       ← Nezmenšuje sa
+```
+
+### 📦 Modified Files
+```
+/frontend/src/components/Footer.jsx              # flex-shrink-0
+/frontend/src/pages/SuperAdminDashboard.jsx     # h-screen layout
+/frontend/src/pages/CompanyAdminDashboard.jsx   # h-screen layout
+/frontend/src/pages/EmployeeDashboard.jsx       # h-screen layout
+/frontend/src/pages/CompanyDetail.jsx           # h-screen layout
+/version.json                                    # v1.0.4, Build #5
+```
+
+### ✅ Result
+Sidebar teraz správne vyplní celú výšku medzi headerom a footerom na všetkých stránkach!
+
+---
+
+## [1.0.3] - 2026-03-16 - Sidebar Redesign & UX Improvements ☰
+
+### ✨ Sidebar Redesign
+- **Collapse button hore** - Presunutý z dolnej časti nahor
+  - Namiesto "MONTIO + role" textu
+  - Krajší dizajn s ikonou ☰
+  - V collapsed móde len ikona ☰
+  - V expanded móde: "☰ Menu" + šípka ←
+
+- **Kompaktnejší sidebar**
+  - Collapsed šírka: `w-20` → `w-16` (ešte užší)
+  - Expanded šírka: `w-64` (bez zmeny)
+  - Menšie paddingy v collapsed móde
+  - Ikony zmenšené z text-2xl na text-xl v collapsed
+
+- **AppInfo dole** - Len menší "O aplikácii" button
+  - Odstránený toggle button zo spodku
+  - AppInfo menší: py-2, text-sm
+  - V collapsed móde len ikona ℹ️
+  - Padding zmensený z p-4 na p-2
+
+### 🎨 Navigation Improvements
+- Menšie menu items v collapsed móde
+- Text size zmenšený z `font-semibold` na `text-sm`
+- Zaoblenie z `rounded-xl` na `rounded-lg`
+- Lepšie centrované ikony v collapsed móde
+- `overflow-y-auto` na navigácii pre lepší scroll
+
+### 🔧 Technical Details
+**Pred:**
+```
+┌────────────────┐
+│ MONTIO Logo    │
+│ Super Admin    │
+├────────────────┤
+│ Menu Items     │
+│                │
+├────────────────┤
+│ AppInfo Button │
+│ Toggle Button  │
+└────────────────┘
+```
+
+**Po:**
+```
+┌────────────────┐
+│ ☰ Menu      ← │  ← Collapse hore
+├────────────────┤
+│ Menu Items     │
+│                │
+│                │
+├────────────────┤
+│ ℹ️ O aplikácii │  ← Len AppInfo
+└────────────────┘
+```
+
+### 📦 Modified Files
+```
+/frontend/src/components/Sidebar.jsx    # Kompletný redesign
+/frontend/src/components/AppInfo.jsx    # Menší button
+/version.json                           # v1.0.3, Build #4
+```
+
+---
+
+## [1.0.2] - 2026-03-16 - Optimalizovaný Layout & Kompaktný Dizajn 📐
+
+### 🎨 UI/UX Improvements
+- **Kompaktnejší Header** - Znížený padding z `py-3` na `py-2`
+  - Text size z `text-xl` na `text-lg`
+  - Logo v CompanyDetail zmenšené z 14x14 na 10x10
+  - "Späť" button menší (text-xs, mb-2)
+  - Viac priestoru pre obsah
+
+- **Kompaktnejší Footer** - Znížený padding z `py-4` na `py-2`
+  - Logo zmenšené z 8x8 na 6x6
+  - Single-line layout na mobile aj desktop
+  - Kompaktnejšia typografia (text-xs)
+
+- **Footer cez celú šírku** - Nový layout štruktúra
+  - Footer teraz pod celou stránkou (aj pod sidebarom)
+  - Header nad celou stránkou
+  - Sidebar len medzi headerom a footerom
+  - Konzistentný dizajn naprieč aplikáciou
+
+### 🏗️ Layout Changes
+```
+Starý layout:              Nový layout:
+┌────────────────┐         ┌─────────────────────┐
+│ Sidebar │ Main │         │   Header (full)     │
+│         │ Head │         ├────────┬────────────┤
+│         │ Cont │   →     │Sidebar │  Content   │
+│         │ Foot │         │        │            │
+└────────────────┘         ├────────┴────────────┤
+                           │   Footer (full)     │
+                           └─────────────────────┘
+```
+
+### 🔧 Technical Changes
+- Sidebar: `min-h-screen` → `h-full`
+- All dashboards: `flex` → `flex flex-col`
+- Header moved outside sidebar container
+- Footer moved outside sidebar container
+- Main content area with `overflow-hidden` parent
+
+### 📦 Modified Files
+```
+/frontend/src/components/Footer.jsx              # Kompaktnejší dizajn
+/frontend/src/components/Sidebar.jsx             # h-full namiesto min-h-screen
+/frontend/src/pages/SuperAdminDashboard.jsx     # Nový layout
+/frontend/src/pages/CompanyAdminDashboard.jsx   # Nový layout
+/frontend/src/pages/EmployeeDashboard.jsx       # Nový layout
+/frontend/src/pages/CompanyDetail.jsx           # Nový layout + menší header
+/version.json                                    # v1.0.2, Build #3
+```
+
+---
+
+## [1.0.1] - 2026-03-16 - App Info, Versioning & TSDigital Branding 🎨
+
+### ✨ New Features
+- **App Info Modal** - Nová položka "O aplikácii" v spodnej časti sidebaru
+  - Zobrazuje verziu aplikácie, build number, dátum vydania
+  - Info o autorovi (TSDigital) s logom
+  - Zoznam noviniek v aktuálnej verzii
+  - Dostupné pre všetkých používateľov (SuperAdmin, CompanyAdmin, Employee)
+
+- **Version Management** - `version.json` v root adresári
+  - Semantic versioning (MAJOR.MINOR.PATCH)
+  - Build number (automaticky sa zvyšuje)
+  - Changelog history pre každú verziu
+  - Typ zmeny: major, minor, patch
+
+- **Footer Component** - Nový footer na všetkých stránkach
+  - TSDigital logo a branding
+  - "Created with ❤️ by TSDigital"
+  - Verzia aplikácie a build number
+  - Copyright informácie
+
+- **Login Page Enhancement** - TSDigital branding
+  - "Created with ❤️ by TSDigital" na login stránke
+  - TSDigital logo zobrazené
+  - Elegantný dizajn s gradientmi
+
+### 🎨 UI Improvements
+- ✅ **Compact Header** - Zmenšený header z py-5 na py-3, text-2xl na text-xl
+  - Viac priestoru pre obsah
+  - Konzistentné naprieč všetkými stránkami
+  - Zachovaná čitateľnosť
+
+- ✅ **Footer na všetkých dashboardoch**
+  - SuperAdminDashboard
+  - CompanyAdminDashboard
+  - EmployeeDashboard
+  - CompanyDetail
+
+- ✅ **TSDigital Logo Integration**
+  - Logo skopírované do `/frontend/src/assets/tsdigital-logo.svg`
+  - Použité v AppInfo, Footer a Login page
+  - Gradient branding colors (orange → red)
+
+### 📦 New Files
+```
+/version.json                            # Version management
+/frontend/src/assets/tsdigital-logo.svg  # TSDigital logo
+/frontend/src/components/AppInfo.jsx     # App info modal
+/frontend/src/components/Footer.jsx      # Footer component
+```
+
+### 🔧 Modified Files
+```
+/frontend/src/components/Sidebar.jsx           # Added AppInfo button
+/frontend/src/pages/SuperAdminDashboard.jsx   # Compact header + Footer
+/frontend/src/pages/CompanyAdminDashboard.jsx # Compact header + Footer
+/frontend/src/pages/EmployeeDashboard.jsx     # Compact header + Footer
+/frontend/src/pages/CompanyDetail.jsx         # Compact header + Footer
+/frontend/src/pages/Login.jsx                 # TSDigital branding
+```
+
+### 📊 Versioning Strategy
+- **MAJOR** (X.0.0) - Breaking changes, major rewrites
+- **MINOR** (1.X.0) - New features, enhancements
+- **PATCH** (1.0.X) - Bug fixes, small improvements
+- **BUILD** (#1, #2, #3...) - Každý build/deploy zvýši build number
+
+### 🎯 Next Steps
+- Build number sa bude zvyšovať automaticky s každým CI/CD build
+- Version bump stratégia podľa typu zmien
+- Changelog entries pri každej novej verzii
+
+---
+
 ## [2.8.0] - 2026-03-15 - Super Admin Dashboard Enhancements 📊
 
 ### ✨ New Features - Super Admin Dashboard

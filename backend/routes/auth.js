@@ -137,7 +137,7 @@ router.post('/login', async (req, res) => {
 router.get('/companies', verifyToken, requireRole('superadmin'), async (req, res) => {
   try {
     const [companies] = await pool.query(
-      'SELECT id, name, logo_url, ico, dic, address, status FROM companies ORDER BY created_at DESC'
+      'SELECT public_id as id, name, logo_url, ico, dic, address, status, created_at FROM companies ORDER BY created_at DESC'
     );
 
     res.json(companies);

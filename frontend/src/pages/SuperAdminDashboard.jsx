@@ -5,6 +5,7 @@ import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
 import CreateCompanyModal from '../components/CreateCompanyModal'
+import Footer from '../components/Footer'
 
 const SuperAdminDashboard = () => {
   const [companies, setCompanies] = useState([])
@@ -14,7 +15,7 @@ const SuperAdminDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [sortField, setSortField] = useState('id')
+  const [sortField, setSortField] = useState('name')
   const [sortDirection, setSortDirection] = useState('asc')
 
   const { user } = useAuth()
@@ -68,9 +69,15 @@ const SuperAdminDashboard = () => {
       if (!aVal) aVal = ''
       if (!bVal) bVal = ''
 
-      // Convert to lowercase for string comparison
-      if (typeof aVal === 'string') aVal = aVal.toLowerCase()
-      if (typeof bVal === 'string') bVal = bVal.toLowerCase()
+      // Handle date sorting for created_at
+      if (sortField === 'created_at') {
+        aVal = aVal ? new Date(aVal).getTime() : 0
+        bVal = bVal ? new Date(bVal).getTime() : 0
+      } else if (typeof aVal === 'string') {
+        // Convert to lowercase for string comparison
+        aVal = aVal.toLowerCase()
+        bVal = typeof bVal === 'string' ? bVal.toLowerCase() : bVal
+      }
 
       if (sortDirection === 'asc') {
         return aVal > bVal ? 1 : -1
@@ -107,22 +114,22 @@ const SuperAdminDashboard = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
-          <div className="px-6 py-5 flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-black text-gray-900 dark:text-white">Dashboard</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Spravujte všetky firmy v systéme</p>
-            </div>
-            <UserMenu />
+    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="px-6 py-2 flex justify-between items-center">
+          <div>
+            <h1 className="text-lg font-black text-gray-900 dark:text-white">Dashboard</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Spravujte všetky firmy v systéme</p>
           </div>
-        </header>
+          <UserMenu />
+        </div>
+      </header>
+
+      {/* Main Container with Sidebar */}
+      <div className="flex flex-1 overflow-hidden min-h-0">
+        {/* Sidebar */}
+        <Sidebar />
 
         {/* Page Content */}
         <main className="flex-1 px-6 py-8 overflow-y-auto">
@@ -174,7 +181,7 @@ const SuperAdminDashboard = () => {
                   placeholder="Hľadať firmu..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
                 />
                 <span className="absolute left-3 top-3 text-gray-400">🔍</span>
               </div>
@@ -183,7 +190,7 @@ const SuperAdminDashboard = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2.5 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 font-semibold"
+                className="px-4 py-2.5 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 font-semibold"
               >
                 <option value="all">Všetky stavy</option>
                 <option value="active">✓ Aktívne</option>
@@ -194,7 +201,7 @@ const SuperAdminDashboard = () => {
               {/* Add Company Button */}
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 whitespace-nowrap"
+                className="bg-gradient-to-r from-orange-600 to-red-700 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 whitespace-nowrap"
               >
                 📧 Pozvať firmu
               </button>
@@ -209,7 +216,7 @@ const SuperAdminDashboard = () => {
 
           {loading ? (
             <div className="text-center py-16">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-200 dark:border-purple-700 border-t-purple-600 dark:border-t-purple-400"></div>
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-200 dark:border-orange-700 border-t-orange-600 dark:border-t-orange-400"></div>
               <p className="mt-4 text-gray-600 dark:text-gray-400 font-medium">Načítavanie...</p>
             </div>
           ) : (
@@ -230,7 +237,7 @@ const SuperAdminDashboard = () => {
                         setSearchQuery('')
                         setStatusFilter('all')
                       }}
-                      className="mt-4 text-purple-600 dark:text-purple-400 hover:underline font-semibold"
+                      className="mt-4 text-orange-600 dark:text-orange-400 hover:underline font-semibold"
                     >
                       Vymazať filtre
                     </button>
@@ -240,14 +247,8 @@ const SuperAdminDashboard = () => {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
                     <tr>
-                      <th
-                        onClick={() => handleSort('id')}
-                        className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
-                      >
-                        <div className="flex items-center gap-2">
-                          ID
-                          <span className="text-purple-500">{getSortIcon('id')}</span>
-                        </div>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-80">
+                        ID
                       </th>
                       <th
                         onClick={() => handleSort('name')}
@@ -255,37 +256,31 @@ const SuperAdminDashboard = () => {
                       >
                         <div className="flex items-center gap-2">
                           Názov
-                          <span className="text-purple-500">{getSortIcon('name')}</span>
+                          <span className="text-orange-500">{getSortIcon('name')}</span>
                         </div>
                       </th>
-                      <th
-                        onClick={() => handleSort('ico')}
-                        className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
-                      >
-                        <div className="flex items-center gap-2">
-                          IČO
-                          <span className="text-purple-500">{getSortIcon('ico')}</span>
-                        </div>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-40">
+                        DIČ
                       </th>
                       <th
-                        onClick={() => handleSort('dic')}
-                        className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                        onClick={() => handleSort('created_at')}
+                        className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 w-48"
                       >
                         <div className="flex items-center gap-2">
-                          DIČ
-                          <span className="text-purple-500">{getSortIcon('dic')}</span>
+                          Vytvorené
+                          <span className="text-orange-500">{getSortIcon('created_at')}</span>
                         </div>
                       </th>
                       <th
                         onClick={() => handleSort('status')}
-                        className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                        className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 w-44"
                       >
                         <div className="flex items-center gap-2">
                           Status
-                          <span className="text-purple-500">{getSortIcon('status')}</span>
+                          <span className="text-orange-500">{getSortIcon('status')}</span>
                         </div>
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-40">
                         Akcie
                       </th>
                     </tr>
@@ -297,8 +292,8 @@ const SuperAdminDashboard = () => {
                         className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 group"
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
-                        <td className="px-6 py-5 whitespace-nowrap">
-                          <span className="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 group-hover:from-purple-100 group-hover:to-pink-100 dark:group-hover:from-purple-800 dark:group-hover:to-pink-800 rounded-lg font-bold text-gray-700 dark:text-gray-300 group-hover:text-purple-700 dark:group-hover:text-purple-200 text-sm transition-all duration-200">
+                        <td className="px-6 py-5">
+                          <span className="text-xs font-mono text-gray-600 dark:text-gray-400 break-all">
                             {company.id}
                           </span>
                         </td>
@@ -311,20 +306,24 @@ const SuperAdminDashboard = () => {
                                 className="w-10 h-10 rounded-lg object-cover shadow-md group-hover:shadow-lg transition-all duration-200"
                               />
                             ) : (
-                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition-all duration-200">
+                              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition-all duration-200">
                                 {company.name.charAt(0)}
                               </div>
                             )}
-                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors duration-200">
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200">
                               {company.name}
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-medium">
-                          {company.ico || '-'}
+                          {company.dic || '-'}
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-medium">
-                          {company.dic || '-'}
+                          {company.created_at ? new Date(company.created_at).toLocaleDateString('sk-SK', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                          }) : '-'}
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap">
                           <span className={`px-3 py-1 inline-flex text-xs font-bold rounded-full shadow-sm ${
@@ -342,7 +341,7 @@ const SuperAdminDashboard = () => {
                         <td className="px-6 py-5 whitespace-nowrap">
                           <button
                             onClick={() => navigate(`/superadmin/company/${company.id}`)}
-                            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center gap-2"
                           >
                             <span>👁️</span>
                             <span>Detail</span>
@@ -357,6 +356,10 @@ const SuperAdminDashboard = () => {
           )}
         </div>
       </main>
+      </div>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Create Company Modal */}
       <CreateCompanyModal
@@ -364,7 +367,6 @@ const SuperAdminDashboard = () => {
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleCompanyCreated}
       />
-    </div>
     </div>
   )
 }
