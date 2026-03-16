@@ -142,18 +142,18 @@ const SuperAdminDashboard = () => {
               <div className="text-blue-100 text-xs">Všetky registrované</div>
             </div>
 
-            <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 cursor-pointer"
+            <div className="bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 cursor-pointer"
                  onClick={() => setStatusFilter('active')}>
               <div className="text-green-100 text-sm font-semibold mb-2 uppercase tracking-wide">✓ Aktívne</div>
               <div className="text-4xl font-black text-white mb-2">{stats.active}</div>
               <div className="text-green-100 text-xs">Plne funkčné firmy</div>
             </div>
 
-            <div className="bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 cursor-pointer"
+            <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 cursor-pointer"
                  onClick={() => setStatusFilter('pending')}>
-              <div className="text-yellow-100 text-sm font-semibold mb-2 uppercase tracking-wide">⏳ Pending</div>
+              <div className="text-orange-100 text-sm font-semibold mb-2 uppercase tracking-wide">⏳ Pending</div>
               <div className="text-4xl font-black text-white mb-2">{stats.pending}</div>
-              <div className="text-yellow-100 text-xs">Čakajú na aktiváciu</div>
+              <div className="text-orange-100 text-xs">Čakajú na aktiváciu</div>
             </div>
 
             <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 cursor-pointer"
@@ -306,7 +306,7 @@ const SuperAdminDashboard = () => {
                                 className="w-10 h-10 rounded-lg object-cover shadow-md group-hover:shadow-lg transition-all duration-200"
                               />
                             ) : (
-                              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition-all duration-200">
+                              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition-all duration-200">
                                 {company.name.charAt(0)}
                               </div>
                             )}
@@ -328,10 +328,10 @@ const SuperAdminDashboard = () => {
                         <td className="px-6 py-5 whitespace-nowrap">
                           <span className={`px-3 py-1 inline-flex text-xs font-bold rounded-full shadow-sm ${
                             company.status === 'active'
-                              ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white'
+                              ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
                               : company.status === 'inactive'
                               ? 'bg-gradient-to-r from-red-400 to-red-500 text-white'
-                              : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
+                              : 'bg-gradient-to-r from-orange-400 to-red-500 text-white'
                           }`}>
                             {company.status === 'active' && '✓ Aktívna'}
                             {company.status === 'pending' && '⏳ Pending'}
@@ -341,7 +341,7 @@ const SuperAdminDashboard = () => {
                         <td className="px-6 py-5 whitespace-nowrap">
                           <button
                             onClick={() => navigate(`/superadmin/company/${company.id}`)}
-                            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                            className="bg-gradient-to-r from-orange-400 to-red-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center gap-2"
                           >
                             <span>👁️</span>
                             <span>Detail</span>

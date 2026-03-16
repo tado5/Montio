@@ -52,7 +52,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-red-500 to-red-600 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 animate-gradient transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-red-600 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 animate-gradient transition-colors duration-300">
       <div className="absolute inset-0 bg-black/10 dark:bg-black/30"></div>
       <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full max-w-md transform transition-all duration-300 hover:scale-[1.01]">
         <div className="text-center mb-8">
@@ -116,23 +116,30 @@ const Login = () => {
               <button
                 onClick={() => quickLogin('admin@montio.sk', 'admin123')}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-amber-500 to-red-600 hover:from-purple-600 hover:to-pink-600 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
+                className="w-full bg-gradient-to-r from-orange-400 to-red-600 hover:from-orange-600 hover:to-red-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
               >
                 👑 Super Admin
               </button>
               <button
                 onClick={() => quickLogin('company@montio.sk', 'company123')}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
+                className="w-full bg-gradient-to-r from-orange-400 to-red-600 hover:from-orange-600 hover:to-red-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
               >
                 🏢 Company Admin
               </button>
               <button
                 onClick={() => quickLogin('employee@montio.sk', 'employee123')}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
+                className="w-full bg-gradient-to-r from-orange-400 to-red-600 hover:from-orange-600 hover:to-red-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
               >
                 👷 Employee
+              </button>
+              <button
+                onClick={() => quickLogin('123Mont@test.sk', 'asdf1234')}
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-orange-400 to-red-600 hover:from-orange-600 hover:to-red-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
+              >
+                🏭 Test Montáže (Company Admin)
               </button>
             </div>
             <p className="text-xs text-gray-400 text-center mt-4 font-medium">
@@ -156,7 +163,7 @@ const Login = () => {
               alt="TSDigital"
               className="w-8 h-8 ml-1"
             />
-            <span className="text-lg font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+            <span className="text-lg font-bold bg-gradient-to-r from-orange-400 to-red-600 bg-clip-text text-transparent">
               TSDigital
             </span>
           </div>

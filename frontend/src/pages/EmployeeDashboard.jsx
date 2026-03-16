@@ -7,7 +7,7 @@ const EmployeeDashboard = () => {
   const { user } = useAuth()
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-orange-50 to-amber-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="px-6 py-2 flex justify-between items-center">
@@ -28,7 +28,7 @@ const EmployeeDashboard = () => {
         <main className="flex-1 px-6 py-8 overflow-y-auto">
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-orange-200 dark:border-gray-700">
           <div className="text-center">
-            <div className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6 py-3 rounded-2xl shadow-lg mb-6 transform hover:scale-105 transition-all duration-200">
+            <div className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white px-6 py-3 rounded-2xl shadow-lg mb-6 transform hover:scale-105 transition-all duration-200">
               <h2 className="text-2xl font-black">
                 👷 Vitajte v Employee portáli!
               </h2>
@@ -52,24 +52,24 @@ const EmployeeDashboard = () => {
               </div>
 
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
-                <div className="relative bg-white dark:bg-gray-700 border-2 border-dashed border-green-300 rounded-2xl p-8 text-gray-600 dark:text-gray-300 transform hover:scale-105 transition-all duration-200 hover:shadow-xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
+                <div className="relative bg-white dark:bg-gray-700 border-2 border-dashed border-orange-300 rounded-2xl p-8 text-gray-600 dark:text-gray-300 transform hover:scale-105 transition-all duration-200 hover:shadow-xl">
                   <div className="text-5xl mb-4">✅</div>
                   <h3 className="font-bold text-xl mb-3 text-gray-800 dark:text-gray-200">Moje úlohy</h3>
                   <p className="text-sm mb-4">Aktuálne montáže a checklists</p>
-                  <span className="inline-block bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     FÁZA 7
                   </span>
                 </div>
               </div>
 
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-red-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
                 <div className="relative bg-white dark:bg-gray-700 border-2 border-dashed border-orange-300 rounded-2xl p-8 text-gray-600 dark:text-gray-300 transform hover:scale-105 transition-all duration-200 hover:shadow-xl">
                   <div className="text-5xl mb-4">📸</div>
                   <h3 className="font-bold text-xl mb-3 text-gray-800">Fotky</h3>
                   <p className="text-sm mb-4">Nahrať fotky z montáže</p>
-                  <span className="inline-block bg-gradient-to-r from-amber-500 to-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     FÁZA 5
                   </span>
                 </div>
@@ -81,14 +81,14 @@ const EmployeeDashboard = () => {
                   <div className="text-5xl mb-4">🏖️</div>
                   <h3 className="font-bold text-xl mb-3 text-gray-800">Voľno</h3>
                   <p className="text-sm mb-4">Žiadosti o dovolenku</p>
-                  <span className="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     FÁZA 7
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 p-6 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl border-2 border-orange-200 dark:border-orange-800 shadow-lg max-w-3xl mx-auto">
+            <div className="mt-10 p-6 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl border-2 border-orange-200 dark:border-orange-800 shadow-lg max-w-3xl mx-auto">
               <p className="text-sm text-orange-900 dark:text-orange-300 font-semibold mb-4">
                 ℹ️ Momentálne je implementovaná len FÁZA 2 (Autentifikácia).
                 Employee funkcie budú pridané v FÁZE 5 a 7.

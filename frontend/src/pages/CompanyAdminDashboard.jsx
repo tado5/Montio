@@ -7,7 +7,7 @@ const CompanyAdminDashboard = () => {
   const { user } = useAuth()
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="px-6 py-2 flex justify-between items-center">
@@ -28,7 +28,7 @@ const CompanyAdminDashboard = () => {
         <main className="flex-1 px-6 py-8 overflow-y-auto">
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-green-200 dark:border-gray-700">
           <div className="text-center">
-            <div className="inline-block bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-2xl shadow-lg mb-6 transform hover:scale-105 transition-all duration-200">
+            <div className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white px-6 py-3 rounded-2xl shadow-lg mb-6 transform hover:scale-105 transition-all duration-200">
               <h2 className="text-2xl font-black">
                 🏢 Vitajte v Company Admin dashboarde!
               </h2>
@@ -52,12 +52,12 @@ const CompanyAdminDashboard = () => {
               </div>
 
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-red-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
                 <div className="relative bg-white dark:bg-gray-700 border-2 border-dashed border-orange-300 rounded-2xl p-6 text-gray-600 transform hover:scale-105 transition-all duration-200 hover:shadow-xl">
                   <div className="text-4xl mb-3">📅</div>
                   <h3 className="font-bold text-lg mb-2 text-gray-800">Kalendár</h3>
                   <p className="text-sm mb-3">Plánovanie zákaziek</p>
-                  <span className="inline-block bg-gradient-to-r from-amber-500 to-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     FÁZA 4
                   </span>
                 </div>
@@ -69,19 +69,19 @@ const CompanyAdminDashboard = () => {
                   <div className="text-4xl mb-3">🔧</div>
                   <h3 className="font-bold text-lg mb-2 text-gray-800">Typy montáží</h3>
                   <p className="text-sm mb-3">Správa typov a checklistov</p>
-                  <span className="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     FÁZA 4
                   </span>
                 </div>
               </div>
 
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
                 <div className="relative bg-white dark:bg-gray-700 border-2 border-dashed border-green-300 rounded-2xl p-6 text-gray-600 transform hover:scale-105 transition-all duration-200 hover:shadow-xl">
                   <div className="text-4xl mb-3">📝</div>
                   <h3 className="font-bold text-lg mb-2 text-gray-800">Zákazky</h3>
                   <p className="text-sm mb-3">Workflow obhliadka → faktúra</p>
-                  <span className="inline-block bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     FÁZA 5
                   </span>
                 </div>
@@ -100,12 +100,12 @@ const CompanyAdminDashboard = () => {
               </div>
 
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
-                <div className="relative bg-white dark:bg-gray-700 border-2 border-dashed border-yellow-300 rounded-2xl p-6 text-gray-600 transform hover:scale-105 transition-all duration-200 hover:shadow-xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
+                <div className="relative bg-white dark:bg-gray-700 border-2 border-dashed border-orange-300 rounded-2xl p-6 text-gray-600 transform hover:scale-105 transition-all duration-200 hover:shadow-xl">
                   <div className="text-4xl mb-3">💰</div>
                   <h3 className="font-bold text-lg mb-2 text-gray-800">Faktúry</h3>
                   <p className="text-sm mb-3">Fakturácia a platby</p>
-                  <span className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     FÁZA 6
                   </span>
                 </div>

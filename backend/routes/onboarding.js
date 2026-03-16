@@ -1,0 +1,302 @@
+import express from 'express'
+import pool from '../config/db.js'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import multer from 'multer'
+import sharp from 'sharp'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const router = express.Router()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Multer config - memory storage
+const storage = multer.memoryStorage()
+const upload = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/svg+xml']
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true)
+    } else {
+      cb(new Error('Invalid file type. Only JPG, PNG, SVG allowed.'))
+    }
+  }
+})
+
+// 1. GET /api/invites/:token - Validate invite token
+router.get('/invites/:token', async (req, res) => {
+  try {
+    const { token } = req.params
+
+    const [companies] = await pool.query(
+      'SELECT public_id, email, name, status FROM companies WHERE invite_token = ?',
+      [token]
+    )
+
+    if (companies.length === 0) {
+      return res.status(404).json({ valid: false, error: 'Token not found' })
+    }
+
+    const company = companies[0]
+
+    if (company.status !== 'pending') {
+      return res.status(400).json({ valid: false, error: 'Token already used' })
+    }
+
+    res.json({
+      valid: true,
+      email: company.email,
+      companyId: company.public_id,
+      companyName: company.name,
+      status: company.status
+    })
+  } catch (error) {
+    console.error('Error validating token:', error)
+    res.status(500).json({ error: 'Server error' })
+  }
+})
+
+// 2. POST /api/onboarding/step1 - Basic company info
+router.post('/onboarding/step1', async (req, res) => {
+  try {
+    const { inviteToken, name, ico, dic, address } = req.body
+
+    // Validation
+    if (!name || name.length < 3) {
+      return res.status(400).json({ error: 'Názov musí mať min 3 znaky' })
+    }
+
+    if (!ico || !/^\d{8}$/.test(ico)) {
+      return res.status(400).json({ error: 'IČO musí mať 8 číslic' })
+    }
+
+    if (dic && !/^\d{10}$/.test(dic)) {
+      return res.status(400).json({ error: 'DIČ musí mať 10 číslic' })
+    }
+
+    if (!address || address.length < 10) {
+      return res.status(400).json({ error: 'Adresa musí mať min 10 znakov' })
+    }
+
+    // Find company by token
+    const [companies] = await pool.query(
+      'SELECT id FROM companies WHERE invite_token = ? AND status = ?',
+      [inviteToken, 'pending']
+    )
+
+    if (companies.length === 0) {
+      return res.status(404).json({ error: 'Invalid token' })
+    }
+
+    const companyId = companies[0].id
+
+    // Update company
+    await pool.query(
+      'UPDATE companies SET name = ?, ico = ?, dic = ?, address = ? WHERE id = ?',
+      [name, ico, dic, address, companyId]
+    )
+
+    res.json({ success: true, message: 'Základné údaje uložené' })
+  } catch (error) {
+    console.error('Error saving step1:', error)
+    res.status(500).json({ error: 'Server error' })
+  }
+})
+
+// 3. POST /api/onboarding/step2 - Logo + Billing data
+router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
+  try {
+    const { inviteToken, billingData } = req.body
+    const logoFile = req.file
+
+    // Find company
+    const [companies] = await pool.query(
+      'SELECT id, public_id FROM companies WHERE invite_token = ? AND status = ?',
+      [inviteToken, 'pending']
+    )
+
+    if (companies.length === 0) {
+      return res.status(404).json({ error: 'Invalid token' })
+    }
+
+    const company = companies[0]
+    let logoUrl = null
+
+    // Process logo if uploaded
+    if (logoFile) {
+      const filename = `${Date.now()}-${company.public_id}.jpg`
+      const filepath = path.join(__dirname, '../uploads/logos', filename)
+
+      // Resize and optimize image
+      await sharp(logoFile.buffer)
+        .resize(200, 200, {
+          fit: 'contain',
+          background: { r: 255, g: 255, b: 255, alpha: 0 }
+        })
+        .jpeg({ quality: 90 })
+        .toFile(filepath)
+
+      logoUrl = `/uploads/logos/${filename}`
+    }
+
+    // Parse billing data if it's a string
+    const parsedBillingData = typeof billingData === 'string'
+      ? JSON.parse(billingData)
+      : billingData
+
+    // Update company
+    await pool.query(
+      'UPDATE companies SET logo_url = ?, billing_data = ? WHERE id = ?',
+      [logoUrl, JSON.stringify(parsedBillingData), company.id]
+    )
+
+    res.json({ success: true, logoUrl })
+  } catch (error) {
+    console.error('Error saving step2:', error)
+    res.status(500).json({ error: 'Server error' })
+  }
+})
+
+// 4. POST /api/onboarding/step3 - Order types
+router.post('/onboarding/step3', async (req, res) => {
+  try {
+    const { inviteToken, orderTypes } = req.body
+
+    // Validation
+    if (!orderTypes || orderTypes.length === 0) {
+      return res.status(400).json({ error: 'Musíte pridať aspoň 1 typ montáže' })
+    }
+
+    if (orderTypes.length > 10) {
+      return res.status(400).json({ error: 'Maximálne 10 typov montáží' })
+    }
+
+    // Find company
+    const [companies] = await pool.query(
+      'SELECT id FROM companies WHERE invite_token = ? AND status = ?',
+      [inviteToken, 'pending']
+    )
+
+    if (companies.length === 0) {
+      return res.status(404).json({ error: 'Invalid token' })
+    }
+
+    const companyId = companies[0].id
+
+    // Insert order types
+    for (const orderType of orderTypes) {
+      if (!orderType.name || orderType.name.length < 3) {
+        continue // Skip invalid entries
+      }
+
+      await pool.query(
+        'INSERT INTO order_types (company_id, name, description, default_checklist) VALUES (?, ?, ?, ?)',
+        [
+          companyId,
+          orderType.name,
+          orderType.description || '',
+          JSON.stringify(orderType.checklist || [])
+        ]
+      )
+    }
+
+    res.json({ success: true, orderTypesCount: orderTypes.length })
+  } catch (error) {
+    console.error('Error saving step3:', error)
+    res.status(500).json({ error: 'Server error' })
+  }
+})
+
+// 5. POST /api/onboarding/complete - Activate company & create admin user
+router.post('/onboarding/complete', async (req, res) => {
+  try {
+    const { inviteToken, password, firstName, lastName } = req.body
+
+    // Validate password
+    if (!password || password.length < 8) {
+      return res.status(400).json({ error: 'Heslo musí mať min 8 znakov' })
+    }
+
+    // Find company
+    const [companies] = await pool.query(
+      'SELECT id, public_id, email, name FROM companies WHERE invite_token = ? AND status = ?',
+      [inviteToken, 'pending']
+    )
+
+    if (companies.length === 0) {
+      return res.status(404).json({ error: 'Invalid token' })
+    }
+
+    const company = companies[0]
+
+    // Check if company data is complete
+    if (!company.name) {
+      return res.status(400).json({ error: 'Complete all steps first' })
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    // Create user
+    const [result] = await pool.query(
+      'INSERT INTO users (email, password_hash, role, company_id, theme) VALUES (?, ?, ?, ?, ?)',
+      [company.email, hashedPassword, 'companyadmin', company.id, 'light']
+    )
+
+    const userId = result.insertId
+
+    // Activate company
+    await pool.query(
+      'UPDATE companies SET status = ? WHERE id = ?',
+      ['active', company.id]
+    )
+
+    // Activity log
+    await pool.query(
+      'INSERT INTO activity_logs (user_id, company_id, action, entity_type, entity_id, details) VALUES (?, ?, ?, ?, ?, ?)',
+      [
+        userId,
+        company.id,
+        'company.activated',
+        'company',
+        company.id,
+        JSON.stringify({ name: company.name, firstName, lastName })
+      ]
+    )
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        userId,
+        email: company.email,
+        role: 'companyadmin',
+        companyId: company.public_id
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    )
+
+    res.json({
+      success: true,
+      user: {
+        id: userId,
+        email: company.email,
+        role: 'companyadmin',
+        companyId: company.public_id,
+        companyName: company.name,
+        firstName,
+        lastName,
+        theme: 'light'
+      },
+      token
+    })
+  } catch (error) {
+    console.error('Error completing onboarding:', error)
+    res.status(500).json({ error: 'Server error' })
+  }
+})
+
+export default router

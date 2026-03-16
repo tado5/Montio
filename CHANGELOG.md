@@ -1,5 +1,78 @@
 # MONTIO - Changelog
 
+## [1.3.0] - 2026-03-16 - UI Unification & Technical Documentation 🎨📚
+
+### 🎨 Brand Color Unification
+- **Svetlejší TSDigital brand gradient** - `from-orange-400 to-red-500` (bolo orange-500)
+  - Živšie farby, lepšie pasujú k logu
+  - Zmenené vo všetkých 17 súboroch (pages, components, onboarding)
+  - Konzistentné hover stavy: `from-orange-600 to-red-700`
+- **Zelená farba pre aktívne firmy** - `from-green-500 to-emerald-500`
+  - KPI karta "✓ Aktívne" v SuperAdmin dashboarde
+  - Status badge v tabuľke firiem
+  - Tlačidlo "✓ Aktivovať" v Company Detail
+  - Jasná vizuálna logika: Zelená = aktívne/pozitívne
+- **Zjednotené pozadia** pre všetkých
+  - SuperAdmin, CompanyAdmin, Employee: `from-gray-50 to-gray-100`
+  - Dark mode: `dark:from-gray-900 dark:to-gray-800`
+  - Odstránené role-specific farby
+- **Light/Dark mode** - konzistentné farby pre všetky role
+
+### 📚 Technical Documentation
+- **TECHNICAL_NOTES.md** (NEW) - Kompletná dokumentácia file upload stratégie
+  - Aktuálny stav: Filesystém (development)
+  - Produkčné riešenie: S3/DigitalOcean Spaces
+  - Porovnávacia tabuľka všetkých riešení
+  - Migračný plán krok-po-kroku
+  - Vysvetlenie prečo BASE64/BLOB sú zlé riešenia
+- **PLAN.md** - Pridaná sekcia "Technické Riešenia & Budúce Migrácie"
+- **STATUS.md** - Pridaná sekcia "🔧 TECHNICKÉ POZNÁMKY"
+- **SETUP.md** - Pridaná sekcia "File Upload & Storage"
+- **README.md** - Kompletne prepísané s tech stack a quick start
+- **MEMORY.md** - Zapamätaná file upload stratégia
+
+### 🔧 File Upload Strategy (Documented)
+- **Development:** Lokálny filesystém (`backend/uploads/logos/`)
+  - Multer + Sharp (resize 200x200, optimize JPG)
+  - URL v databáze: `/uploads/logos/{timestamp}-{uuid}.jpg`
+- **Production:** Migrácia na AWS S3 / DigitalOcean Spaces (povinné pred spustením)
+  - Cena: ~$5/mesiac (250GB + 1TB transfer)
+  - SDK: `@aws-sdk/client-s3`
+  - Dôvody: Škálovanie, CDN, zálohy, multi-server support
+- **Zamietnuté:** BASE64 v DB (+33% veľkosť), BLOB v DB (spomalenie)
+
+### 📝 Zmenené súbory (UI)
+**Pages (8):**
+- SuperAdminDashboard.jsx - Svetlejší gradient + zelená aktívne
+- CompanyAdminDashboard.jsx - Zjednotené farby + pozadie
+- EmployeeDashboard.jsx - Zjednotené farby + pozadie
+- CompanyDetail.jsx - Zelené aktivovanie + svetlejší gradient
+- Login.jsx - Svetlejší gradient
+- OnboardingWizard.jsx - Svetlejší gradient
+
+**Components (11):**
+- Sidebar.jsx - Svetlejší gradient
+- UserMenu.jsx - Svetlejší gradient
+- CreateCompanyModal.jsx - Svetlejší gradient + zelená
+- AppInfo.jsx - Svetlejší gradient
+- Footer.jsx - Svetlejší gradient
+- Step1BasicInfo.jsx - Svetlejší gradient
+- Step2LogoBilling.jsx - Svetlejší gradient
+- Step3OrderTypes.jsx - Svetlejší gradient
+- Step4Preview.jsx - Svetlejší gradient
+- Step5Complete.jsx - Svetlejší gradient
+- StepProgress.jsx - Svetlejší gradient
+
+### 🎯 Výsledok
+- ✅ Profesionálny, jednotný dizajn
+- ✅ TSDigital branding konzistentný
+- ✅ Svetlejšie, živšie farby
+- ✅ Jasná vizuálna hierarchia (zelená = aktívne)
+- ✅ Kompletná technická dokumentácia
+- ✅ Pripravené na produkčnú migráciu
+
+---
+
 ## [1.2.0] - 2026-03-16 - UUID Company IDs & Table Improvements 🔐
 
 ### 🔐 Security Enhancement - UUID Implementation
