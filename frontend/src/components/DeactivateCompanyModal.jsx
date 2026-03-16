@@ -85,7 +85,7 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
               )}
               <div>
                 <p className="font-bold text-gray-900 dark:text-gray-100">{company.name}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">ID: {company.id}</p>
+                <p className="text-xs font-mono text-gray-600 dark:text-gray-400">ID: {company.id.substring(0, 8)}...</p>
               </div>
             </div>
           </div>

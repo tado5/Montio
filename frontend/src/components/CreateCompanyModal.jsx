@@ -55,7 +55,7 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm animate-fade-in">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-t-2xl">
+        <div className="bg-gradient-to-r from-orange-600 to-red-700 p-6 rounded-t-2xl">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-black text-white">📧 Pozvať novú firmu</h2>
             <button
@@ -91,7 +91,7 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-lg"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-lg"
                   placeholder="majitel@firma.sk"
                   required
                 />
@@ -111,7 +111,7 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                  className="flex-1 bg-gradient-to-r from-orange-600 to-red-700 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                 >
                   {loading ? 'Odosielam...' : '📧 Poslať pozvánku'}
                 </button>
@@ -162,7 +162,7 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
                     />
                     <button
                       onClick={handleCopyLink}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg font-bold transition-all duration-200 whitespace-nowrap"
+                      className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-blue-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg font-bold transition-all duration-200 whitespace-nowrap"
                     >
                       {copied ? '✓ OK' : '📋'}
                     </button>
