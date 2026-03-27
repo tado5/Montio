@@ -2,7 +2,7 @@
 
 **Dátum:** 2026-03-27
 **Čas:** Aktualizované
-**Verzia:** v1.4.0 Build #11
+**Verzia:** v1.5.0 Build #12
 
 ---
 
@@ -53,6 +53,11 @@
   - **`DELETE /api/order-types/:id`** - Vymazanie typu
   - **`GET /api/orders/calendar`** - Zákazky pre kalendár
   - **`GET /api/orders/:id`** - Detail zákazky
+  - **`GET /api/employees`** - Zoznam zamestnancov
+  - **`GET /api/employees/:id`** - Detail zamestnanca
+  - **`POST /api/employees`** - Vytvorenie zamestnanca + user account
+  - **`PUT /api/employees/:id`** - Úprava zamestnanca
+  - **`DELETE /api/employees/:id`** - Deaktivácia zamestnanca
 - **Stav:** **BEŽÍ LOKÁLNE** na localhost:3001 ✅
 
 ### 3. Frontend (React + Vite + Tailwind) ✅
@@ -64,17 +69,19 @@
   - Company Admin Dashboard (real KPI cards s live dátami)
   - Calendar Page (FullCalendar integrácia)
   - Order Types Page (CRUD management)
+  - Employees Page (CRUD management)
   - Employee Dashboard (placeholder s phase badges)
 - **Komponenty:**
   - AuthContext - state management
   - ThemeContext - dark mode management
   - ProtectedRoute - role-based access
-  - Sidebar - collapsible navigation (Calendar & Order Types aktívne)
+  - Sidebar - collapsible navigation (Calendar, Order Types & Employees aktívne)
   - UserMenu - user dropdown menu
   - CreateCompanyModal - invite system
   - DeactivateCompanyModal - bezpečná deaktivácia
   - Calendar - FullCalendar integrácia
   - OrderTypesManager - CRUD pre typy montáží
+  - EmployeesManager - CRUD pre zamestnancov
   - AppInfo - app info modal
   - Footer - TSDigital branding
 - **Features:**
@@ -85,6 +92,7 @@
   - **Dashboard KPI Cards** (real-time dáta z API)
   - **FullCalendar** (mesiac/týždeň/deň, event details)
   - **Order Types Manager** (CRUD, checklist editor)
+  - **Employees Manager** (CRUD, user account creation, stats)
   - Moderný dizajn (gradienty, animácie, glassmorphism)
 - **Stav:** **BEŽÍ LOKÁLNE** na localhost:3000 ✅
 
@@ -147,7 +155,37 @@
 - Frontend: `pages/CalendarPage.jsx`, `pages/OrderTypesPage.jsx`, `components/Calendar.jsx`, `components/OrderTypesManager.jsx`
 - Aktualizované: `server.js`, `App.jsx`, `Sidebar.jsx`, `CompanyAdminDashboard.jsx`
 
-### 2. FÁZA 3: Firma Onboarding Wizard ✅ HOTOVO (2026-03-16)
+### 2. FÁZA 7: Zamestnanci (Employee Management) ✅ HOTOVO (2026-03-27)
+
+**Implementované:**
+- ✅ Backend API endpoints (4 CRUD endpoints)
+- ✅ Create employee + automatic user account creation
+- ✅ Edit employee (name, email, position, phone, status)
+- ✅ Deactivate employee (soft delete - status: inactive)
+- ✅ Employee list with order statistics (total orders, completed orders)
+- ✅ Search & filter (by name, email, position, status)
+- ✅ Activity logging for all operations
+- ✅ Transaction support for atomicity
+- ✅ Email uniqueness validation
+- ✅ Password hashing with bcryptjs
+- ✅ Dark mode support
+
+**Súbory:**
+- Backend: `routes/employees.js` (4 endpoints)
+- Frontend: `pages/EmployeesPage.jsx`, `components/EmployeesManager.jsx`
+- Aktualizované: `server.js`, `App.jsx`, `Sidebar.jsx`
+
+**Features:**
+- Grid layout s employee cards
+- Create modal: meno, email, heslo, pozícia, telefón
+- Edit modal: update všetkých údajov + status toggle
+- Deactivate modal: soft delete s warning o počte zákaziek
+- Status badges: Aktívny (zelená) / Neaktívny (šedá)
+- Order statistics: celkový počet a dokončené zákazky
+- Search: real-time filter podľa mena, emailu, pozície
+- Filter dropdown: Všetci / Aktívni / Neaktívni
+
+### 3. FÁZA 3: Firma Onboarding Wizard ✅ HOTOVO (2026-03-16)
 
 **Implementované (2026-03-16):**
 - ✅ 6-krokový registračný wizard
@@ -199,10 +237,9 @@
 | ✅ FÁZA 2.7 | Dark Mode + Advanced Features | **100%** | Dark mode, Deactivate, Collapsible, UUID, Logo |
 | ✅ FÁZA 3 | Firma Onboarding | **100%** | 6-krokový wizard, logo upload, auto-login |
 | ✅ FÁZA 4 | Dashboard + Kalendár | **100%** | KPI cards, FullCalendar, OrderTypes CRUD |
+| ✅ FÁZA 7 | Zamestnanci | **100%** | Employee CRUD, user accounts, stats |
 | 🎯 FÁZA 5 | Zákazky Wizard | **0%** | **ĎALŠÍ KROK** - 5 krokov workflow |
-| 🔲 FÁZA 5 | Zákazky Wizard | **0%** | **CORE** - 5 krokov workflow |
 | 🔲 FÁZA 6 | Fakturácia | **0%** | PDF + QR kódy |
-| 🔲 FÁZA 7 | Zamestnanci | **0%** | Employee Portal |
 | 🔲 FÁZA 8 | Analytika | **0%** | Grafy + KPI |
 | 🔲 FÁZA 9 | Deploy & PWA | **0%** | Čaká na Node.js support alebo PHP prepis |
 
