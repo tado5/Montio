@@ -240,10 +240,11 @@ router.post('/onboarding/complete', async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Create user
+    // Create company admin user with full name and automatic position
+    const fullName = `${firstName} ${lastName}`.trim()
     const [result] = await pool.query(
-      'INSERT INTO users (email, password_hash, role, company_id, theme) VALUES (?, ?, ?, ?, ?)',
-      [company.email, hashedPassword, 'companyadmin', company.id, 'light']
+      'INSERT INTO users (email, password_hash, name, position, role, company_id, theme) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [company.email, hashedPassword, fullName, 'Správca firmy', 'companyadmin', company.id, 'light']
     )
 
     const userId = result.insertId

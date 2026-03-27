@@ -21,7 +21,18 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post('/api/auth/login', { email, password })
-      const { token, user } = response.data
+      const { token, user, requirePasswordChange, employee_id, message } = response.data
+
+      // If password change is required, return special flag
+      if (requirePasswordChange) {
+        return {
+          success: false,
+          requirePasswordChange: true,
+          employee_id,
+          token,
+          message: message || 'Musíte zmeniť heslo.'
+        }
+      }
 
       localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(user))

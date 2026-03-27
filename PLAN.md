@@ -421,6 +421,60 @@ npm install sharp               # Image processing/resize
 
 ---
 
+## FÁZA 4.5: COMPANY SETTINGS (TODO - Po obede)
+
+### Company Settings Management pre Company Admin
+
+**Cieľ:** Company Admin si môže upraviť všetky nastavenia svojej firmy.
+
+**Funkcie:**
+- Úprava základných údajov firmy (názov, IČO, DIČ, adresa)
+- Zmena/nahratie nového loga
+- Úprava fakturačných údajov (IBAN, SWIFT, VS pattern, splatnosť)
+- Zmena poznámky na faktúre
+- Preview zmien pred uložením
+
+**Backend Endpoints (TODO):**
+```javascript
+GET /api/company/settings - Načítanie aktuálnych nastavení
+PUT /api/company/settings/basic - Úprava základných údajov
+PUT /api/company/settings/logo - Zmena loga (file upload)
+PUT /api/company/settings/billing - Úprava fakturačných údajov
+```
+
+**Frontend Components (TODO):**
+```
+/frontend/src/pages/
+  └── CompanySettingsPage.jsx      # Settings page
+
+/frontend/src/components/
+  ├── CompanyBasicSettings.jsx     # Názov, IČO, DIČ, adresa
+  ├── CompanyLogoUpload.jsx        # Logo upload s preview
+  └── CompanyBillingSettings.jsx   # IBAN, SWIFT, VS, splatnosť
+```
+
+**Features:**
+- Form validation (IČO, DIČ, IBAN formáty)
+- Live preview zmien
+- Potvrdenie pred uložením
+- Activity logging všetkých zmien
+- Možnosť zrušiť zmeny (revert)
+- Success/error notifikácie
+
+**Security:**
+- Iba Company Admin môže upravovať nastavenia svojej firmy
+- Super Admin nemôže upravovať (len view-only)
+- JWT auth + company_id verification
+- Activity log: `company.settings_update`
+
+**Estimate času:**
+- Backend endpoints: 1-2 hodiny
+- Frontend komponenty: 2-3 hodiny
+- Testing & polish: 1 hodina
+- **CELKOM:** ~4-6 hodín práce
+
+---
+
 ## FÁZA 5: ZÁKAZKY WIZARD (CORE)
 
 ### 5-krokový OrderWizard (React Hook Form + Zustand)
@@ -509,35 +563,88 @@ npm install sharp               # Image processing/resize
 
 ---
 
-## FÁZA 7: ZAMESTNANCI
+## FÁZA 7: ZAMESTNANCI ✅ HOTOVO (2026-03-27)
 
-### EmployeePortal (Mobile-first)
+### Employee Lifecycle Management + Notifications System
 
-**Zamestnanec vidí:**
-- Kalendár svojich zákaziek (bez cien!)
-- Detail zákazky s checklistom
-- Notifikácie o nových úlohách
-- História dokončených montáží
-- Možnosť požiadať o voľno/dovolenku
+**✅ IMPLEMENTOVANÉ:**
 
-**Admin firmy vidí:**
-- Zoznam všetkých zamestnancov
-- Prideľovanie zákaziek
-- Odoberanie/zmena zákaziek
-- Prehľad výkonu (dokončené zákazky)
-- Správa požiadaviek na voľno
+**Employee Lifecycle (5 statusov):**
+- created → pending_approval → active → inactive → deleted
+- Forced password change on first login (must_change_password flag)
+- Admin approval workflow after password change
+- Reactivate inactive employees
+- Hard delete with FK cleanup (only if 0 orders)
+- Resend credentials for created employees
+- READ-ONLY mode for inactive (can login, cannot edit)
+
+**Notifications System:**
+- 7 API endpoints (list, count, read/unread, delete)
+- NotificationBell component with 30s polling
+- NotificationsPage with pagination & filters
+- 8 notification types (created, approved, deactivated, etc.)
+- Real-time badge count
+- Mark as read/unread, delete individual/bulk
+
+**Backend Endpoints (10 total):**
+- GET /api/employees - List with order stats
+- GET /api/employees/:id - Detail
+- POST /api/employees - Create + user account
+- PUT /api/employees/:id - Update
+- DELETE /api/employees/:id - Deactivate (soft delete)
+- POST /api/employees/:id/change-password - Change default password
+- POST /api/employees/:id/approve - Approve (pending → active)
+- POST /api/employees/:id/reactivate - Reactivate (inactive → active)
+- DELETE /api/employees/:id/hard-delete - Permanent delete + FK cleanup
+- POST /api/employees/:id/resend-credentials - Resend login info
+
+**Notifications Endpoints (7 total):**
+- GET /api/notifications - List (pagination, filters)
+- GET /api/notifications/unread-count - Badge count
+- PUT /api/notifications/:id/read - Mark as read
+- PUT /api/notifications/:id/unread - Mark as unread
+- PUT /api/notifications/mark-all-read - Bulk mark
+- DELETE /api/notifications/:id - Delete one
+- DELETE /api/notifications/delete-all-read - Bulk delete
+
+**Frontend Components:**
+- EmployeesPage.jsx - Main page wrapper
+- EmployeesManager.jsx - CRUD management (upgraded with lifecycle actions)
+- PasswordChangeModal.jsx - Forced password change UI
+- ReadOnlyBanner.jsx - Yellow warning for inactive users
+- NotificationBell.jsx - Bell icon with badge (30s polling)
+- NotificationsPage.jsx - Full notifications view (pagination)
+- ProfilePage.jsx - READ-ONLY protection (disabled buttons)
+
+**Database:**
+- employees table: status ENUM (5 values), must_change_password, default_password_hash
+- notifications table (NEW): tracks all system notifications
+- activity_logs: logs all employee actions
 
 **Features:**
-- Push notifikácie (PWA)
-- Možnosť pridať seba ako zamestnanca
-- Role: "employee" vs "companyadmin+employee"
-- Real-time sync
+- Status badges with colors (Vytvorený, Čaká na schválenie, Aktívny, Neaktívny)
+- Conditional action buttons based on status
+- Search & filter (name, email, position, status)
+- Order statistics on cards (total, completed)
+- Transaction support for atomic operations
+- Activity logging for audit trail
+- Dark mode support
 
-**Implementácia:**
-- Samostatný EmployeeDashboard
-- Push API pre notifikácie
-- Calendar view (FullCalendar)
-- Drag&drop prideľovanie
+**Security:**
+- Password hashing (bcryptjs)
+- JWT with isReadOnly flag for inactive users
+- Status-based access control
+- FK cascade cleanup on hard delete
+- Email uniqueness validation
+
+**🔲 TODO (Budúce verzie):**
+- Email notifikácie (NodeMailer) - actually send emails
+- Employee self-service dashboard (tasks, calendar, photos, time-off)
+- Push notifikácie (PWA)
+- Drag&drop prideľovanie zákaziek
+- Employee performance metrics
+- Možnosť pridať seba ako zamestnanca
+- Batch operations (approve/deactivate multiple)
 
 ---
 
@@ -755,10 +862,11 @@ CREATE TABLE `activity_logs` (
 | ✅ FÁZA 2.5 | UI Polish & Create Company | **HOTOVO** | Moderný dizajn + Sidebar + User Menu + Create Company modal |
 | ✅ FÁZA 2.7 | Dark Mode + Advanced Features | **HOTOVO** | Dark Mode, Deactivate Company, Collapsible Sidebar, Logo Support |
 | ✅ FÁZA 3 | Firma Onboarding | **HOTOVO** | 6-krokový wizard + logo upload + auto-login |
-| 🔲 FÁZA 4 | Dashboard + Kalendár | Čaká | KPI + FullCalendar + OrderTypes |
+| ✅ FÁZA 4 | Dashboard + Kalendár | **HOTOVO** | KPI + FullCalendar + OrderTypes |
+| 🎯 FÁZA 4.5 | Company Settings | **PO OBEDE** | Nastavenia firmy (Company Admin) |
+| ✅ FÁZA 7 | Zamestnanci | **HOTOVO** | Employee Lifecycle + Notifications + READ-ONLY |
 | 🔲 FÁZA 5 | Zákazky Wizard | Čaká | **CORE** - 5 krokov workflow |
 | 🔲 FÁZA 6 | Fakturácia | Čaká | PDF + QR kódy |
-| 🔲 FÁZA 7 | Zamestnanci | Čaká | Employee Portal |
 | 🔲 FÁZA 8 | Analytika | Čaká | Grafy + KPI |
 | 🔲 FÁZA 9 | Deploy | Čaká | Production build + PWA |
 

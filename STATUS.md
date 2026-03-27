@@ -2,7 +2,7 @@
 
 **Dátum:** 2026-03-27
 **Čas:** Aktualizované
-**Verzia:** v1.5.0 Build #12
+**Verzia:** v1.6.0 Build #14
 
 ---
 
@@ -58,6 +58,18 @@
   - **`POST /api/employees`** - Vytvorenie zamestnanca + user account
   - **`PUT /api/employees/:id`** - Úprava zamestnanca
   - **`DELETE /api/employees/:id`** - Deaktivácia zamestnanca
+  - **`POST /api/employees/:id/change-password`** - Zmena default hesla
+  - **`POST /api/employees/:id/approve`** - Schválenie zamestnanca
+  - **`POST /api/employees/:id/reactivate`** - Reaktivácia zamestnanca
+  - **`DELETE /api/employees/:id/hard-delete`** - Trvalé vymazanie
+  - **`POST /api/employees/:id/resend-credentials`** - Opätovné odoslanie prihlasovacích údajov
+  - **`GET /api/notifications`** - Zoznam notifikácií (pagination)
+  - **`GET /api/notifications/unread-count`** - Počet neprečítaných
+  - **`PUT /api/notifications/:id/read`** - Označiť ako prečítané
+  - **`PUT /api/notifications/:id/unread`** - Označiť ako neprečítané
+  - **`PUT /api/notifications/mark-all-read`** - Všetky ako prečítané
+  - **`DELETE /api/notifications/:id`** - Vymazať notifikáciu
+  - **`DELETE /api/notifications/delete-all-read`** - Vymazať všetky prečítané
 - **Stav:** **BEŽÍ LOKÁLNE** na localhost:3001 ✅
 
 ### 3. Frontend (React + Vite + Tailwind) ✅
@@ -158,10 +170,16 @@
 ### 2. FÁZA 7: Zamestnanci (Employee Management) ✅ HOTOVO (2026-03-27)
 
 **Implementované:**
-- ✅ Backend API endpoints (4 CRUD endpoints)
+- ✅ Backend API endpoints (10 endpoints total)
+- ✅ **Employee Lifecycle Management** - 5 statusov (created → pending_approval → active → inactive → deleted)
+- ✅ **Forced password change** on first login (must_change_password flag)
+- ✅ **Admin approval workflow** after password change
+- ✅ **Reactivate** inactive employees
+- ✅ **Hard delete** with FK cleanup (notifications + activity_logs)
+- ✅ **Resend credentials** for created employees
+- ✅ **READ-ONLY mode** for inactive employees (login allowed, edits disabled)
 - ✅ Create employee + automatic user account creation
 - ✅ Edit employee (name, email, position, phone, status)
-- ✅ Deactivate employee (soft delete - status: inactive)
 - ✅ Employee list with order statistics (total orders, completed orders)
 - ✅ Search & filter (by name, email, position, status)
 - ✅ Activity logging for all operations
@@ -171,19 +189,28 @@
 - ✅ Dark mode support
 
 **Súbory:**
-- Backend: `routes/employees.js` (4 endpoints)
-- Frontend: `pages/EmployeesPage.jsx`, `components/EmployeesManager.jsx`
-- Aktualizované: `server.js`, `App.jsx`, `Sidebar.jsx`
+- Backend: `routes/employees.js` (10 endpoints), `routes/notifications.js` (7 endpoints), `routes/auth.js` (modified login)
+- Frontend: `pages/EmployeesPage.jsx`, `components/EmployeesManager.jsx`, `components/PasswordChangeModal.jsx`, `components/ReadOnlyBanner.jsx`, `components/NotificationBell.jsx`, `components/NotificationsPage.jsx`, `pages/ProfilePage.jsx` (READ-ONLY protection)
+- Migrations: `backend/migrations/notifications_system.sql`
+- Aktualizované: `server.js`, `App.jsx`, `Sidebar.jsx`, `Login.jsx`, `AuthContext.jsx`, 8 pages (NotificationBell)
 
 **Features:**
 - Grid layout s employee cards
-- Create modal: meno, email, heslo, pozícia, telefón
+- Create modal: meno, email, heslo, pozícia, telefón → status: created
 - Edit modal: update všetkých údajov + status toggle
-- Deactivate modal: soft delete s warning o počte zákaziek
-- Status badges: Aktívny (zelená) / Neaktívny (šedá)
+- Deactivate modal: soft delete s warning o počte zákaziek → status: inactive
+- **Approve button**: Schválenie zamestnanca po zmene hesla → status: active
+- **Reactivate button**: Reaktivácia neaktívneho zamestnanca
+- **Hard delete button**: Trvalé vymazanie (len ak 0 orders) + FK cleanup
+- **Resend credentials button**: Opätovné odoslanie prihlasovacích údajov
+- **Password change modal**: Forced password change on first login
+- **Notifications system**: Bell icon s badge, 30s polling, pagination, filters
+- **READ-ONLY banner**: Yellow warning banner for inactive employees
+- **Profile READ-ONLY protection**: Disabled buttons for inactive users
+- Status badges: Vytvorený (modrý), Čaká na schválenie (žltý), Aktívny (zelený), Neaktívny (šedý)
 - Order statistics: celkový počet a dokončené zákazky
 - Search: real-time filter podľa mena, emailu, pozície
-- Filter dropdown: Všetci / Aktívni / Neaktívni
+- Filter dropdown: Všetci / Aktívni / Neaktívni / Vytvorení / Čakajúci
 
 ### 3. FÁZA 3: Firma Onboarding Wizard ✅ HOTOVO (2026-03-16)
 
@@ -237,15 +264,40 @@
 | ✅ FÁZA 2.7 | Dark Mode + Advanced Features | **100%** | Dark mode, Deactivate, Collapsible, UUID, Logo |
 | ✅ FÁZA 3 | Firma Onboarding | **100%** | 6-krokový wizard, logo upload, auto-login |
 | ✅ FÁZA 4 | Dashboard + Kalendár | **100%** | KPI cards, FullCalendar, OrderTypes CRUD |
-| ✅ FÁZA 7 | Zamestnanci | **100%** | Employee CRUD, user accounts, stats |
-| 🎯 FÁZA 5 | Zákazky Wizard | **0%** | **ĎALŠÍ KROK** - 5 krokov workflow |
+| 🎯 FÁZA 4.5 | Company Settings | **0%** | **PO OBEDE** - Nastavenia firmy (Company Admin) |
+| ✅ FÁZA 7 | Zamestnanci | **100%** | Employee Lifecycle, Notifications, READ-ONLY mode |
+| 🔲 FÁZA 5 | Zákazky Wizard | **0%** | 5 krokov workflow |
 | 🔲 FÁZA 6 | Fakturácia | **0%** | PDF + QR kódy |
 | 🔲 FÁZA 8 | Analytika | **0%** | Grafy + KPI |
 | 🔲 FÁZA 9 | Deploy & PWA | **0%** | Čaká na Node.js support alebo PHP prepis |
 
 ---
 
-## 📋 ĎALŠIE KROKY - FÁZA 4
+## 📋 ĎALŠIE KROKY
+
+### 🎯 PRIORITA 1: Company Settings Management (Po obede)
+
+**Cieľ:** Company Admin si môže upraviť nastavenia svojej firmy.
+
+**TODO:**
+- [ ] Backend endpoints (GET + 3x PUT)
+  - GET /api/company/settings - Načítanie nastavení
+  - PUT /api/company/settings/basic - Základné údaje (názov, IČO, DIČ, adresa)
+  - PUT /api/company/settings/logo - Zmena loga (file upload)
+  - PUT /api/company/settings/billing - Fakturačné údaje (IBAN, SWIFT, VS, splatnosť)
+- [ ] Frontend stránka CompanySettingsPage.jsx
+- [ ] 3 komponenty: BasicSettings, LogoUpload, BillingSettings
+- [ ] Form validation (IČO, DIČ, IBAN)
+- [ ] Live preview zmien
+- [ ] Activity logging
+- [ ] Success/error notifikácie
+- [ ] Link v Sidebar: "⚙️ Nastavenia firmy"
+
+**Estimate:** ~4-6 hodín
+
+---
+
+## 📋 ĎALŠIE KROKY - FÁZA 4 (HOTOVO)
 
 ### 🎯 PRIORITA: Dashboard + Kalendár
 
@@ -366,25 +418,31 @@ LIVE na montio.tsdigital.sk
 ### Čo funguje perfektne:
 - ✅ Backend beží lokálne (localhost:3001)
 - ✅ Frontend beží lokálne (localhost:3000)
-- ✅ Databáza funguje správne (8 tabuliek)
+- ✅ Databáza funguje správne (8 tabuliek + notifications)
 - ✅ Dark Mode + všetky FÁZA 2.7 features
 - ✅ Moderný dizajn s TSDigital brandingom
 - ✅ Activity logging a audit trail
 - ✅ UUID security pre company IDs
 - ✅ **FÁZA 3: Onboarding Wizard** (6 krokov, logo upload, auto-login)
+- ✅ **FÁZA 4: Dashboard + Kalendár** (KPI, FullCalendar, OrderTypes)
+- ✅ **FÁZA 7: Employee Lifecycle** (5 statusov, forced password change, approval workflow)
+- ✅ **Notifications System** (real-time, 30s polling, pagination)
+- ✅ **READ-ONLY Mode** (inactive employees can login but not edit)
 - ✅ UI Unification (svetlejšie farby, zelená pre aktívne)
 - ✅ File upload dokumentácia (TECHNICAL_NOTES.md)
 
 ### Aktuálna situácia:
 - 🔶 Vývoj je **LOKÁLNY** (Hostcreator nemá Node.js support)
-- 🎯 Začíname **FÁZA 4: Dashboard + Kalendár**
+- 🎯 Ďalší krok: **FÁZA 5: Zákazky Wizard** (5 krokov workflow)
+- ✅ **v1.6.0 HOTOVO** - Employee Lifecycle + Notifications System
 - 📝 Dokumentácia sa aktualizuje priebežne
 
-### Estimate času pre FÁZU 3:
-- **Backend endpoints:** 2-3 hodiny
-- **Frontend wizard:** 4-6 hodín
-- **Testing & polish:** 2-3 hodiny
-- **CELKOM:** ~8-12 hodín práce
+### Estimate času pre FÁZU 5 (Zákazky Wizard):
+- **Backend endpoints:** 3-4 hodiny (obhliadka, ponuka, montáž, faktúra)
+- **Frontend wizard:** 6-8 hodín (5-krokový wizard, fotky, podpisy)
+- **PDF generovanie:** 2-3 hodiny (jsPDF, QR kódy)
+- **Testing & polish:** 3-4 hodiny
+- **CELKOM:** ~14-19 hodín práce
 
 ### Production deployment:
 - Čaká na riešenie (Node.js support alebo PHP prepis)
@@ -433,8 +491,11 @@ cd frontend && npm run dev
 ---
 
 **Projekt je vo výbornom stave!**
-- ✅ FÁZY 1, 2, 2.5, 2.7 dokončené
-- 🎯 FÁZA 3 čaká na implementáciu
+- ✅ FÁZY 1, 2, 2.5, 2.7, 3, 4, 7 dokončené
+- 🎯 FÁZA 5 (Zákazky Wizard) je ďalší krok
 - 💪 Vývoj je lokálny, všetko funguje perfektne!
+- 🔔 Notifications System implementovaný
+- 🔐 Employee Lifecycle Management kompletný
+- 📖 READ-ONLY mode pre inactive employees
 
-**Verzia:** v1.4.0 Build #11 | **Dátum:** 2026-03-27
+**Verzia:** v1.6.0 Build #14 | **Dátum:** 2026-03-27
