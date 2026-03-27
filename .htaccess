@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# API requests -> backend
+RewriteRule ^api/(.*)$ /api/server.js/$1 [L,QSA]
+
+# Frontend routing (React Router)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
