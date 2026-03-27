@@ -1,6 +1,8 @@
 import { useAuth } from '../context/AuthContext'
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
+import NotificationBell from '../components/NotificationBell'
+import ReadOnlyBanner from '../components/ReadOnlyBanner'
 import Footer from '../components/Footer'
 
 const EmployeeDashboard = () => {
@@ -15,9 +17,15 @@ const EmployeeDashboard = () => {
             <h1 className="text-lg font-black text-gray-900 dark:text-white">Employee Portal</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Vaše úlohy a kalendár</p>
           </div>
-          <UserMenu />
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            <UserMenu />
+          </div>
         </div>
       </header>
+
+      {/* Read-Only Banner for Inactive Users */}
+      <ReadOnlyBanner />
 
       {/* Main Container with Sidebar */}
       <div className="flex flex-1 overflow-hidden min-h-0">

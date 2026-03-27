@@ -3,6 +3,7 @@ import axios from 'axios'
 
 const EmployeesManager = () => {
   const [employees, setEmployees] = useState([])
+  const [jobPositions, setJobPositions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -21,7 +22,20 @@ const EmployeesManager = () => {
 
   useEffect(() => {
     fetchEmployees()
+    fetchJobPositions()
   }, [])
+
+  const fetchJobPositions = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.get('/api/job-positions', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setJobPositions(response.data.positions)
+    } catch (err) {
+      console.error('Fetch job positions error:', err)
+    }
+  }
 
   const fetchEmployees = async () => {
     try {
@@ -61,6 +75,90 @@ const EmployeesManager = () => {
   const handleDelete = (employee) => {
     setSelectedEmployee(employee)
     setShowDeleteModal(true)
+  }
+
+  const handleApprove = async (employee) => {
+    if (!confirm(`Naozaj chcete schváliť zamestnanca ${employee.name}?`)) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(
+        `/api/employees/${employee.id}/approve`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      fetchEmployees()
+    } catch (err) {
+      console.error('Approve employee error:', err)
+      alert(err.response?.data?.message || 'Nepodarilo sa schváliť zamestnanca.')
+    }
+  }
+
+  const handleReactivate = async (employee) => {
+    if (!confirm(`Naozaj chcete reaktivovať zamestnanca ${employee.name}?`)) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(
+        `/api/employees/${employee.id}/reactivate`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      fetchEmployees()
+      alert('Zamestnanec bol reaktivovaný.')
+    } catch (err) {
+      console.error('Reactivate employee error:', err)
+      alert(err.response?.data?.message || 'Nepodarilo sa reaktivovať zamestnanca.')
+    }
+  }
+
+  const handleHardDelete = async (employee) => {
+    const confirmMsg = `⚠️ POZOR! Toto je TRVALÉ VYMAZANIE.\n\nZamestnanec: ${employee.name}\nEmail: ${employee.email}\n\nTáto akcia je NEVRATNÁ!\n\nNaozaj chcete natrvalo vymazať tohto zamestnanca?`
+
+    if (!confirm(confirmMsg)) {
+      return
+    }
+
+    // Double confirmation
+    if (!confirm('Potvrďte znova: Naozaj NATRVALO vymazať?')) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('token')
+      await axios.delete(
+        `/api/employees/${employee.id}/permanent`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      fetchEmployees()
+      alert('Zamestnanec bol natrvalo vymazaný.')
+    } catch (err) {
+      console.error('Hard delete employee error:', err)
+      alert(err.response?.data?.message || 'Nepodarilo sa vymazať zamestnanca.')
+    }
+  }
+
+  const handleResendCredentials = async (employee) => {
+    if (!confirm(`Naozaj chcete znovu poslať prihlasovacie údaje pre ${employee.name} na email ${employee.email}?`)) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.post(
+        `/api/employees/${employee.id}/resend-credentials`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      alert(response.data.message + '\nEmail: ' + response.data.email)
+    } catch (err) {
+      console.error('Resend credentials error:', err)
+      alert(err.response?.data?.message || 'Nepodarilo sa znovu poslať prihlasovacie údaje.')
+    }
   }
 
   const handleSubmitCreate = async (e) => {
@@ -132,16 +230,22 @@ const EmployeesManager = () => {
 
   const getStatusText = (status) => {
     const statusMap = {
+      'created': 'Vytvorený',
+      'pending_approval': 'Čaká na schválenie',
       'active': 'Aktívny',
-      'inactive': 'Neaktívny'
+      'inactive': 'Neaktívny',
+      'deleted': 'Vymazaný'
     }
     return statusMap[status] || status
   }
 
   const getStatusColor = (status) => {
     const colorMap = {
+      'created': 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30',
+      'pending_approval': 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30',
       'active': 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30',
-      'inactive': 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30'
+      'inactive': 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30',
+      'deleted': 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30'
     }
     return colorMap[status] || 'text-gray-600 bg-gray-100'
   }
@@ -185,6 +289,8 @@ const EmployeesManager = () => {
             className="w-full md:w-auto px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
           >
             <option value="all">Všetci</option>
+            <option value="created">Vytvorení</option>
+            <option value="pending_approval">Čakajúci na schválenie</option>
             <option value="active">Aktívni</option>
             <option value="inactive">Neaktívni</option>
           </select>
@@ -247,20 +353,81 @@ const EmployeesManager = () => {
                 </div>
               </div>
 
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleEdit(employee)}
-                  className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-lg transition-colors"
-                >
-                  Upraviť
-                </button>
+              <div className="flex flex-col space-y-2">
+                {/* Status: created - waiting for first login */}
+                {employee.status === 'created' && (
+                  <>
+                    <button
+                      onClick={() => handleResendCredentials(employee)}
+                      className="w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-lg transition-colors"
+                    >
+                      📧 Poslať prihlasovacie údaje
+                    </button>
+                    <div className="text-center text-xs text-gray-500 dark:text-gray-400 py-1">
+                      Čaká na prvé prihlásenie
+                    </div>
+                  </>
+                )}
+
+                {/* Status: pending_approval - waiting for admin approval */}
+                {employee.status === 'pending_approval' && (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleApprove(employee)}
+                      className="flex-1 px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-lg transition-colors"
+                    >
+                      ✅ Schváliť
+                    </button>
+                    <button
+                      onClick={() => handleEdit(employee)}
+                      className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-lg transition-colors"
+                    >
+                      ✏️ Upraviť
+                    </button>
+                  </div>
+                )}
+
+                {/* Status: active - fully functional */}
                 {employee.status === 'active' && (
-                  <button
-                    onClick={() => handleDelete(employee)}
-                    className="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-bold rounded-lg transition-colors"
-                  >
-                    Deaktivovať
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(employee)}
+                      className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-lg transition-colors"
+                    >
+                      ✏️ Upraviť
+                    </button>
+                    <button
+                      onClick={() => handleDelete(employee)}
+                      className="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-bold rounded-lg transition-colors"
+                    >
+                      🚫 Deaktivovať
+                    </button>
+                  </div>
+                )}
+
+                {/* Status: inactive - deactivated */}
+                {employee.status === 'inactive' && (
+                  <div className="flex flex-col space-y-2">
+                    <button
+                      onClick={() => handleReactivate(employee)}
+                      className="w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-lg transition-colors"
+                    >
+                      🔄 Reaktivovať
+                    </button>
+                    {employee.total_orders === 0 && (
+                      <button
+                        onClick={() => handleHardDelete(employee)}
+                        className="w-full px-3 py-2 bg-red-700 hover:bg-red-800 text-white text-sm font-bold rounded-lg transition-colors"
+                      >
+                        🗑️ Vymazať natrvalo
+                      </button>
+                    )}
+                    {employee.total_orders > 0 && (
+                      <div className="text-center text-xs text-gray-500 dark:text-gray-400 py-1">
+                        Má {employee.total_orders} zákaziek - nemožno vymazať
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -319,14 +486,19 @@ const EmployeesManager = () => {
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                   Pozícia *
                 </label>
-                <input
-                  type="text"
+                <select
                   value={formData.position}
                   onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  placeholder="napr. Montážnik, Technik..."
                   className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
                   required
-                />
+                >
+                  <option value="">Vyber pozíciu...</option>
+                  {jobPositions.map((position) => (
+                    <option key={position.id} value={position.name}>
+                      {position.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="mb-6">
@@ -401,13 +573,19 @@ const EmployeesManager = () => {
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                   Pozícia *
                 </label>
-                <input
-                  type="text"
+                <select
                   value={formData.position}
                   onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                   className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
                   required
-                />
+                >
+                  <option value="">Vyber pozíciu...</option>
+                  {jobPositions.map((position) => (
+                    <option key={position.id} value={position.name}>
+                      {position.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="mb-4">

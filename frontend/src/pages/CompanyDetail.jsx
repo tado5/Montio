@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
+import NotificationBell from '../components/NotificationBell'
 import DeactivateCompanyModal from '../components/DeactivateCompanyModal'
 import Footer from '../components/Footer'
 
@@ -95,7 +96,10 @@ const CompanyDetail = () => {
                 <span className="transform group-hover:-translate-x-1 transition-transform duration-200">←</span>
                 Späť
               </button>
-              <UserMenu />
+              <div className="flex items-center gap-4">
+                <NotificationBell />
+                <UserMenu />
+              </div>
             </div>
           </header>
           <main className="flex-1 px-6 py-8">

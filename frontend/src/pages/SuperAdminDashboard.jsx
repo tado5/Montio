@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
+import NotificationBell from '../components/NotificationBell'
 import CreateCompanyModal from '../components/CreateCompanyModal'
 import Footer from '../components/Footer'
 
@@ -122,7 +123,10 @@ const SuperAdminDashboard = () => {
             <h1 className="text-lg font-black text-gray-900 dark:text-white">Dashboard</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Spravujte všetky firmy v systéme</p>
           </div>
-          <UserMenu />
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            <UserMenu />
+          </div>
         </div>
       </header>
 

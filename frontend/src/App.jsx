@@ -10,6 +10,8 @@ import EmployeeDashboard from './pages/EmployeeDashboard'
 import CalendarPage from './pages/CalendarPage'
 import OrderTypesPage from './pages/OrderTypesPage'
 import EmployeesPage from './pages/EmployeesPage'
+import ProfilePage from './pages/ProfilePage'
+import NotificationsPage from './pages/NotificationsPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Dashboard redirect based on user role
@@ -105,6 +107,24 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['employee']}>
                   <EmployeeDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute allowedRoles={['superadmin', 'companyadmin', 'employee']}>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute allowedRoles={['superadmin', 'companyadmin', 'employee']}>
+                  <NotificationsPage />
                 </ProtectedRoute>
               }
             />

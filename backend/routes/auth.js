@@ -70,9 +70,13 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Email a heslo sú povinné.' });
     }
 
-    // Nájdenie používateľa
+    // Nájdenie používateľa s employee info
     const [users] = await pool.query(
-      'SELECT id, email, password_hash, role, company_id, theme FROM users WHERE email = ?',
+      `SELECT u.id, u.email, u.password_hash, u.role, u.company_id, u.theme,
+              e.id as employee_id, e.status as employee_status, e.must_change_password
+       FROM users u
+       LEFT JOIN employees e ON u.id = e.user_id
+       WHERE u.email = ?`,
       [email]
     );
 
@@ -89,13 +93,48 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Nesprávny email alebo heslo.' });
     }
 
+    // Check if employee needs to change password
+    if (user.role === 'employee' && user.must_change_password === 1) {
+      // Generate limited token (can only change password)
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          company_id: user.company_id
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' } // Short expiration for password change
+      );
+
+      return res.json({
+        token,
+        requirePasswordChange: true,
+        employee_id: user.employee_id,
+        message: 'Musíte zmeniť predvolené heslo.'
+      });
+    }
+
+    // Check if employee is in non-allowed status (created or pending_approval)
+    // Note: inactive is allowed (read-only mode), deleted should not exist in DB
+    if (user.role === 'employee' &&
+        (user.employee_status === 'created' || user.employee_status === 'pending_approval')) {
+      return res.status(403).json({
+        message: `Váš účet nie je schválený. Status: ${user.employee_status === 'created' ? 'čaká na zmenu hesla' : 'čaká na schválenie'}`
+      });
+    }
+
+    // Determine if user is in read-only mode (inactive employees)
+    const isReadOnly = user.role === 'employee' && user.employee_status === 'inactive';
+
     // Generovanie JWT tokenu
     const token = jwt.sign(
       {
         id: user.id,
         email: user.email,
         role: user.role,
-        company_id: user.company_id
+        company_id: user.company_id,
+        isReadOnly: isReadOnly
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
@@ -110,7 +149,7 @@ router.post('/login', async (req, res) => {
       'user.login',
       'user',
       user.id,
-      { email: user.email, role: user.role },
+      { email: user.email, role: user.role, status: user.employee_status },
       user.company_id,
       ipAddress,
       userAgent
@@ -123,7 +162,10 @@ router.post('/login', async (req, res) => {
         email: user.email,
         role: user.role,
         company_id: user.company_id,
-        theme: user.theme || 'light'
+        theme: user.theme || 'light',
+        employee_id: user.employee_id || null,
+        employee_status: user.employee_status || null,
+        isReadOnly: isReadOnly
       }
     });
 
@@ -181,6 +223,168 @@ router.put('/theme', verifyToken, async (req, res) => {
 
   } catch (error) {
     console.error('Update theme error:', error);
+    res.status(500).json({ message: 'Chyba servera.' });
+  }
+});
+
+// GET /api/auth/profile - Get current user profile
+router.get('/profile', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get user profile with company info if applicable
+    const [users] = await pool.query(
+      `SELECT
+        u.id,
+        u.name,
+        u.email,
+        u.role,
+        u.position,
+        u.theme,
+        u.created_at,
+        c.name as company_name,
+        c.public_id as company_public_id,
+        e.phone
+      FROM users u
+      LEFT JOIN companies c ON u.company_id = c.id
+      LEFT JOIN employees e ON u.id = e.user_id
+      WHERE u.id = ?`,
+      [userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'Používateľ nenájdený.' });
+    }
+
+    const profile = users[0];
+
+    res.json({ profile });
+
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ message: 'Chyba servera.' });
+  }
+});
+
+// PUT /api/auth/profile - Update current user profile
+router.put('/profile', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name, email, phone } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Meno a email sú povinné.' });
+    }
+
+    // Check if email already exists (excluding current user)
+    const [existingUsers] = await pool.query(
+      'SELECT id FROM users WHERE email = ? AND id != ?',
+      [email, userId]
+    );
+
+    if (existingUsers.length > 0) {
+      return res.status(400).json({ message: 'Email už existuje.' });
+    }
+
+    // Update user (name and email only - position is set automatically by role)
+    await pool.query(
+      'UPDATE users SET name = ?, email = ? WHERE id = ?',
+      [name, email, userId]
+    );
+
+    // Update employee phone if exists
+    if (phone !== undefined) {
+      await pool.query(
+        'UPDATE employees SET phone = ? WHERE user_id = ?',
+        [phone || null, userId]
+      );
+    }
+
+    // Log activity
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    await logActivity(
+      userId,
+      'user.profile_update',
+      'user',
+      userId,
+      { name, email, phone },
+      req.user.company_id,
+      ipAddress,
+      userAgent
+    );
+
+    res.json({
+      message: 'Profil aktualizovaný.',
+      profile: { name, email, phone }
+    });
+
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Chyba servera.' });
+  }
+});
+
+// PUT /api/auth/profile/password - Change password
+router.put('/profile/password', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Aktuálne a nové heslo sú povinné.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'Nové heslo musí mať aspoň 6 znakov.' });
+    }
+
+    // Get current password hash
+    const [users] = await pool.query(
+      'SELECT password_hash FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'Používateľ nenájdený.' });
+    }
+
+    // Verify current password
+    const isValid = await bcrypt.compare(currentPassword, users[0].password_hash);
+
+    if (!isValid) {
+      return res.status(401).json({ message: 'Nesprávne aktuálne heslo.' });
+    }
+
+    // Hash new password
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await pool.query(
+      'UPDATE users SET password_hash = ? WHERE id = ?',
+      [newPasswordHash, userId]
+    );
+
+    // Log activity
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    await logActivity(
+      userId,
+      'user.password_change',
+      'user',
+      userId,
+      { success: true },
+      req.user.company_id,
+      ipAddress,
+      userAgent
+    );
+
+    res.json({ message: 'Heslo bolo zmenené.' });
+
+  } catch (error) {
+    console.error('Change password error:', error);
     res.status(500).json({ message: 'Chyba servera.' });
   }
 });
