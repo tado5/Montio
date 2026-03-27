@@ -288,13 +288,13 @@ const SuperAdminDashboard = () => {
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
                     {filteredCompanies.map((company, index) => (
                       <tr
-                        key={company.id}
+                        key={company.public_id || company.id}
                         className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 group"
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
                         <td className="px-6 py-5">
                           <span className="text-xs font-mono text-gray-600 dark:text-gray-400 break-all">
-                            {company.id}
+                            {company.public_id || 'N/A'}
                           </span>
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap">
@@ -340,7 +340,7 @@ const SuperAdminDashboard = () => {
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap">
                           <button
-                            onClick={() => navigate(`/superadmin/company/${company.id}`)}
+                            onClick={() => navigate(`/superadmin/company/${company.public_id}`)}
                             className="bg-gradient-to-r from-orange-400 to-red-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center gap-2"
                           >
                             <span>👁️</span>

@@ -19,11 +19,11 @@ const Sidebar = () => {
     ],
     companyadmin: [
       { icon: '🏠', label: 'Dashboard', path: '/company' },
-      { icon: '📅', label: 'Kalendár', path: '/company/calendar', disabled: true },
+      { icon: '📅', label: 'Kalendár', path: '/company/calendar' },
+      { icon: '🔧', label: 'Typy montáží', path: '/company/order-types' },
       { icon: '📝', label: 'Zákazky', path: '/company/orders', disabled: true },
       { icon: '👥', label: 'Zamestnanci', path: '/company/employees', disabled: true },
       { icon: '💰', label: 'Faktúry', path: '/company/invoices', disabled: true },
-      { icon: '🔧', label: 'Typy montáží', path: '/company/order-types', disabled: true },
       { icon: '⚙️', label: 'Nastavenia', path: '/company/settings', disabled: true },
     ],
     employee: [

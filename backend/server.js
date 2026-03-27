@@ -6,6 +6,9 @@ import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js';
 import companiesRoutes from './routes/companies.js';
 import onboardingRoutes from './routes/onboarding.js';
+import dashboardRoutes from './routes/dashboard.js';
+import orderTypesRoutes from './routes/orderTypes.js';
+import ordersRoutes from './routes/orders.js';
 
 dotenv.config();
 
@@ -26,6 +29,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/companies', companiesRoutes);
 app.use('/api', onboardingRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/order-types', orderTypesRoutes);
+app.use('/api/orders', ordersRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
