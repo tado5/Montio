@@ -1,8 +1,8 @@
 # MONTIO APP - Aktuálny Stav Projektu
 
-**Dátum:** 2026-03-16
+**Dátum:** 2026-03-27
 **Čas:** Aktualizované
-**Verzia:** v1.3.0 Build #10
+**Verzia:** v1.4.0 Build #11
 
 ---
 
@@ -44,24 +44,37 @@
   - `GET /api/companies/:publicId/logs` - Activity logs (pagination)
   - `PUT /api/companies/:publicId/activate` - Aktivovať firmu
   - `PUT /api/companies/:publicId/deactivate` - Deaktivovať firmu
+  - **`GET /api/dashboard/stats`** - KPI štatistiky
+  - **`GET /api/dashboard/chart/revenue`** - Graf príjmov
+  - **`GET /api/dashboard/chart/order-types`** - Top typy montáží
+  - **`GET /api/order-types`** - Zoznam typov montáží
+  - **`POST /api/order-types`** - Vytvorenie typu
+  - **`PUT /api/order-types/:id`** - Úprava typu
+  - **`DELETE /api/order-types/:id`** - Vymazanie typu
+  - **`GET /api/orders/calendar`** - Zákazky pre kalendár
+  - **`GET /api/orders/:id`** - Detail zákazky
 - **Stav:** **BEŽÍ LOKÁLNE** na localhost:3001 ✅
 
 ### 3. Frontend (React + Vite + Tailwind) ✅
-- **Technológia:** React 18, Vite, Tailwind CSS, React Router, Axios
+- **Technológia:** React 18, Vite, Tailwind CSS, React Router, Axios, FullCalendar
 - **Stránky:**
   - Login stránka (quick login, TSDigital branding)
   - Super Admin Dashboard (KPI, search, filter, sort, create company)
   - Company Detail (stats, users, activity logs timeline)
-  - Company Admin Dashboard (placeholder s phase badges)
+  - Company Admin Dashboard (real KPI cards s live dátami)
+  - Calendar Page (FullCalendar integrácia)
+  - Order Types Page (CRUD management)
   - Employee Dashboard (placeholder s phase badges)
 - **Komponenty:**
   - AuthContext - state management
   - ThemeContext - dark mode management
   - ProtectedRoute - role-based access
-  - Sidebar - collapsible navigation
+  - Sidebar - collapsible navigation (Calendar & Order Types aktívne)
   - UserMenu - user dropdown menu
   - CreateCompanyModal - invite system
   - DeactivateCompanyModal - bezpečná deaktivácia
+  - Calendar - FullCalendar integrácia
+  - OrderTypesManager - CRUD pre typy montáží
   - AppInfo - app info modal
   - Footer - TSDigital branding
 - **Features:**
@@ -69,6 +82,9 @@
   - Collapsible Sidebar (w-16 ↔ w-64)
   - Activity Logging (audit trail, timeline view)
   - UUID Company IDs (security)
+  - **Dashboard KPI Cards** (real-time dáta z API)
+  - **FullCalendar** (mesiac/týždeň/deň, event details)
+  - **Order Types Manager** (CRUD, checklist editor)
   - Moderný dizajn (gradienty, animácie, glassmorphism)
 - **Stav:** **BEŽÍ LOKÁLNE** na localhost:3000 ✅
 
@@ -110,7 +126,28 @@
 
 ## 🎯 ČO ČAKÁ - ĎALŠIE KROKY
 
-### 1. FÁZA 3: Firma Onboarding Wizard ✅ HOTOVO
+### 1. FÁZA 4: Dashboard + Kalendár ✅ HOTOVO (2026-03-27)
+
+**Implementované:**
+- ✅ Backend API endpoints (9 nových endpoints)
+- ✅ Company Admin Dashboard s KPI cards (real-time dáta)
+- ✅ FullCalendar integrácia (mesiac/týždeň/deň)
+- ✅ Order Types Manager (CRUD + checklist editor)
+- ✅ Event detail modal s kompletným info
+- ✅ Farebné kódovanie zákaziek podľa statusu
+- ✅ Date range filtering
+- ✅ Employee-specific calendar filtering
+- ✅ Delete protection pre používané typy montáží
+- ✅ Dark mode support pre všetky komponenty
+- ✅ NPM packages: @fullcalendar/react, daygrid, timegrid, interaction
+- ✅ Dokumentácia: CHANGELOG.md, STATUS.md, PLAN.md, MEMORY.md
+
+**Súbory:**
+- Backend: `routes/dashboard.js`, `routes/orderTypes.js`, `routes/orders.js`
+- Frontend: `pages/CalendarPage.jsx`, `pages/OrderTypesPage.jsx`, `components/Calendar.jsx`, `components/OrderTypesManager.jsx`
+- Aktualizované: `server.js`, `App.jsx`, `Sidebar.jsx`, `CompanyAdminDashboard.jsx`
+
+### 2. FÁZA 3: Firma Onboarding Wizard ✅ HOTOVO (2026-03-16)
 
 **Implementované (2026-03-16):**
 - ✅ 6-krokový registračný wizard
@@ -161,7 +198,8 @@
 | ✅ FÁZA 2.5 | UI Polish & Create Company | **100%** | Moderný dizajn, Sidebar, Create Company modal |
 | ✅ FÁZA 2.7 | Dark Mode + Advanced Features | **100%** | Dark mode, Deactivate, Collapsible, UUID, Logo |
 | ✅ FÁZA 3 | Firma Onboarding | **100%** | 6-krokový wizard, logo upload, auto-login |
-| 🎯 FÁZA 4 | Dashboard + Kalendár | **0%** | **ĎALŠÍ KROK** - KPI, FullCalendar, OrderTypes |
+| ✅ FÁZA 4 | Dashboard + Kalendár | **100%** | KPI cards, FullCalendar, OrderTypes CRUD |
+| 🎯 FÁZA 5 | Zákazky Wizard | **0%** | **ĎALŠÍ KROK** - 5 krokov workflow |
 | 🔲 FÁZA 5 | Zákazky Wizard | **0%** | **CORE** - 5 krokov workflow |
 | 🔲 FÁZA 6 | Fakturácia | **0%** | PDF + QR kódy |
 | 🔲 FÁZA 7 | Zamestnanci | **0%** | Employee Portal |
@@ -362,4 +400,4 @@ cd frontend && npm run dev
 - 🎯 FÁZA 3 čaká na implementáciu
 - 💪 Vývoj je lokálny, všetko funguje perfektne!
 
-**Verzia:** v1.2.0 Build #9 | **Dátum:** 2026-03-16
+**Verzia:** v1.4.0 Build #11 | **Dátum:** 2026-03-27
