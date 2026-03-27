@@ -110,7 +110,7 @@ const UserMenu = () => {
             <button
               onClick={() => {
                 setIsOpen(false)
-                // Navigate to profile (coming soon)
+                navigate('/profile')
               }}
               className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-red-50 dark:hover:from-blue-900/30 dark:hover:to-red-900/30 transition-all duration-200 flex items-center gap-3 group"
             >

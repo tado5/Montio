@@ -1,5 +1,6 @@
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
+import NotificationBell from '../components/NotificationBell'
 import Footer from '../components/Footer'
 import Calendar from '../components/Calendar'
 
@@ -13,7 +14,10 @@ const CalendarPage = () => {
             <h1 className="text-lg font-black text-gray-900 dark:text-white">Kalendár</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Plánovanie zákaziek</p>
           </div>
-          <UserMenu />
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            <UserMenu />
+          </div>
         </div>
       </header>
 

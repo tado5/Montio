@@ -1,5 +1,218 @@
 # MONTIO - Changelog
 
+## [1.6.0] - 2026-03-27 - Employee Lifecycle + Notifications System 🔄🔔
+
+### ✨ Nové funkcie
+
+**Employee Lifecycle Management:**
+- **5 status flow:** created → pending_approval → active → inactive → deleted
+- **Forced password change** on first login (must_change_password flag in DB)
+- **Admin approval workflow** after employee changes password
+- **Reactivate** inactive employees back to active status
+- **Hard delete** with FK cascade cleanup (notifications + activity_logs)
+- **Resend credentials** for created employees
+- **READ-ONLY mode** for inactive employees (can login but cannot edit)
+
+**Notifications System:**
+- 7 API endpoints (list, unread count, mark read/unread, delete)
+- NotificationBell component in header (all user types)
+- 30-second polling for real-time updates
+- Unread badge count on bell icon
+- Dropdown with 5 recent notifications
+- Full NotificationsPage with pagination (20 per page)
+- Filter tabs: All / Unread / Read
+- 8 notification types:
+  - employee.created
+  - employee.password_changed
+  - employee.approved
+  - employee.deactivated
+  - employee.reactivated
+  - employee.hard_deleted
+  - employee.credentials_resent
+  - employee.updated
+
+### 🔧 Technické detaily
+
+**Nové súbory:**
+- `backend/routes/notifications.js` - 7 API endpoints + createNotification() helper
+- `backend/migrations/notifications_system.sql` - notifications table + employee columns
+- `frontend/src/components/NotificationBell.jsx` - Bell icon with polling
+- `frontend/src/components/NotificationsPage.jsx` - Full notifications view
+- `frontend/src/components/PasswordChangeModal.jsx` - Forced password change UI
+- `frontend/src/components/ReadOnlyBanner.jsx` - Yellow warning banner
+
+**Aktualizované súbory:**
+- `backend/routes/employees.js` - Upgraded from 4 to 10 endpoints
+  - POST /change-password - Verify default password & set new password
+  - POST /approve - Approve employee (pending_approval → active)
+  - POST /reactivate - Reactivate inactive employee
+  - DELETE /hard-delete - Permanent delete with FK cleanup
+  - POST /resend-credentials - Resend login credentials
+- `backend/routes/auth.js` - Modified login logic
+  - Allow inactive employees to login with isReadOnly flag
+  - Block created/pending_approval employees
+  - Return requirePasswordChange flag for must_change_password users
+- `backend/server.js` - Added notifications route
+- `frontend/src/pages/ProfilePage.jsx` - READ-ONLY protection (disabled buttons)
+- `frontend/src/components/EmployeesManager.jsx` - Status badges + conditional actions
+- `frontend/src/pages/Login.jsx` - PasswordChangeModal integration
+- `frontend/src/context/AuthContext.jsx` - Handle requirePasswordChange
+- 8 pages with NotificationBell:
+  - SuperAdminDashboard, CompanyAdminDashboard, CompanyDetail
+  - EmployeesPage, OrderTypesPage, CalendarPage
+  - EmployeeDashboard, ProfilePage
+
+**Database Changes:**
+- `employees` table:
+  - `status` ENUM extended: active, inactive, created, pending_approval, deleted
+  - `must_change_password` TINYINT(1) DEFAULT 0
+  - `default_password_hash` VARCHAR(255) - Stores generated password
+- `notifications` table (NEW):
+  - Tracks all system notifications
+  - FK to users, employees
+  - type, title, message, read_at, created_at
+  - Indexes for performance
+
+### 🎯 Employee Lifecycle Flow
+
+1. **Create Employee** (Admin) → status: created, must_change_password: 1
+2. **Resend Credentials** (Admin) → Email/notification with default password
+3. **First Login** (Employee) → PasswordChangeModal appears (forced)
+4. **Change Password** (Employee) → status: pending_approval
+5. **Approve** (Admin) → status: active
+6. **Normal Login** (Employee) → Full access
+7. **Deactivate** (Admin) → status: inactive
+8. **Login as Inactive** (Employee) → READ-ONLY mode (yellow banner, disabled edits)
+9. **Reactivate** (Admin) → status: active
+10. **Hard Delete** (Admin) → Permanent removal (only if 0 orders) + FK cleanup
+
+### 🔐 Security & Business Logic
+
+- **Password Security:**
+  - Default passwords are hashed and stored separately (default_password_hash)
+  - must_change_password flag prevents access until password is changed
+  - Current password verification required for password change
+  - New password hashed with bcryptjs
+
+- **Status-Based Access:**
+  - created: Cannot login (must change password first)
+  - pending_approval: Cannot login (waiting for admin approval)
+  - active: Full access
+  - inactive: READ-ONLY access (can view, cannot edit)
+  - deleted: Cannot login (removed from system)
+
+- **FK Cascade Cleanup:**
+  - Hard delete removes: notifications (user_id, related_user_id, related_employee_id)
+  - Hard delete removes: activity_logs (user_id)
+  - Prevents FK constraint errors
+
+- **Conditional Actions:**
+  - created → Resend Credentials
+  - pending_approval → Approve
+  - active → Deactivate
+  - inactive → Reactivate + Hard Delete (if 0 orders)
+
+### 🎨 UI/UX Improvements
+
+- **Status Badges** with colors:
+  - Vytvorený (modrý) - new employee, needs password change
+  - Čaká na schválenie (žltý) - password changed, needs admin approval
+  - Aktívny (zelený) - fully active
+  - Neaktívny (šedý) - deactivated, read-only access
+
+- **NotificationBell:**
+  - Red badge with unread count
+  - Auto-refresh every 30 seconds
+  - Click notification to mark as read
+  - "View all" link to full page
+
+- **NotificationsPage:**
+  - Pagination (20 per page)
+  - Filter tabs (All/Unread/Read)
+  - Mark all as read button
+  - Delete all read button
+  - Individual mark/delete actions
+  - Time ago display (X minutes/hours ago)
+
+- **READ-ONLY Banner:**
+  - Sticky top position (yellow/orange gradient)
+  - Warning icon + message
+  - Shows only for inactive employees
+  - Visible on all pages
+
+- **ProfilePage Protection:**
+  - "Edit Profile" button disabled (gray, cursor-not-allowed)
+  - "Change Password" button disabled
+  - Yellow warning box explaining READ-ONLY status
+
+### 📝 Future Improvements (TODO)
+
+- [ ] Email notifications (NodeMailer) - actually send emails
+- [ ] UI protection - disable all create/update/delete actions for read-only users (partially done - ProfilePage only)
+- [ ] Notification preferences (enable/disable certain types)
+- [ ] Email templates for credentials, approval, etc.
+- [ ] Batch operations (approve/deactivate multiple employees)
+- [ ] Employee self-service password reset
+- [ ] Notification sound/desktop notifications (PWA)
+
+---
+
+## [1.5.1] - 2026-03-27 - Profile Management 👤
+
+### ✨ Nové funkcie
+
+**Backend API Endpoints:**
+- `GET /api/auth/profile` - Get current user profile (all user types)
+- `PUT /api/auth/profile` - Update profile (name, email, phone)
+- `PUT /api/auth/profile/password` - Change password with current password verification
+
+**Profile Management:**
+- Profile page dostupná pre všetkých používateľov (superadmin, companyadmin, employee)
+- View profile info: avatar, name, email, role, company name
+- Edit profile: name, email, phone (pre employees)
+- Change password: current password verification, new password with confirmation
+- DiceBear avatar integration
+- Success/error notifications
+- Activity logging for all operations
+- Dark mode support
+
+### 🔧 Technické detaily
+
+**Nové súbory:**
+- `frontend/src/pages/ProfilePage.jsx` - Profile management page
+
+**Aktualizované súbory:**
+- `backend/routes/auth.js` - Added 3 profile endpoints
+- `frontend/src/App.jsx` - Added /profile route for all user types
+- `frontend/src/components/UserMenu.jsx` - Profile link now navigates to /profile
+
+**Features:**
+- Email uniqueness validation (excluding current user)
+- Password strength validation (min 6 characters)
+- Current password verification before change
+- Phone update for employees (via employees table)
+- Profile data with LEFT JOIN (user + company + employee)
+- Activity logging: user.profile_update, user.password_change
+
+### 🔐 Security
+
+- Current password required for password change
+- Password hashing with bcryptjs
+- JWT authentication for all endpoints
+- Activity logging for audit trail
+- Email uniqueness check across all users
+
+### 🎨 UI/UX
+
+- Avatar display with DiceBear (initials style)
+- Two separate forms: Profile Info & Change Password
+- Success/error messages with auto-hide (3 seconds)
+- Responsive design with max-width container
+- Gradient buttons (orange for profile, blue for password)
+- Dark mode support throughout
+
+---
+
 ## [1.5.0] - 2026-03-27 - FÁZA 7: Zamestnanci (Employee Management) 👥
 
 ### ✨ Nové funkcie

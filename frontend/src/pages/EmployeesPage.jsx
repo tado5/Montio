@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext'
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
+import NotificationBell from '../components/NotificationBell'
 import Footer from '../components/Footer'
 import EmployeesManager from '../components/EmployeesManager'
 
@@ -16,7 +17,10 @@ const EmployeesPage = () => {
             <h1 className="text-lg font-black text-gray-900 dark:text-white">Zamestnanci</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Správa zamestnancov a prístupov</p>
           </div>
-          <UserMenu />
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            <UserMenu />
+          </div>
         </div>
       </header>
 

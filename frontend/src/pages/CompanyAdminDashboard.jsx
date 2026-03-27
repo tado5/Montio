@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
+import NotificationBell from '../components/NotificationBell'
 import Footer from '../components/Footer'
 import axios from 'axios'
 
@@ -41,7 +42,10 @@ const CompanyAdminDashboard = () => {
             <h1 className="text-lg font-black text-gray-900 dark:text-white">Company Dashboard</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Prehľad vašej firmy</p>
           </div>
-          <UserMenu />
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            <UserMenu />
+          </div>
         </div>
       </header>
 

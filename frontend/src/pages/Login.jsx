@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import PasswordChangeModal from '../components/PasswordChangeModal'
 import tsdigitalLogo from '../assets/tsdigital-logo.svg'
 
 const Login = () => {
@@ -8,6 +9,8 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPasswordChange, setShowPasswordChange] = useState(false)
+  const [passwordChangeData, setPasswordChangeData] = useState({ employeeId: null, token: null })
 
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -25,10 +28,31 @@ const Login = () => {
     if (result.success) {
       // Redirect to root, which will redirect to appropriate dashboard based on role
       navigate('/')
+    } else if (result.requirePasswordChange) {
+      // Show password change modal
+      setPasswordChangeData({
+        employeeId: result.employee_id,
+        token: result.token
+      })
+      setShowPasswordChange(true)
+      setLoading(false)
     } else {
       setError(result.message)
+      setLoading(false)
     }
+  }
 
+  const handlePasswordChangeSuccess = (message) => {
+    setShowPasswordChange(false)
+    setError('')
+    setEmail('')
+    setPassword('')
+    alert(message + ' Môžete sa odhlásiť.')
+  }
+
+  const handlePasswordChangeCancel = () => {
+    setShowPasswordChange(false)
+    setPasswordChangeData({ employeeId: null, token: null })
     setLoading(false)
   }
 
@@ -169,6 +193,16 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+      {/* Password Change Modal */}
+      {showPasswordChange && (
+        <PasswordChangeModal
+          employeeId={passwordChangeData.employeeId}
+          token={passwordChangeData.token}
+          onSuccess={handlePasswordChangeSuccess}
+          onCancel={handlePasswordChangeCancel}
+        />
+      )}
     </div>
   )
 }
