@@ -7,6 +7,8 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard'
 import CompanyDetail from './pages/CompanyDetail'
 import CompanyAdminDashboard from './pages/CompanyAdminDashboard'
 import EmployeeDashboard from './pages/EmployeeDashboard'
+import CalendarPage from './pages/CalendarPage'
+import OrderTypesPage from './pages/OrderTypesPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Dashboard redirect based on user role
@@ -66,6 +68,24 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['companyadmin']}>
                   <CompanyAdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/calendar"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
+                  <CalendarPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/order-types"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin']}>
+                  <OrderTypesPage />
                 </ProtectedRoute>
               }
             />

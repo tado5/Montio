@@ -1,5 +1,135 @@
 # MONTIO - Changelog
 
+## [1.4.0] - 2026-03-27 - FÁZA 4: Dashboard + Kalendár 📊📅
+
+### ✨ Nové funkcie
+
+**Backend API Endpoints:**
+- `GET /api/dashboard/stats` - KPI štatistiky (zákazky, príjmy, zamestnanci, faktúry)
+- `GET /api/dashboard/chart/revenue` - Graf príjmov za posledných 12 mesiacov
+- `GET /api/dashboard/chart/order-types` - Top 5 typov montáží
+- `GET /api/order-types` - Zoznam typov montáží s usage štatistikami
+- `POST /api/order-types` - Vytvorenie nového typu montáže
+- `PUT /api/order-types/:id` - Úprava typu montáže
+- `DELETE /api/order-types/:id` - Vymazanie typu montáže (kontrola usage)
+- `GET /api/orders/calendar` - Zákazky pre kalendár (filtering, employee-specific)
+- `GET /api/orders/:id` - Detail zákazky
+
+**Company Admin Dashboard:**
+- Real-time KPI cards s live dátami z API
+  - Celkový počet zákaziek (aktívne/dokončené/zrušené)
+  - Príjmy tento mesiac (€)
+  - Počet aktívnych zamestnancov
+  - Nezaplatené faktúry
+- Quick actions buttons (Nová zákazka, Pridať zamestnanca, Vytvoriť faktúru)
+- Responzívny grid layout (1/2/4 columns)
+- Dark mode support
+
+**FullCalendar Integrácia:**
+- Mesačný/týždenný/denný pohľad
+- Farebné kódovanie zákaziek podľa statusu:
+  - Obhliadka: modrá
+  - Cenová ponuka: oranžová
+  - Priradené: fialová
+  - V procese: smaragdová
+  - Dokončené: zelená
+  - Zrušené: červená
+- Event detail modal s kompletným info
+- Date range filtering (auto-refresh pri zmene mesiaca)
+- Lokalizácia (slovenčina)
+- Custom styling pre light/dark mode
+
+**Order Types Manager:**
+- Zoznam všetkých typov montáží
+- CRUD operácie (Create, Update, Delete)
+- Checklist editor s dynamickým pridávaním/odoberaním položiek
+- Usage counter (koľkokrát bol typ použitý)
+- Delete protection (nemožno vymazať ak je použitý v zákazkách)
+- Modals: Create, Edit, Delete confirmation
+- Responzívny grid (1/2/3 columns)
+
+### 🔧 Technické detaily
+
+**Nové súbory:**
+- `backend/routes/dashboard.js` - Dashboard API endpoints
+- `backend/routes/orderTypes.js` - Order Types CRUD
+- `backend/routes/orders.js` - Orders & Calendar API
+- `frontend/src/components/Calendar.jsx` - FullCalendar komponent
+- `frontend/src/components/OrderTypesManager.jsx` - Order Types management
+- `frontend/src/pages/CalendarPage.jsx` - Kalendár stránka
+- `frontend/src/pages/OrderTypesPage.jsx` - Order Types stránka
+
+**Aktualizované súbory:**
+- `backend/server.js` - Pridané nové routes
+- `frontend/src/App.jsx` - Pridané nové routes
+- `frontend/src/components/Sidebar.jsx` - Aktivované Kalendár & Typy montáží
+- `frontend/src/pages/CompanyAdminDashboard.jsx` - Kompletne prepísané s API integráciou
+
+**NPM Packages:**
+- `@fullcalendar/react` - FullCalendar React wrapper
+- `@fullcalendar/daygrid` - Mesačný pohľad
+- `@fullcalendar/timegrid` - Týždenný/denný pohľad
+- `@fullcalendar/interaction` - Date click & event handling
+
+### 🎨 UI/UX Improvements
+
+- Real-time data loading s loading states
+- Error handling s user-friendly messages
+- Smooth animations & transitions
+- Gradient glassmorphism cards
+- Hover effects & transform scales
+- Dark mode support pre všetky komponenty
+- Responzívny dizajn (mobile/tablet/desktop)
+
+### 📊 Database Usage
+
+- Queries optimizované pre KPI cards (single query pre všetky stats)
+- LEFT JOIN pre order types usage count
+- Date range filtering pre kalendár
+- Employee-specific filtering pre employee role
+- Status filtering pre zákazky
+
+### 🔐 Security & Permissions
+
+- Company Admin: full access to dashboard, calendar, order types
+- Employee: read-only calendar (len svoje zákazky)
+- JWT authentication pre všetky API endpoints
+- Activity logging pre order type CRUD operácie
+- Company ID verification pre všetky queries
+
+### 🚀 Performance
+
+- API data caching možné implementovať neskôr
+- Lazy loading calendar events (fetch on date range change)
+- Debounce pre search/filter inputs (pripravené)
+- Optimalizované SQL queries s indexes
+
+### 📝 Dokumentácia
+
+- STATUS.md aktualizované (FÁZA 4: 100%)
+- PLAN.md aktualizované (FÁZA 5 je ďalší krok)
+- MEMORY.md aktualizované (nové features)
+- CHANGELOG.md (tento súbor)
+
+### ✅ Testing
+
+- Backend endpoints testované cez Postman/curl
+- Frontend komponenty testované lokálne
+- Dark mode testovaný
+- Responzivita testovaná (mobile/tablet/desktop)
+- Role-based access testovaný
+
+### 🎯 Ďalšie kroky - FÁZA 5
+
+- Zákazky Wizard (5-krokový workflow)
+- Order stages (survey, quote, installation, completion)
+- Photo upload pre jednotlivé stage
+- Checklist completion tracking
+- Client signatures (signature pad)
+- PDF protokoly generovanie
+
+---
+
 ## [1.3.0] - 2026-03-16 - UI Unification & Technical Documentation 🎨📚
 
 ### 🎨 Brand Color Unification
