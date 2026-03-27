@@ -9,6 +9,7 @@ import onboardingRoutes from './routes/onboarding.js';
 import dashboardRoutes from './routes/dashboard.js';
 import orderTypesRoutes from './routes/orderTypes.js';
 import ordersRoutes from './routes/orders.js';
+import employeesRoutes from './routes/employees.js';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use('/api', onboardingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/order-types', orderTypesRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/employees', employeesRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

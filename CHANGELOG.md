@@ -1,5 +1,83 @@
 # MONTIO - Changelog
 
+## [1.5.0] - 2026-03-27 - FÁZA 7: Zamestnanci (Employee Management) 👥
+
+### ✨ Nové funkcie
+
+**Backend API Endpoints:**
+- `GET /api/employees` - Zoznam zamestnancov s order štatistikami
+- `GET /api/employees/:id` - Detail zamestnanca
+- `POST /api/employees` - Vytvorenie zamestnanca + automatické vytvorenie user accountu
+- `PUT /api/employees/:id` - Úprava zamestnanca (meno, email, pozícia, telefón, status)
+- `DELETE /api/employees/:id` - Deaktivácia zamestnanca (soft delete)
+
+**Employee Management:**
+- Grid layout s employee cards
+- Search & filter funkcie:
+  - Real-time search podľa mena, emailu, pozície
+  - Filter dropdown: Všetci / Aktívni / Neaktívni
+- Order statistics na každej card:
+  - Celkový počet zákaziek
+  - Počet dokončených zákaziek
+- Status badges (Aktívny/Neaktívny) s farbami
+- CRUD operácie s modals:
+  - Create: meno, email, heslo, pozícia, telefón
+  - Edit: update všetkých údajov + status toggle
+  - Deactivate: soft delete s warning o počte zákaziek
+- Responzívny dizajn (1/2/3 columns)
+- Dark mode support
+
+### 🔧 Technické detaily
+
+**Nové súbory:**
+- `backend/routes/employees.js` - Employee CRUD API endpoints (4 endpoints)
+- `frontend/src/components/EmployeesManager.jsx` - Employee management komponent
+- `frontend/src/pages/EmployeesPage.jsx` - Employees stránka
+
+**Aktualizované súbory:**
+- `backend/server.js` - Pridaná employee route
+- `frontend/src/App.jsx` - Pridaná /company/employees route
+- `frontend/src/components/Sidebar.jsx` - Aktivovaný Zamestnanci link
+
+**Database Operations:**
+- Transaction support pre atomicity (vytvorenie user + employee súčasne)
+- Password hashing s bcryptjs
+- Email uniqueness validation
+- Soft delete (status: active → inactive)
+- LEFT JOIN pre order statistics
+- Activity logging pre všetky operácie
+
+### 🔐 Security & Permissions
+
+- Company Admin: full CRUD access
+- Employee: žiadny prístup (len svoj profil v budúcnosti)
+- JWT authentication pre všetky API endpoints
+- Company ID verification
+- Activity logging: employee.create, employee.update, employee.deactivate
+- Email uniqueness check (across all users)
+
+### 🎨 UI/UX Improvements
+
+- Real-time search (instant filtering)
+- Status-based filtering
+- Empty states (žiadni zamestnanci / žiadne výsledky)
+- Loading states s spinner
+- Error handling s user-friendly messages
+- Confirmation modals pre deaktiváciu
+- Warning badges (počet zákaziek)
+- Smooth animations & hover effects
+
+### 📝 Business Logic
+
+- Pri vytvorení zamestnanca sa automaticky vytvára user account s rolou "employee"
+- Password musí mať min. 6 znakov
+- Email musí byť unique v celom systéme
+- Deaktivácia neodstráni dáta, len zmení status
+- Zamestnanci zostávajú viditeľní v zákazkách aj po deaktivácii
+- Order statistics sa počítajú real-time z databázy
+
+---
+
 ## [1.4.0] - 2026-03-27 - FÁZA 4: Dashboard + Kalendár 📊📅
 
 ### ✨ Nové funkcie
