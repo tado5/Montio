@@ -1,5 +1,90 @@
 # MONTIO - Changelog
 
+## [1.7.0] - 2026-03-30 - Complete UI Redesign + Industrial Command Center Design System 🎨
+
+### ✨ Nové funkcie
+
+**Industrial Command Center Aesthetic:**
+- **12 Role-Specific Layout Components:**
+  - SuperAdminLayout, SuperAdminHeader, SuperAdminSidebar, SuperAdminFooter
+  - CompanyAdminLayout, CompanyAdminHeader, CompanyAdminSidebar, CompanyAdminFooter
+  - EmployeeLayout, EmployeeHeader, EmployeeSidebar, EmployeeFooter
+  - DynamicLayout (auto-selects based on user role)
+
+**Design System:**
+- **Theme:** Dark-only (slate-950 base, light/dark toggle disabled)
+- **Color Schemes:**
+  - Super Admin: Orange (#f97316) → Red (#dc2626)
+  - Company Admin: Blue (#3b82f6) → Cyan (#06b6d4)
+  - Employee: Emerald (#10b981) → Green (#16a34a)
+- **Typography:** Archivo Black (headlines UPPERCASE), IBM Plex Mono (data/metrics)
+- **Visual Patterns:** Dot matrix backgrounds (32px grid), gradient overlays, gradient accent lines, backdrop blur
+- **Animation System:** slideInRight (menu, 0.3s), slideUp (cards, 0.4s), slideDown (headers), pulse, ping (staggered delays)
+
+**Redesigned Pages (8 total):**
+- SuperAdminDashboard → "SYSTEM CONTROL"
+- CompanyAdminDashboard → "OPERATIONS HUB"
+- CalendarPage → "SCHEDULE CENTER"
+- OrderTypesPage → "OPERATIONS CONFIG"
+- EmployeesPage → "TEAM CONTROL"
+- EmployeeDashboard → "FIELD PORTAL"
+- ProfilePage → DynamicLayout, camera overlay, edit mode
+- NotificationsPage → DynamicLayout
+- CompanyDetail → SuperAdminLayout, KPI cards, activity timeline
+
+**Comprehensive Documentation (125KB total):**
+- docs/design/ - Complete design system (8 guides)
+  - DESIGN_README.md (13KB) - Main overview
+  - DESIGN_SYSTEM.md (30KB) - Complete design bible
+  - DESIGN_QUICK_REFERENCE.md (5KB) - Quick reference
+  - COMPONENTS_LIBRARY.md (19KB) - Ready-to-use components
+  - ANIMATION_GUIDE.md (15KB) - Animation system
+  - FULL_REDESIGN_SUMMARY.md, SUPERADMIN_REDESIGN.md, DESIGN_PREVIEW.md
+- docs/deployment/ - Deployment docs (7 files)
+- docs/archive/ - Outdated docs (5 files)
+
+### 🔧 Technické detaily
+
+**Nové súbory:**
+- `frontend/src/components/SuperAdmin*.jsx` - 4 komponenty (Layout, Header, Sidebar, Footer)
+- `frontend/src/components/CompanyAdmin*.jsx` - 4 komponenty
+- `frontend/src/components/Employee*.jsx` - 4 komponenty
+- `frontend/src/components/DynamicLayout.jsx` - Auto-selector layout
+- `docs/design/*.md` - 10 design documentation files
+- `docs/deployment/*.md` - 7 deployment files
+- `docs/archive/*.md` - 5 archived files
+
+**Aktualizované súbory:**
+- `frontend/src/index.css` - Added Archivo Black & IBM Plex Mono fonts
+- `frontend/src/components/UserMenu.jsx` - Disabled light/dark toggle
+- All pages (8 total) - Switched to new role-specific layouts
+- `version.json` - Updated to v1.7.0 Build #15 with complete changelog
+- `README.md` - Added Design System section, updated features
+- `STATUS.md` - Added UI Redesign section
+- `PROJECT_STRUCTURE.md` - Complete rewrite with docs/ organization
+
+**Dokumentačná reorganizácia:**
+- Root cleaned: 28 .md files → 9 core files
+- Created docs/ structure (design/, deployment/, archive/)
+- Moved 11 docs from root to organized folders
+
+### 🎨 Design Philosophy
+
+**"Industrial Command Center"** - Technický, precízny, premium aesthetic:
+- Role-specific visual identities through color coding
+- Consistent animation language across application
+- Production-ready, scalable design system
+- Future-proof with comprehensive documentation
+
+### 💥 Breaking Changes
+
+- Light/dark mode toggle disabled (dark-only theme enforced)
+- All pages require new role-specific layouts
+- Font family changes (Archivo Black, IBM Plex Mono required via Google Fonts)
+- UserMenu light/dark toggle is now disabled (shown with "Soon" badge)
+
+---
+
 ## [1.6.0] - 2026-03-27 - Employee Lifecycle + Notifications System 🔄🔔
 
 ### ✨ Nové funkcie
