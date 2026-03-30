@@ -1,0 +1,19 @@
+{
+  "name": "montio-app",
+  "version": "1.6.0",
+  "description": "MONTIO APP - Complete Testing Suite",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:backend && npm run test:e2e",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "test:e2e": "cd frontend && npx playwright test",
+    "test:e2e:ui": "cd frontend && npx playwright test --ui",
+    "test:e2e:headed": "cd frontend && npx playwright test --headed",
+    "test:all": "npm run test:backend && npm run test:e2e",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "keywords": ["montio", "testing", "e2e", "api"],
+  "author": "TSDigital",
+  "license": "ISC"
+}
