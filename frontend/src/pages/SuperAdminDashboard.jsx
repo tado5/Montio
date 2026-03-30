@@ -15,7 +15,7 @@ import {
   ArrowDown
 } from 'lucide-react'
 import axios from 'axios'
-import Layout from '../components/Layout'
+import SuperAdminLayout from '../components/SuperAdminLayout'
 import CreateCompanyModal from '../components/CreateCompanyModal'
 import KPICard from '../components/KPICard'
 
@@ -127,9 +127,9 @@ const SuperAdminDashboard = () => {
   }
 
   return (
-    <Layout
-      title="Super Admin Dashboard"
-      subtitle="Spravujte všetky firmy v systéme"
+    <SuperAdminLayout
+      title="SYSTEM CONTROL"
+      subtitle="Managing all company operations"
       showSearch={false}
     >
           {loading ? (
@@ -382,7 +382,7 @@ const SuperAdminDashboard = () => {
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleCompanyCreated}
       />
-    </Layout>
+    </SuperAdminLayout>
   )
 }
 

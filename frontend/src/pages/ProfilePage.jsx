@@ -13,9 +13,15 @@ import {
   Lock,
   Shield,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  Crown,
+  Wrench,
+  Key,
+  Eye,
+  EyeOff
 } from 'lucide-react'
-import Layout from '../components/Layout'
+import DynamicLayout from '../components/DynamicLayout'
 import ReadOnlyBanner from '../components/ReadOnlyBanner'
 import axios from 'axios'
 
@@ -26,6 +32,9 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const [profileForm, setProfileForm] = useState({
     name: '',
@@ -58,387 +67,482 @@ const ProfilePage = () => {
         email: profileData.email || '',
         phone: profileData.phone || ''
       })
+      setLoading(false)
     } catch (err) {
       console.error('Fetch profile error:', err)
-      toast.error('Nepodarilo sa načítať profil.')
-    } finally {
+      toast.error('Nepodarilo sa načítať profil')
       setLoading(false)
     }
   }
 
-  const handleProfileSubmit = async (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault()
     try {
       const token = localStorage.getItem('token')
-      await axios.put(
-        '/api/auth/profile',
-        profileForm,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-
-      toast.success('Profil bol aktualizovaný.')
+      await axios.put('/api/auth/profile', profileForm, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      toast.success('Profil úspešne aktualizovaný')
       setIsEditMode(false)
       fetchProfile()
     } catch (err) {
-      console.error('Update profile error:', err)
-      toast.error(err.response?.data?.message || 'Nepodarilo sa aktualizovať profil.')
+      toast.error(err.response?.data?.message || 'Chyba pri aktualizácii profilu')
     }
   }
 
-  const handlePasswordSubmit = async (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault()
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error('Nové heslá sa nezhodujú.')
+      toast.error('Nové heslá sa nezhodujú')
       return
     }
 
     if (passwordForm.newPassword.length < 6) {
-      toast.error('Nové heslo musí mať aspoň 6 znakov.')
+      toast.error('Nové heslo musí mať minimálne 6 znakov')
       return
     }
 
     try {
       const token = localStorage.getItem('token')
-      await axios.put(
-        '/api/auth/profile/password',
-        {
-          currentPassword: passwordForm.currentPassword,
-          newPassword: passwordForm.newPassword
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-
-      toast.success('Heslo bolo zmenené.')
-      setPasswordForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+      await axios.put('/api/auth/change-password', {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       })
+
+      toast.success('Heslo úspešne zmenené')
       setIsChangingPassword(false)
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
     } catch (err) {
-      console.error('Change password error:', err)
-      toast.error(err.response?.data?.message || 'Nepodarilo sa zmeniť heslo.')
+      toast.error(err.response?.data?.message || 'Chyba pri zmene hesla')
     }
   }
 
-  const getRoleName = (role) => {
-    const roleMap = {
-      'superadmin': 'Super Admin',
-      'companyadmin': 'Company Admin',
-      'employee': 'Zamestnanec'
+  const getRoleColor = () => {
+    switch (user?.role) {
+      case 'superadmin':
+        return 'from-orange-500 to-red-600'
+      case 'companyadmin':
+        return 'from-blue-500 to-cyan-600'
+      case 'employee':
+        return 'from-emerald-500 to-green-600'
+      default:
+        return 'from-slate-500 to-slate-600'
     }
-    return roleMap[role] || role
   }
 
-  const getAvatarUrl = (email) => {
-    const seed = email || 'default'
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f97316,ef4444&textColor=ffffff`
+  const getRoleIcon = () => {
+    switch (user?.role) {
+      case 'superadmin':
+        return Crown
+      case 'companyadmin':
+        return Building2
+      case 'employee':
+        return Wrench
+      default:
+        return User
+    }
   }
+
+  const getRoleLabel = () => {
+    switch (user?.role) {
+      case 'superadmin':
+        return 'SUPER ADMINISTRATOR'
+      case 'companyadmin':
+        return 'COMPANY ADMINISTRATOR'
+      case 'employee':
+        return 'FIELD TECHNICIAN'
+      default:
+        return 'USER'
+    }
+  }
+
+  if (loading) {
+    return (
+      <DynamicLayout
+        title="USER PROFILE"
+        subtitle="Loading account data"
+        showSearch={false}
+      >
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-slate-700 border-t-orange-500 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-400 font-mono text-sm">Loading profile...</p>
+          </div>
+        </div>
+      </DynamicLayout>
+    )
+  }
+
+  const RoleIcon = getRoleIcon()
 
   return (
-    <Layout
-      title="Môj profil"
-      subtitle="Spravujte svoje osobné údaje"
+    <DynamicLayout
+      title="USER PROFILE"
+      subtitle="Manage your account settings"
       showSearch={false}
     >
-      {/* Read-Only Banner for Inactive Users */}
       <ReadOnlyBanner />
 
-      {/* Page Content */}
-      {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-accent-200 dark:border-accent-700 border-t-accent-600 dark:border-t-accent-400"></div>
+      {/* Profile Header Card */}
+      <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-8 mb-6 backdrop-blur-sm animate-slide-down relative overflow-hidden">
+        {/* Background gradient */}
+        <div className={`absolute inset-0 bg-gradient-to-r ${getRoleColor()} opacity-5`}></div>
+
+        <div className="relative flex flex-col md:flex-row items-center md:items-start gap-6">
+          {/* Avatar */}
+          <div className="relative group">
+            <div className={`w-32 h-32 rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-700 group-hover:border-slate-600 transition-all duration-300`}>
+              <img
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.email)}&backgroundColor=f97316,ea580c,fb923c`}
+                alt="Avatar"
+                className="w-full h-full"
+              />
             </div>
-          ) : (
-            <div className="max-w-4xl mx-auto space-y-6">
+            {/* Camera overlay */}
+            <div className="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+              <Camera className="w-8 h-8 text-white" />
+            </div>
+            {/* Coming Soon badge */}
+            <div className="absolute -bottom-2 -right-2 px-2 py-1 bg-slate-800 border border-slate-700 rounded-lg">
+              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Soon</span>
+            </div>
+          </div>
 
-              {/* Profile Header Card with Avatar */}
-              <div className="card p-6 md:p-8">
-                <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src={getAvatarUrl(profile?.email)}
-                      alt="Avatar"
-                      className="w-24 h-24 md:w-32 md:h-32 rounded-2xl shadow-medium border-4 border-[rgb(var(--color-bg-elevated))]"
+          {/* Info */}
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
+              <h2 className="text-3xl font-black text-white" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+                {profile.name || profile.email}
+              </h2>
+              <div className={`px-3 py-1 bg-gradient-to-r ${getRoleColor()} rounded-lg border border-white/20 shadow-lg`}>
+                <RoleIcon className="w-4 h-4 text-white inline" />
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row items-center gap-3 mb-4">
+              <span className={`px-3 py-1 bg-gradient-to-r ${getRoleColor()} bg-opacity-10 rounded-lg border border-current text-xs font-mono font-bold uppercase tracking-wider`}>
+                {getRoleLabel()}
+              </span>
+              {profile.company_name && (
+                <span className="text-sm font-mono text-slate-400 flex items-center gap-2">
+                  <Building2 className="w-4 h-4" />
+                  {profile.company_name}
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-sm font-mono">
+              <div className="flex items-center gap-2 text-slate-400">
+                <Mail className="w-4 h-4" />
+                <span>{profile.email}</span>
+              </div>
+              {profile.phone && (
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Phone className="w-4 h-4" />
+                  <span>{profile.phone}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Edit Button */}
+          {!isEditMode && (
+            <button
+              onClick={() => setIsEditMode(true)}
+              className="px-4 py-2 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 hover:border-orange-500/30 rounded-lg transition-all text-sm font-mono font-bold text-slate-300 hover:text-white flex items-center gap-2 group"
+            >
+              <Edit2 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+              Edit Profile
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Profile Information */}
+        <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.1s' }}>
+          <div className="px-6 py-4 bg-slate-900/80 border-b border-slate-700/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <User className="w-5 h-5 text-orange-400" />
+                <h3 className="text-lg font-black text-white" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+                  PERSONAL INFO
+                </h3>
+              </div>
+              {isEditMode && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsEditMode(false)}
+                    className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg text-xs font-mono font-bold text-red-400 transition-all flex items-center gap-1"
+                  >
+                    <X className="w-3 h-3" />
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveProfile}
+                    className="px-3 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-xs font-mono font-bold text-emerald-400 transition-all flex items-center gap-1"
+                  >
+                    <Save className="w-3 h-3" />
+                    Save
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="p-6">
+            {isEditMode ? (
+              <form onSubmit={handleSaveProfile} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.name}
+                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 focus:border-orange-500/60 rounded-lg text-white font-mono text-sm transition-all"
+                    placeholder="Enter your name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={profileForm.email}
+                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 focus:border-orange-500/60 rounded-lg text-white font-mono text-sm transition-all"
+                    placeholder="email@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={profileForm.phone}
+                    onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 focus:border-orange-500/60 rounded-lg text-white font-mono text-sm transition-all"
+                    placeholder="+421 XXX XXX XXX"
+                  />
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Full Name</div>
+                  <div className="text-sm font-mono text-white px-4 py-3 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+                    {profile.name || '—'}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Email Address</div>
+                  <div className="text-sm font-mono text-white px-4 py-3 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+                    {profile.email}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Phone Number</div>
+                  <div className="text-sm font-mono text-white px-4 py-3 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+                    {profile.phone || '—'}
+                  </div>
+                </div>
+
+                {profile.position && (
+                  <div>
+                    <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Position</div>
+                    <div className="text-sm font-mono text-white px-4 py-3 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+                      {profile.position}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Security Settings */}
+        <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <div className="px-6 py-4 bg-slate-900/80 border-b border-slate-700/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Lock className="w-5 h-5 text-orange-400" />
+                <h3 className="text-lg font-black text-white" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+                  SECURITY
+                </h3>
+              </div>
+              {!isChangingPassword && (
+                <button
+                  onClick={() => setIsChangingPassword(true)}
+                  className="px-3 py-1 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 rounded-lg text-xs font-mono font-bold text-orange-400 transition-all flex items-center gap-1"
+                >
+                  <Key className="w-3 h-3" />
+                  Change Password
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="p-6">
+            {isChangingPassword ? (
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">
+                    Current Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showCurrentPassword ? 'text' : 'password'}
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                      className="w-full px-4 py-3 pr-12 bg-slate-800/50 border border-slate-700 focus:border-orange-500/60 rounded-lg text-white font-mono text-sm transition-all"
+                      placeholder="Enter current password"
+                      required
                     />
-                    <div className="absolute -bottom-2 -right-2 bg-gradient-accent rounded-full px-3 py-1 shadow-soft">
-                      <span className="text-white text-xs font-bold">{getRoleName(profile?.role)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex-1 text-center md:text-left">
-                    <h2 className="text-2xl md:text-3xl font-display font-bold text-primary mb-2">
-                      {profile?.name || 'Používateľ'}
-                    </h2>
-                    <p className="text-base md:text-lg text-secondary mb-3 flex items-center justify-center md:justify-start gap-2">
-                      <Mail className="w-5 h-5" />
-                      {profile?.email}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                      {profile?.company_name && (
-                        <span className="badge badge-info inline-flex items-center gap-1">
-                          <Building2 className="w-3 h-3" />
-                          {profile.company_name}
-                        </span>
-                      )}
-                      {profile?.position && (
-                        <span className="badge badge-neutral inline-flex items-center gap-1">
-                          <Briefcase className="w-3 h-3" />
-                          {profile.position}
-                        </span>
-                      )}
-                      {profile?.phone && (
-                        <span className="badge badge-success inline-flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          {profile.phone}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {!isEditMode && !isChangingPassword && (
                     <button
-                      onClick={() => !user?.isReadOnly && setIsEditMode(true)}
-                      disabled={user?.isReadOnly}
-                      className={`btn flex items-center gap-2 whitespace-nowrap ${
-                        user?.isReadOnly
-                          ? 'opacity-50 cursor-not-allowed'
-                          : 'btn-secondary'
-                      }`}
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                     >
-                      <Edit2 className="w-4 h-4" />
-                      Upraviť profil
+                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
-                  )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                      className="w-full px-4 py-3 pr-12 bg-slate-800/50 border border-slate-700 focus:border-orange-500/60 rounded-lg text-white font-mono text-sm transition-all"
+                      placeholder="Enter new password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                    >
+                      {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                      className="w-full px-4 py-3 pr-12 bg-slate-800/50 border border-slate-700 focus:border-orange-500/60 rounded-lg text-white font-mono text-sm transition-all"
+                      placeholder="Confirm new password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsChangingPassword(false)
+                      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+                    }}
+                    className="flex-1 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg text-sm font-mono font-bold text-red-400 transition-all flex items-center justify-center gap-2"
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-sm font-mono font-bold text-emerald-400 transition-all flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    Update
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+                  <div>
+                    <div className="text-sm font-mono text-white mb-1">Password</div>
+                    <div className="text-xs font-mono text-slate-500">••••••••••••</div>
+                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                </div>
+
+                <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-sm font-mono text-blue-400 font-bold mb-1">Security Tip</div>
+                      <div className="text-xs font-mono text-slate-400">
+                        Use a strong password with at least 8 characters, including uppercase, lowercase, numbers, and symbols.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+      </div>
 
-              {/* Edit Profile Form */}
-              {isEditMode && (
-                <div className="card p-6 animate-slide-down">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl md:text-2xl font-display font-bold text-primary">Upraviť údaje</h3>
-                    <button
-                      onClick={() => {
-                        setIsEditMode(false)
-                        setProfileForm({
-                          name: profile?.name || '',
-                          email: profile?.email || '',
-                          phone: profile?.phone || ''
-                        })
-                      }}
-                      className="btn btn-ghost p-2"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
+      {/* Account Info */}
+      <div className="mt-6 bg-slate-900/50 border border-slate-700/50 rounded-xl p-6 backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.3s' }}>
+        <div className="flex items-center gap-2 mb-4">
+          <Shield className="w-5 h-5 text-orange-400" />
+          <h3 className="text-lg font-black text-white" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+            ACCOUNT DETAILS
+          </h3>
+        </div>
 
-                  <form onSubmit={handleProfileSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div>
-                        <label className="block text-sm font-semibold text-secondary mb-2">
-                          Meno a priezvisko *
-                        </label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
-                          <input
-                            type="text"
-                            value={profileForm.name}
-                            onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                            className="input pl-10"
-                            required
-                          />
-                        </div>
-                      </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+            <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Account ID</div>
+            <div className="text-sm font-mono text-white break-all">{profile.id}</div>
+          </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-secondary mb-2">
-                          Email *
-                        </label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
-                          <input
-                            type="email"
-                            value={profileForm.email}
-                            onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                            className="input pl-10"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-secondary mb-2">
-                          Telefón
-                        </label>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
-                          <input
-                            type="tel"
-                            value={profileForm.phone}
-                            onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                            placeholder="+421..."
-                            className="input pl-10"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="btn btn-primary w-full flex items-center justify-center gap-2"
-                    >
-                      <Save className="w-5 h-5" />
-                      Uložiť zmeny
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {/* Change Password Section */}
-              {!isEditMode && (
-                <div className="card p-6">
-                  {!isChangingPassword ? (
-                    <div>
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-                        <div>
-                          <h3 className="text-xl font-display font-bold text-primary">Zabezpečenie</h3>
-                          <p className="text-sm text-secondary mt-1">
-                            Spravujte svoje prístupové heslo
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => !user?.isReadOnly && setIsChangingPassword(true)}
-                          disabled={user?.isReadOnly}
-                          className={`btn flex items-center gap-2 ${
-                            user?.isReadOnly
-                              ? 'opacity-50 cursor-not-allowed'
-                              : 'btn-primary'
-                          }`}
-                        >
-                          <Lock className="w-4 h-4" />
-                          Zmeniť heslo
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-3 p-4 bg-secondary rounded-xl">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <Shield className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-primary flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            Heslo je zabezpečené
-                          </p>
-                          <p className="text-xs text-tertiary">
-                            Naposledy zmenené: {new Date(profile?.created_at).toLocaleDateString('sk-SK')}
-                          </p>
-                        </div>
-                      </div>
-
-                      {user?.isReadOnly && (
-                        <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border-2 border-amber-200 dark:border-amber-800 mt-4">
-                          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <AlertCircle className="w-6 h-6 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-amber-900 dark:text-amber-300">READ-ONLY režim</p>
-                            <p className="text-xs text-amber-800 dark:text-amber-400">
-                              Váš účet je deaktivovaný. Nemôžete upravovať profil ani meniť heslo.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="animate-slide-down">
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl md:text-2xl font-display font-bold text-primary">Zmeniť heslo</h3>
-                        <button
-                          onClick={() => {
-                            setIsChangingPassword(false)
-                            setPasswordForm({
-                              currentPassword: '',
-                              newPassword: '',
-                              confirmPassword: ''
-                            })
-                          }}
-                          className="btn btn-ghost p-2"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-                      </div>
-
-                      <form onSubmit={handlePasswordSubmit}>
-                        <div className="space-y-4 mb-6">
-                          <div>
-                            <label className="block text-sm font-semibold text-secondary mb-2">
-                              Aktuálne heslo *
-                            </label>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
-                              <input
-                                type="password"
-                                value={passwordForm.currentPassword}
-                                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                                className="input pl-10"
-                                required
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold text-secondary mb-2">
-                              Nové heslo *
-                            </label>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
-                              <input
-                                type="password"
-                                value={passwordForm.newPassword}
-                                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                                className="input pl-10"
-                                minLength="6"
-                                required
-                              />
-                            </div>
-                            <p className="text-xs text-tertiary mt-1">Minimálne 6 znakov</p>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold text-secondary mb-2">
-                              Potvrdiť nové heslo *
-                            </label>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
-                              <input
-                                type="password"
-                                value={passwordForm.confirmPassword}
-                                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                                className="input pl-10"
-                                minLength="6"
-                                required
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <button
-                          type="submit"
-                          className="btn btn-primary w-full flex items-center justify-center gap-2"
-                        >
-                          <Lock className="w-5 h-5" />
-                          Zmeniť heslo
-                        </button>
-                      </form>
-                    </div>
-                  )}
-                </div>
-              )}
+          <div className="p-4 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+            <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Status</div>
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${profile.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></div>
+              <span className="text-sm font-mono text-white uppercase">{profile.status || 'Active'}</span>
             </div>
-          )}
-    </Layout>
+          </div>
+
+          <div className="p-4 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+            <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Role</div>
+            <div className="text-sm font-mono text-white uppercase">{user?.role}</div>
+          </div>
+        </div>
+      </div>
+    </DynamicLayout>
   )
 }
 

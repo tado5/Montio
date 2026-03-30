@@ -5,22 +5,27 @@ import axios from 'axios'
 import {
   Building2,
   Users,
-  ClipboardList,
   FileText,
-  DollarSign,
-  X,
-  CheckCircle,
-  Loader2,
+  Receipt,
   ArrowLeft,
+  CheckCircle,
+  XCircle,
   Clock,
-  Package,
-  Globe
+  Shield,
+  Activity,
+  Globe,
+  Loader2,
+  TrendingUp,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Hash,
+  AlertCircle
 } from 'lucide-react'
-import Sidebar from '../components/Sidebar'
-import UserMenu from '../components/UserMenu'
-import NotificationBell from '../components/NotificationBell'
+import SuperAdminLayout from '../components/SuperAdminLayout'
 import DeactivateCompanyModal from '../components/DeactivateCompanyModal'
-import Footer from '../components/Footer'
+import KPICard from '../components/KPICard'
 
 const CompanyDetail = () => {
   const { id } = useParams()
@@ -70,338 +75,374 @@ const CompanyDetail = () => {
 
   const getActionBadge = (action) => {
     const colors = {
-      'user.login': 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
-      'user.logout': 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
-      'company.create': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
-      'company.update': 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
-      'order.create': 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200',
-      'order.complete': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
-      'invoice.create': 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
-      'invoice.paid': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
+      'user.login': 'bg-blue-500/10 border-blue-500/30 text-blue-400',
+      'user.logout': 'bg-slate-500/10 border-slate-500/30 text-slate-400',
+      'company.create': 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+      'company.update': 'bg-orange-500/10 border-orange-500/30 text-orange-400',
+      'order.create': 'bg-orange-500/10 border-orange-500/30 text-orange-400',
+      'order.complete': 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+      'invoice.create': 'bg-purple-500/10 border-purple-500/30 text-purple-400',
+      'invoice.paid': 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
     }
-    return colors[action] || 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+    return colors[action] || 'bg-slate-500/10 border-slate-500/30 text-slate-400'
   }
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-primary">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
+      <SuperAdminLayout
+        title="LOADING..."
+        subtitle="Fetching company data"
+        showSearch={false}
+      >
+        <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <Loader2 className="w-12 h-12 text-accent-500 animate-spin mx-auto mb-4" />
-            <p className="text-secondary font-medium">Načítavanie...</p>
+            <Loader2 className="w-16 h-16 text-orange-500 animate-spin mx-auto mb-4" />
+            <p className="text-slate-400 font-mono text-sm">Loading company details...</p>
           </div>
         </div>
-      </div>
+      </SuperAdminLayout>
     )
   }
 
   if (error) {
     return (
-      <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-3 flex justify-between items-center">
-              <button
-                onClick={() => navigate('/superadmin')}
-                className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-semibold inline-flex items-center gap-2 transition-all duration-200 group"
-              >
-                <span className="transform group-hover:-translate-x-1 transition-transform duration-200">←</span>
-                Späť
-              </button>
-              <div className="flex items-center gap-4">
-                <NotificationBell />
-                <UserMenu />
-              </div>
-            </div>
-          </header>
-          <main className="flex-1 px-6 py-8">
-            <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl font-semibold">
-              {error}
-            </div>
-          </main>
+      <SuperAdminLayout
+        title="ERROR"
+        subtitle="Failed to load data"
+        showSearch={false}
+      >
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-8 text-center max-w-md backdrop-blur-sm">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <p className="text-red-400 font-mono text-sm mb-4">{error}</p>
+            <button
+              onClick={() => navigate('/superadmin')}
+              className="px-4 py-2 bg-orange-500/10 border border-orange-500/30 hover:bg-orange-500/20 rounded-lg text-orange-400 font-mono text-sm transition-all"
+            >
+              ← Back to list
+            </button>
+          </div>
         </div>
-      </div>
+      </SuperAdminLayout>
     )
   }
 
   const { company, users, logs, stats } = data
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <div className="px-6 py-2">
+    <SuperAdminLayout
+      title="COMPANY DETAIL"
+      subtitle={`Inspecting ${company.name}`}
+      showSearch={false}
+    >
+      {/* Back Button & Actions Bar */}
+      <div className="flex items-center justify-between mb-6 animate-slide-down">
+        <button
+          onClick={() => navigate('/superadmin')}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-900/50 hover:bg-slate-800/50 border border-slate-700/50 hover:border-orange-500/30 rounded-lg transition-all text-sm font-mono text-slate-300 hover:text-white group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span>Back to list</span>
+        </button>
+
+        <div className="flex items-center gap-3">
+          {company.status === 'active' && (
             <button
-              onClick={() => navigate('/superadmin')}
-              className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-semibold text-xs mb-2 inline-flex items-center gap-2 transition-all duration-200 group"
+              onClick={() => setIsDeactivateModalOpen(true)}
+              disabled={actionLoading}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 rounded-lg transition-all text-sm font-mono font-bold text-red-400 hover:text-red-300 disabled:opacity-50"
             >
-              <span className="transform group-hover:-translate-x-1 transition-transform duration-200">←</span>
-              Späť na zoznam firiem
+              <XCircle className="w-4 h-4" />
+              Deactivate
             </button>
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                {company.logo_url ? (
-                  <img
-                    src={company.logo_url}
-                    alt={company.name}
-                    className="w-10 h-10 rounded-xl object-cover shadow-lg"
-                  />
-                ) : (
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-lg">
-                    {company.name.charAt(0)}
-                  </div>
-                )}
-                <div>
-                  <h1 className="text-xl font-black text-gray-900 dark:text-white">{company.name}</h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Detail firmy</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                {company.status === 'active' && (
-                  <button
-                    onClick={() => setIsDeactivateModalOpen(true)}
-                    disabled={actionLoading}
-                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-2 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 disabled:opacity-50"
-                  >
-                    ❌ Deaktivovať
-                  </button>
-                )}
-                {company.status === 'inactive' && (
-                  <button
-                    onClick={handleActivate}
-                    disabled={actionLoading}
-                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-2 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 disabled:opacity-50"
-                  >
-                    ✓ Aktivovať
-                  </button>
-                )}
-                <UserMenu />
-              </div>
-            </div>
-          </div>
-        </header>
-
-      {/* Main Container with Sidebar */}
-      <div className="flex flex-1 overflow-hidden min-h-0">
-        {/* Sidebar */}
-        <Sidebar />
-
-        {/* Page Content */}
-        <main className="flex-1 px-6 py-8 overflow-y-auto">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
-            <div className="text-blue-100 text-sm font-semibold mb-2 uppercase tracking-wide">👥 Používatelia</div>
-            <div className="text-4xl font-black text-white">{stats.users}</div>
-          </div>
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
-            <div className="text-orange-100 text-sm font-semibold mb-2 uppercase tracking-wide">🔧 Typy montáží</div>
-            <div className="text-4xl font-black text-white">{stats.order_types}</div>
-          </div>
-          <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
-            <div className="text-orange-100 text-sm font-semibold mb-2 uppercase tracking-wide">📝 Zákazky</div>
-            <div className="text-4xl font-black text-white">{stats.orders}</div>
-          </div>
-          <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 hover:shadow-2xl">
-            <div className="text-orange-100 text-sm font-semibold mb-2 uppercase tracking-wide">💰 Faktúry</div>
-            <div className="text-4xl font-black text-white">{stats.invoices}</div>
-          </div>
+          )}
+          {company.status === 'inactive' && (
+            <button
+              onClick={handleActivate}
+              disabled={actionLoading}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg transition-all text-sm font-mono font-bold text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+            >
+              <CheckCircle className="w-4 h-4" />
+              Activate
+            </button>
+          )}
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Company Info */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                🏢 Informácie o firme
-              </h2>
+      {/* Company Header Card */}
+      <div className="bg-slate-900/50 border border-orange-500/20 rounded-xl p-6 mb-6 backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="flex items-center gap-4">
+          {company.logo_url ? (
+            <img
+              src={company.logo_url}
+              alt={company.name}
+              className="w-16 h-16 rounded-xl object-cover shadow-lg shadow-orange-500/20 border border-orange-500/30"
+            />
+          ) : (
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-orange-500/30 border border-orange-400/30">
+              {company.name.charAt(0)}
             </div>
-            <div className="p-6">
-              <dl className="space-y-4">
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">ID</dt>
-                  <dd className="mt-1 text-xs font-mono text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 p-2 rounded break-all">
-                    {company.id}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
-                  <dd className="mt-1">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      company.status === 'active'
-                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                        : company.status === 'inactive'
-                        ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                        : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
-                    }`}>
-                      {company.status === 'active' && '✓ Aktívna'}
-                      {company.status === 'pending' && '⏳ Pending'}
-                      {company.status === 'inactive' && '❌ Neaktívna'}
-                    </span>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">IČO</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200">{company.ico || '-'}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">DIČ</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200">{company.dic || '-'}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Adresa</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200">{company.address || '-'}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Vytvorené</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200">
-                    {company.created_at ? formatDate(company.created_at) : '-'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Invite Token</dt>
-                  <dd className="mt-1 text-xs text-gray-600 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-700 p-2 rounded">
-                    {company.invite_token || '-'}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-
-          {/* Users */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                👥 Používatelia
-                <span className="text-sm font-bold bg-gradient-to-r from-orange-400 to-red-500 text-white px-3 py-1 rounded-full">
-                  {users.length}
-                </span>
-              </h2>
-            </div>
-            <div className="p-6">
-              {users.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="text-4xl mb-2">👤</div>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium">Žiadni používatelia</p>
-                </div>
-              ) : (
-                <ul className="space-y-4">
-                  {users.map((user) => (
-                    <li key={user.id} className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 transform hover:scale-[1.02]">
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-start gap-3">
-                          <div className="w-12 h-12 rounded-lg overflow-hidden shadow-md bg-white dark:bg-gray-700">
-                            <img
-                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
-                              alt="Avatar"
-                              className="w-full h-full"
-                            />
-                          </div>
-                          <div>
-                            <div className="font-bold text-gray-900 dark:text-gray-100 text-lg">
-                              {user.first_name && user.last_name
-                                ? `${user.first_name} ${user.last_name}`
-                                : user.email}
-                            </div>
-                            {user.first_name && (
-                              <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{user.email}</div>
-                            )}
-                            {user.phone && (
-                              <div className="text-sm text-gray-600 dark:text-gray-400">📞 {user.phone}</div>
-                            )}
-                            {user.position && (
-                              <div className="text-sm text-gray-500 dark:text-gray-400 font-semibold mt-1">
-                                💼 {user.position}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <span className={`px-3 py-1 text-xs font-bold rounded-full shadow-sm ${
-                          user.role === 'companyadmin'
-                            ? 'bg-gradient-to-r from-purple-400 to-purple-600 text-white'
-                            : 'bg-gradient-to-r from-blue-400 to-blue-600 text-white'
-                        }`}>
-                          {user.role === 'companyadmin' ? '👑 Admin' : '👷 Employee'}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Activity Logs - Timeline */}
-        <div className="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-              📋 Activity Log
-              <span className="text-sm font-bold bg-gradient-to-r from-orange-400 to-red-500 text-white px-3 py-1 rounded-full">
-                {logs.length}
+          )}
+          <div className="flex-1">
+            <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-1" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+              {company.name}
+            </h1>
+            <div className="flex items-center gap-3">
+              <span className={`px-3 py-1 text-xs font-mono font-bold rounded-lg border ${
+                company.status === 'active'
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                  : company.status === 'inactive'
+                  ? 'bg-red-500/10 border-red-500/30 text-red-400'
+                  : 'bg-orange-500/10 border-orange-500/30 text-orange-400'
+              }`}>
+                {company.status === 'active' && '● ACTIVE'}
+                {company.status === 'pending' && '○ PENDING'}
+                {company.status === 'inactive' && '✕ INACTIVE'}
               </span>
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 font-medium">História akcií v systéme</p>
+              <span className="text-xs font-mono text-slate-500">
+                ID: {company.public_id || company.id}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" style={{ animation: 'slideUp 0.4s ease-out 0.2s both' }}>
+        <KPICard
+          title="Users"
+          value={stats.users}
+          subtitle="Registered accounts"
+          icon={Users}
+          color="info"
+        />
+        <KPICard
+          title="Order Types"
+          value={stats.order_types}
+          subtitle="Installation configs"
+          icon={FileText}
+          color="warning"
+        />
+        <KPICard
+          title="Orders"
+          value={stats.orders}
+          subtitle="Total projects"
+          icon={TrendingUp}
+          color="success"
+        />
+        <KPICard
+          title="Invoices"
+          value={stats.invoices}
+          subtitle="Generated docs"
+          icon={Receipt}
+          color="error"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Company Info */}
+        <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <div className="px-6 py-4 bg-slate-900/80 border-b border-slate-700/50">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-orange-400" />
+              <h2 className="text-lg font-black text-white" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+                COMPANY INFO
+              </h2>
+            </div>
+          </div>
+          <div className="p-6 space-y-4">
+            {/* ICO */}
+            <div className="flex items-start gap-3">
+              <Hash className="w-4 h-4 text-slate-500 mt-1 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-1">IČO</div>
+                <div className="text-sm font-mono text-white">{company.ico || '—'}</div>
+              </div>
+            </div>
+
+            {/* DIC */}
+            <div className="flex items-start gap-3">
+              <Hash className="w-4 h-4 text-slate-500 mt-1 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-1">DIČ</div>
+                <div className="text-sm font-mono text-white">{company.dic || '—'}</div>
+              </div>
+            </div>
+
+            {/* Address */}
+            <div className="flex items-start gap-3">
+              <MapPin className="w-4 h-4 text-slate-500 mt-1 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-1">Address</div>
+                <div className="text-sm font-mono text-white">{company.address || '—'}</div>
+              </div>
+            </div>
+
+            {/* Created At */}
+            <div className="flex items-start gap-3">
+              <Calendar className="w-4 h-4 text-slate-500 mt-1 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-1">Created</div>
+                <div className="text-sm font-mono text-white">
+                  {company.created_at ? formatDate(company.created_at) : '—'}
+                </div>
+              </div>
+            </div>
+
+            {/* Invite Token */}
+            <div className="flex items-start gap-3">
+              <Mail className="w-4 h-4 text-slate-500 mt-1 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-1">Invite Token</div>
+                <div className="text-xs font-mono text-orange-400 bg-slate-800/50 px-3 py-2 rounded-lg border border-slate-700/50 break-all">
+                  {company.invite_token || '—'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Users List */}
+        <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.4s' }}>
+          <div className="px-6 py-4 bg-slate-900/80 border-b border-slate-700/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-orange-400" />
+                <h2 className="text-lg font-black text-white" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+                  USERS
+                </h2>
+              </div>
+              <span className="px-3 py-1 bg-orange-500/10 border border-orange-500/30 rounded-lg text-xs font-mono font-bold text-orange-400">
+                {users.length}
+              </span>
+            </div>
           </div>
           <div className="p-6">
-            {logs.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📝</div>
-                <p className="text-gray-500 dark:text-gray-400 font-medium">Žiadne záznamy</p>
+            {users.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-slate-500 font-mono text-sm">No users found</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {logs.map((log, index) => (
-                  <div
-                    key={log.id}
-                    className="relative pl-8 pb-4 border-l-4 border-gray-200 dark:border-gray-700 last:border-0 hover:border-orange-300 dark:hover:border-purple-600 transition-all duration-200 group"
+              <ul className="space-y-3">
+                {users.map((userItem, index) => (
+                  <li
+                    key={userItem.id}
+                    className="bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/50 hover:border-orange-500/30 rounded-lg p-4 transition-all duration-200 group"
+                    style={{ animation: `slideInRight 0.3s ease-out ${index * 0.05}s both` }}
                   >
-                    {/* Timeline dot */}
-                    <div className={`absolute left-[-10px] top-0 w-5 h-5 rounded-full shadow-lg ${getActionBadge(log.action)} flex items-center justify-center group-hover:scale-125 transition-transform duration-200`}>
-                      <div className="w-2 h-2 bg-white dark:bg-gray-800 rounded-full"></div>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden shadow-md bg-slate-700 flex-shrink-0">
+                          <img
+                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userItem.email)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+                            alt="Avatar"
+                            className="w-full h-full"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-white text-sm truncate">
+                            {userItem.first_name && userItem.last_name
+                              ? `${userItem.first_name} ${userItem.last_name}`
+                              : userItem.email}
+                          </div>
+                          <div className="text-xs font-mono text-slate-400 truncate">
+                            {userItem.email}
+                          </div>
+                          {userItem.position && (
+                            <div className="text-xs font-mono text-slate-500 mt-1">
+                              {userItem.position}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className={`px-2 py-1 text-[10px] font-mono font-bold rounded border flex-shrink-0 ${
+                        userItem.role === 'companyadmin'
+                          ? 'bg-purple-500/10 border-purple-500/30 text-purple-400'
+                          : 'bg-blue-500/10 border-blue-500/30 text-blue-400'
+                      }`}>
+                        {userItem.role === 'companyadmin' ? 'ADMIN' : 'EMP'}
+                      </span>
                     </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
 
-                    {/* Log content */}
-                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 group-hover:from-blue-50 group-hover:to-purple-50 dark:group-hover:from-blue-900/30 dark:group-hover:to-purple-900/30 rounded-xl p-4 transition-all duration-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg overflow-hidden shadow-md bg-white dark:bg-gray-700">
+      {/* Activity Log */}
+      <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.5s' }}>
+        <div className="px-6 py-4 bg-slate-900/80 border-b border-slate-700/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-orange-400" />
+              <h2 className="text-lg font-black text-white" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+                ACTIVITY LOG
+              </h2>
+            </div>
+            <span className="px-3 py-1 bg-orange-500/10 border border-orange-500/30 rounded-lg text-xs font-mono font-bold text-orange-400">
+              {logs.length}
+            </span>
+          </div>
+          <p className="text-xs font-mono text-slate-500 mt-1">System event timeline</p>
+        </div>
+        <div className="p-6">
+          {logs.length === 0 ? (
+            <div className="text-center py-12">
+              <Activity className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+              <p className="text-slate-500 font-mono text-sm">No activity recorded</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {logs.map((log, index) => (
+                <div
+                  key={log.id}
+                  className="relative pl-8 border-l-2 border-slate-700/50 hover:border-orange-500/30 transition-all duration-200 group"
+                  style={{ animation: `slideInRight 0.3s ease-out ${index * 0.03}s both` }}
+                >
+                  {/* Timeline dot */}
+                  <div className={`absolute left-[-5px] top-0 w-2 h-2 rounded-full border-2 ${getActionBadge(log.action)} group-hover:scale-150 transition-transform duration-200`}></div>
+
+                  {/* Log content */}
+                  <div className="pb-4 last:pb-0">
+                    <div className="bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/50 hover:border-orange-500/20 rounded-lg p-4 transition-all duration-200">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-8 h-8 rounded-lg overflow-hidden shadow-md bg-slate-700 flex-shrink-0">
                             <img
                               src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(log.user_email)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
                               alt="Avatar"
                               className="w-full h-full"
                             />
                           </div>
-                          <div>
-                            <div className="font-bold text-gray-900 dark:text-gray-100">{log.user_email}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase">
-                              {log.user_role}
-                            </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-white text-sm truncate">{log.user_email}</div>
+                            <div className="text-xs font-mono text-slate-500 uppercase">{log.user_role}</div>
                           </div>
                         </div>
-                        <span className={`px-3 py-1 text-xs font-bold rounded-full shadow-sm ${getActionBadge(log.action)}`}>
+                        <span className={`px-2 py-1 text-[10px] font-mono font-bold rounded-lg border flex-shrink-0 ${getActionBadge(log.action)}`}>
                           {log.action}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap gap-4 text-sm mt-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500 dark:text-gray-400 font-semibold">🕐</span>
-                          <span className="text-gray-700 dark:text-gray-300 font-medium">{formatDate(log.created_at)}</span>
+                      <div className="flex flex-wrap gap-3 text-xs font-mono">
+                        <div className="flex items-center gap-1.5 text-slate-400">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{formatDate(log.created_at)}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500 dark:text-gray-400 font-semibold">📦</span>
-                          <span className="text-gray-700 dark:text-gray-300 font-medium">
+                        <div className="flex items-center gap-1.5 text-slate-400">
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>
                             {log.entity_type}
-                            {log.entity_id && <span className="text-gray-500 dark:text-gray-400"> #{log.entity_id}</span>}
+                            {log.entity_id && <span className="text-slate-600"> #{log.entity_id}</span>}
                           </span>
                         </div>
                         {log.ip_address && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-500 dark:text-gray-400 font-semibold">🌐</span>
-                            <span className="text-gray-700 dark:text-gray-300 font-mono text-xs font-bold bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
+                          <div className="flex items-center gap-1.5 text-slate-400">
+                            <Globe className="w-3.5 h-3.5" />
+                            <span className="bg-slate-800/50 px-2 py-0.5 rounded border border-slate-700/50">
                               {log.ip_address}
                             </span>
                           </div>
@@ -409,25 +450,21 @@ const CompanyDetail = () => {
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        </main>
       </div>
-
-      {/* Footer */}
-      <Footer />
 
       {/* Deactivate Modal */}
       <DeactivateCompanyModal
         isOpen={isDeactivateModalOpen}
         onClose={() => setIsDeactivateModalOpen(false)}
-        company={data?.company}
+        company={company}
         onSuccess={handleDeactivateSuccess}
       />
-    </div>
+    </SuperAdminLayout>
   )
 }
 

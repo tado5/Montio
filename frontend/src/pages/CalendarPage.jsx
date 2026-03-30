@@ -1,15 +1,15 @@
-import Layout from '../components/Layout'
+import CompanyAdminLayout from '../components/CompanyAdminLayout'
 import Calendar from '../components/Calendar'
 
 const CalendarPage = () => {
   return (
-    <Layout
-      title="Kalendár"
-      subtitle="Plánovanie zákaziek"
+    <CompanyAdminLayout
+      title="SCHEDULE CENTER"
+      subtitle="Order planning and timeline"
       showSearch={false}
     >
       <Calendar />
-    </Layout>
+    </CompanyAdminLayout>
   )
 }
 

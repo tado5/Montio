@@ -165,23 +165,16 @@ const UserMenu = () => {
               <span className="ml-auto badge badge-neutral text-xs">Soon</span>
             </button>
 
-            {/* Theme Toggle */}
+            {/* Theme Toggle - Disabled */}
             <button
-              onClick={(e) => {
-                e.stopPropagation()
-                toggleTheme()
-                toast.info(`Prepnuté na ${theme === 'light' ? 'tmavý' : 'svetlý'} režim`)
-              }}
-              className="w-full text-left px-4 py-3 hover:bg-primary-50 dark:hover:bg-primary-800 transition-all duration-200 flex items-center gap-3 group"
+              disabled
+              className="w-full text-left px-4 py-3 transition-all duration-200 flex items-center gap-3 opacity-50 cursor-not-allowed"
             >
-              {theme === 'light' ? (
-                <Moon className="w-5 h-5 text-secondary group-hover:text-accent-500 transition-colors" />
-              ) : (
-                <Sun className="w-5 h-5 text-secondary group-hover:text-accent-500 transition-colors" />
-              )}
-              <span className="font-semibold text-secondary group-hover:text-accent-500 transition-colors">
-                {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+              <Moon className="w-5 h-5 text-secondary" />
+              <span className="font-semibold text-secondary">
+                Dark / Light Mode
               </span>
+              <span className="ml-auto badge badge-neutral text-xs">Soon</span>
             </button>
           </div>
 
