@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { buildApiUrl } from '../config/api';
 
 const NotificationBell = () => {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ const NotificationBell = () => {
   // Fetch unread count
   const fetchUnreadCount = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/notifications/unread-count', {
+      const response = await axios.get(buildApiUrl('api/notifications/unread-count'), {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setUnreadCount(response.data.count);
@@ -28,7 +29,7 @@ const NotificationBell = () => {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3001/api/notifications?limit=5', {
+      const response = await axios.get(buildApiUrl('api/notifications?limit=5'), {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setNotifications(response.data.notifications);
@@ -43,7 +44,7 @@ const NotificationBell = () => {
   const markAsRead = async (id) => {
     try {
       await axios.put(
-        `http://localhost:3001/api/notifications/${id}/read`,
+        buildApiUrl(`api/notifications/${id}/read`),
         {},
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
@@ -62,7 +63,7 @@ const NotificationBell = () => {
   const markAllAsRead = async () => {
     try {
       await axios.put(
-        'http://localhost:3001/api/notifications/mark-all-read',
+        buildApiUrl('api/notifications/mark-all-read'),
         {},
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );

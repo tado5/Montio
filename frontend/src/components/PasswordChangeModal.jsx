@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { buildApiUrl } from '../config/api';
 
 const PasswordChangeModal = ({ employeeId, token, onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -34,7 +35,7 @@ const PasswordChangeModal = ({ employeeId, token, onSuccess, onCancel }) => {
       setLoading(true);
 
       const response = await axios.put(
-        `http://localhost:3001/api/employees/${employeeId}/change-password`,
+        buildApiUrl(`api/employees/${employeeId}/change-password`),
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword
