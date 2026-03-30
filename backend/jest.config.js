@@ -2,7 +2,7 @@ export default {
   testEnvironment: 'node',
   transform: {},
   moduleFileExtensions: ['js'],
-  testMatch: ['**/__tests__/**/*.test.js'],
+  testMatch: ['**/tests/**/*.test.js'],
   collectCoverageFrom: [
     'routes/**/*.js',
     'middleware/**/*.js',

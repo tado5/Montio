@@ -16,11 +16,15 @@ test.describe('Super Admin Dashboard', () => {
   });
 
   test('should display companies table', async ({ page }) => {
-    // Check for table headers
-    await expect(page.locator('text=/názov|status/i')).toBeVisible();
+    // Check for table headers (use more specific selector)
+    await expect(page.locator('text=Názov').first()).toBeVisible();
 
     // Wait for data to load (or empty state)
-    await page.waitForSelector('table, text=/žiadne firmy|no companies/i', { timeout: 5000 });
+    // Check if either table exists or empty state message appears
+    const hasTable = await page.locator('table').count() > 0;
+    const hasEmptyState = await page.locator('text=/žiadne firmy/i').count() > 0;
+
+    expect(hasTable || hasEmptyState).toBeTruthy();
   });
 
   test('should have search functionality', async ({ page }) => {
@@ -52,8 +56,8 @@ test.describe('Super Admin Dashboard', () => {
     if (await createBtn.isVisible()) {
       await createBtn.click();
 
-      // Modal should appear
-      await expect(page.locator('text=/email|pozvánka/i')).toBeVisible({ timeout: 3000 });
+      // Modal should appear (check for specific modal title or label)
+      await expect(page.locator('text=Email majiteľa firmy').first()).toBeVisible({ timeout: 3000 });
 
       // Close modal (ESC or X button)
       await page.keyboard.press('Escape');
