@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { buildApiUrl } from '../config/api';
 
 const NotificationsPage = () => {
   const { user } = useAuth();
@@ -14,7 +15,7 @@ const NotificationsPage = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/notifications?filter=${filter}&limit=${pagination.limit}&offset=${newOffset}`,
+        buildApiUrl(`api/notifications?filter=${filter}&limit=${pagination.limit}&offset=${newOffset}`),
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
 
@@ -41,7 +42,7 @@ const NotificationsPage = () => {
   const markAsRead = async (id) => {
     try {
       await axios.put(
-        `http://localhost:3001/api/notifications/${id}/read`,
+        buildApiUrl(`api/notifications/${id}/read`),
         {},
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
@@ -58,7 +59,7 @@ const NotificationsPage = () => {
   const markAsUnread = async (id) => {
     try {
       await axios.put(
-        `http://localhost:3001/api/notifications/${id}/unread`,
+        buildApiUrl(`api/notifications/${id}/unread`),
         {},
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
@@ -75,7 +76,7 @@ const NotificationsPage = () => {
   const markAllAsRead = async () => {
     try {
       await axios.put(
-        'http://localhost:3001/api/notifications/mark-all-read',
+        buildApiUrl('api/notifications/mark-all-read'),
         {},
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
@@ -91,7 +92,7 @@ const NotificationsPage = () => {
     if (!confirm('Naozaj chcete vymazať túto notifikáciu?')) return;
 
     try {
-      await axios.delete(`http://localhost:3001/api/notifications/${id}`, {
+      await axios.delete(buildApiUrl(`api/notifications/${id}`), {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
@@ -108,7 +109,7 @@ const NotificationsPage = () => {
 
     try {
       const response = await axios.delete(
-        'http://localhost:3001/api/notifications/delete-all-read',
+        buildApiUrl('api/notifications/delete-all-read'),
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
 
