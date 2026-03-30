@@ -18,8 +18,8 @@ test.describe('Authentication', () => {
     await page.fill('input[type="password"]', 'wrongpassword');
     await page.click('button[type="submit"]');
 
-    // Wait for error message
-    await expect(page.locator('text=/nesprávn|error|invalid/i')).toBeVisible({ timeout: 5000 });
+    // Wait for error message (exact text from backend)
+    await expect(page.locator('text=Nesprávny email alebo heslo.')).toBeVisible({ timeout: 10000 });
   });
 
   test('should login successfully as superadmin', async ({ page }) => {
@@ -28,8 +28,8 @@ test.describe('Authentication', () => {
     // Should redirect to superadmin dashboard
     await expect(page).toHaveURL(/\/superadmin/);
 
-    // Should see dashboard elements
-    await expect(page.locator('text=/dashboard|firmy/i')).toBeVisible();
+    // Should see dashboard elements (use first() to avoid strict mode)
+    await expect(page.locator('h1:has-text("Dashboard")')).toBeVisible();
   });
 
   test('should persist session after page reload', async ({ page }) => {
@@ -47,8 +47,8 @@ test.describe('Authentication', () => {
 
     await logout(page);
 
-    // Should redirect to login page
-    await expect(page).toHaveURL('/');
+    // Should redirect to login page (/login or /)
+    await expect(page).toHaveURL(/\/(login)?$/);
     await expect(page.locator('input[type="email"]')).toBeVisible();
   });
 

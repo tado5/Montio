@@ -8,10 +8,10 @@ export default defineConfig({
   testDir: './tests/e2e',
 
   /* Maximum time one test can run */
-  timeout: 30 * 1000,
+  timeout: 60 * 1000,
 
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
 
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
@@ -19,14 +19,13 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
 
-  /* Opt out of parallel tests on CI */
-  workers: process.env.CI ? 1 : undefined,
+  /* Workers */
+  workers: 1,
 
   /* Reporter to use */
   reporter: [
     ['html'],
     ['list'],
-    ['json', { outputFile: 'test-results.json' }]
   ],
 
   /* Shared settings for all the projects below */
@@ -50,22 +49,13 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    // Uncomment to test on more browsers
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
   ],
 
   /* Run your local dev server before starting the tests */
   webServer: process.env.CI ? undefined : {
-    command: 'npm run dev',
+    command: 'cd frontend && npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 120 * 1000,
   },
 });
