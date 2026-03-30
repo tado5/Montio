@@ -12,7 +12,7 @@ import {
   Wrench,
   TrendingUp
 } from 'lucide-react'
-import Layout from '../components/Layout'
+import CompanyAdminLayout from '../components/CompanyAdminLayout'
 import KPICard from '../components/KPICard'
 import axios from 'axios'
 
@@ -70,9 +70,9 @@ const CompanyAdminDashboard = () => {
   ]
 
   return (
-    <Layout
-      title="Company Dashboard"
-      subtitle="Prehľad vašej firmy"
+    <CompanyAdminLayout
+      title="OPERATIONS HUB"
+      subtitle="Company performance overview"
       showSearch={false}
     >
       {/* Page Content */}
@@ -213,7 +213,7 @@ const CompanyAdminDashboard = () => {
               </div>
             </>
           ) : null}
-    </Layout>
+    </CompanyAdminLayout>
   )
 }
 

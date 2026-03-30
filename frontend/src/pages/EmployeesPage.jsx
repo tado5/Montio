@@ -1,15 +1,15 @@
-import Layout from '../components/Layout'
+import CompanyAdminLayout from '../components/CompanyAdminLayout'
 import EmployeesManager from '../components/EmployeesManager'
 
 const EmployeesPage = () => {
   return (
-    <Layout
-      title="Zamestnanci"
-      subtitle="Správa zamestnancov a prístupov"
+    <CompanyAdminLayout
+      title="TEAM CONTROL"
+      subtitle="Employee management and access"
       showSearch={false}
     >
       <EmployeesManager />
-    </Layout>
+    </CompanyAdminLayout>
   )
 }
 

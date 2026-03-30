@@ -20,7 +20,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
-import Layout from '../components/Layout';
+import DynamicLayout from '../components/DynamicLayout';
 import NotificationBell from '../components/NotificationBell';
 
 const NotificationsPage = () => {
@@ -189,9 +189,9 @@ const NotificationsPage = () => {
   const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
 
   return (
-    <Layout
-      title="Notifikácie"
-      subtitle="Všetky vaše notifikácie na jednom mieste"
+    <DynamicLayout
+      title="NOTIFICATIONS"
+      subtitle="System alerts and updates"
       showSearch={false}
     >
       <div className="max-w-5xl mx-auto">
@@ -399,7 +399,7 @@ const NotificationsPage = () => {
           </div>
         )}
       </div>
-    </Layout>
+    </DynamicLayout>
   );
 };
 

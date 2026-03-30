@@ -1,15 +1,15 @@
-import Layout from '../components/Layout'
+import CompanyAdminLayout from '../components/CompanyAdminLayout'
 import OrderTypesManager from '../components/OrderTypesManager'
 
 const OrderTypesPage = () => {
   return (
-    <Layout
-      title="Typy montáží"
-      subtitle="Správa typov a checklistov"
+    <CompanyAdminLayout
+      title="OPERATIONS CONFIG"
+      subtitle="Installation types and checklists"
       showSearch={false}
     >
       <OrderTypesManager />
-    </Layout>
+    </CompanyAdminLayout>
   )
 }
 

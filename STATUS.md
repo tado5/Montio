@@ -1,8 +1,8 @@
 # MONTIO APP - Aktuálny Stav Projektu
 
-**Dátum:** 2026-03-27
+**Dátum:** 2026-03-30
 **Čas:** Aktualizované
-**Verzia:** v1.6.0 Build #14
+**Verzia:** v1.7.0 Build #15
 
 ---
 
@@ -105,7 +105,15 @@
   - **FullCalendar** (mesiac/týždeň/deň, event details)
   - **Order Types Manager** (CRUD, checklist editor)
   - **Employees Manager** (CRUD, user account creation, stats)
-  - Moderný dizajn (gradienty, animácie, glassmorphism)
+  - **Industrial Command Center UI** (v1.7.0 - complete redesign)
+    - Role-specific layouts: SuperAdminLayout, CompanyAdminLayout, EmployeeLayout
+    - Role-specific color schemes: Orange/Red (Super Admin), Blue/Cyan (Company Admin), Green/Emerald (Employee)
+    - Custom typography: Archivo Black (headlines), IBM Plex Mono (data/metrics)
+    - Dot matrix backgrounds with gradient overlays
+    - Staggered animation system (slideInRight, slideUp, slideDown, pulse, ping)
+    - DynamicLayout for shared pages (Profile, Notifications)
+    - Dark-only theme (light/dark toggle disabled)
+    - All pages redesigned with consistent aesthetic
 - **Stav:** **BEŽÍ LOKÁLNE** na localhost:3000 ✅
 
 ### 4. GitHub Repository ✅
@@ -134,13 +142,37 @@
 - **Backend:** **NEFUNGUJE** ❌ (zatiaľ)
 
 ### 7. Dokumentácia ✅
+**Hlavné dokumenty:**
+- `README.md` - Project overview
 - `PLAN.md` - Kompletný plán 9 fáz
+- `STATUS.md` - Aktuálny stav projektu (tento súbor)
 - `SETUP.md` - Inštalačné inštrukcie
+- `CHANGELOG.md` - História verzií
+- `PROJECT_STRUCTURE.md` - Štruktúra projektu
+- `TECHNICAL_NOTES.md` - Technické poznámky
+- `TESTING.md` - Testing dokumentácia
+- `DEV_CREDENTIALS.md` - Credentials
+
+**Design System Documentation (docs/design/):**
+- `DESIGN_README.md` - Hlavný prehľad design systému
+- `DESIGN_SYSTEM.md` - Kompletná design bible (30KB)
+- `DESIGN_QUICK_REFERENCE.md` - Rýchla referencia
+- `COMPONENTS_LIBRARY.md` - Knižnica ready-to-use komponentov
+- `ANIMATION_GUIDE.md` - Animation system guide
+- `FULL_REDESIGN_SUMMARY.md` - Implementation summary
+- `SUPERADMIN_REDESIGN.md` - Super Admin špecifiká
+- `DESIGN_PREVIEW.md` - ASCII visualizations
+
+**Deployment Documentation (docs/deployment/):**
 - `DEPLOYMENT.md` - Deployment guide
 - `GITHUB_ACTIONS.md` - CI/CD dokumentácia
-- `PROJECT_STRUCTURE.md` - Štruktúra projektu
-- `database/README.md` - DB setup
-- `OTAZKA_PRE_HOSTCREATOR.md` - Otázka pre support
+- `HOSTCREATOR_KOMUNIKACIA.md` - História komunikácie so supportom
+- `OTAZKA_PRE_HOSTCREATOR.md` - Otázky pre Hostcreator
+- `ODPOVED_PRE_HOSTCREATOR.md` - Prvá odpoveď
+- `ODPOVED_PRE_HOSTCREATOR_NOVA.md` - Najnovšia odpoveď
+
+**Archive (docs/archive/):**
+- Neaktuálne dokumenty z predchádzajúcich fáz
 
 ---
 
@@ -197,6 +229,72 @@
 **Features:**
 - Grid layout s employee cards
 - Create modal: meno, email, heslo, pozícia, telefón → status: created
+
+### 3. UI REDESIGN: Industrial Command Center ✅ HOTOVO (2026-03-30) - v1.7.0 Build #15
+
+**Implementované:**
+- ✅ **Complete UI Redesign** - Industrial Command Center aesthetic
+- ✅ **Role-specific Layouts** - 12 komponentov:
+  - SuperAdminLayout, SuperAdminHeader, SuperAdminSidebar, SuperAdminFooter
+  - CompanyAdminLayout, CompanyAdminHeader, CompanyAdminSidebar, CompanyAdminFooter
+  - EmployeeLayout, EmployeeHeader, EmployeeSidebar, EmployeeFooter
+  - DynamicLayout (auto-selects based on user role)
+- ✅ **Role-specific Color Schemes:**
+  - Super Admin: Orange (#f97316) → Red (#dc2626)
+  - Company Admin: Blue (#3b82f6) → Cyan (#06b6d4)
+  - Employee: Emerald (#10b981) → Green (#16a34a)
+- ✅ **Custom Typography System:**
+  - Headlines: Archivo Black (UPPERCASE)
+  - Data/Metrics: IBM Plex Mono (all weights)
+  - Google Fonts integration
+- ✅ **Visual Patterns:**
+  - Dot matrix backgrounds (32px grid, role-specific colors)
+  - Gradient overlays for depth
+  - Gradient accent lines on headers/footers
+  - Backdrop blur effects on elevated elements
+- ✅ **Animation System:**
+  - Entrance: slideInRight (menu), slideUp (cards), slideDown (headers)
+  - Status: pulse (active indicators), ping (notifications)
+  - Stagger patterns: 0.05s delays for menu items, 0.1s for cards
+  - Tailwind config with custom keyframes
+- ✅ **Redesigned Pages (8 total):**
+  - SuperAdminDashboard → "SYSTEM CONTROL"
+  - CompanyAdminDashboard → "OPERATIONS HUB"
+  - CalendarPage → "SCHEDULE CENTER"
+  - OrderTypesPage → "OPERATIONS CONFIG"
+  - EmployeesPage → "TEAM CONTROL"
+  - EmployeeDashboard → "FIELD PORTAL"
+  - ProfilePage → DynamicLayout, camera overlay, edit mode
+  - NotificationsPage → DynamicLayout
+  - CompanyDetail → SuperAdminLayout, KPI cards, timeline
+- ✅ **Dark-only Theme:**
+  - Light/Dark toggle disabled
+  - Slate-950 base background
+  - Consistent dark palette across all pages
+- ✅ **Comprehensive Documentation (5 guides, 125KB total):**
+  - DESIGN_README.md - Main overview (13KB)
+  - DESIGN_SYSTEM.md - Complete design bible (30KB)
+  - DESIGN_QUICK_REFERENCE.md - Quick reference (5KB)
+  - COMPONENTS_LIBRARY.md - Ready-to-use components (19KB)
+  - ANIMATION_GUIDE.md - Animation system (15KB)
+- ✅ **Documentation Reorganization:**
+  - docs/design/ - All design docs (10 files)
+  - docs/deployment/ - Deployment & Hostcreator (7 files)
+  - docs/archive/ - Outdated docs (5 files)
+  - Root cleaned: 28 files → 9 core files
+
+**Súbory:**
+- Layouts: 12 nových komponentov v `frontend/src/components/`
+- Pages: 8 kompletne redesigned
+- Fonts: `frontend/src/index.css` (Archivo Black, IBM Plex Mono)
+- Version: `version.json` (v1.7.0 Build #15)
+- Documentation: `docs/design/`, `docs/deployment/`, `docs/archive/`
+
+**Design Philosophy:**
+- "Industrial Command Center" - Technický, precízny, premium
+- Každá user level má distinctive visual identity cez farby
+- Konzistentný animation language naprieč aplikáciou
+- Production-ready, škálovateľný design system
 - Edit modal: update všetkých údajov + status toggle
 - Deactivate modal: soft delete s warning o počte zákaziek → status: inactive
 - **Approve button**: Schválenie zamestnanca po zmene hesla → status: active

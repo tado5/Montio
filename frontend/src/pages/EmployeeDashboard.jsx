@@ -6,16 +6,16 @@ import {
   Briefcase,
   Info
 } from 'lucide-react'
-import Layout from '../components/Layout'
+import EmployeeLayout from '../components/EmployeeLayout'
 import ReadOnlyBanner from '../components/ReadOnlyBanner'
 
 const EmployeeDashboard = () => {
   const { user } = useAuth()
 
   return (
-    <Layout
-      title="Employee Portal"
-      subtitle="Vaše úlohy a kalendár"
+    <EmployeeLayout
+      title="FIELD PORTAL"
+      subtitle="Your tasks and schedule"
       showSearch={false}
     >
       {/* Read-Only Banner for Inactive Users */}
@@ -103,7 +103,7 @@ const EmployeeDashboard = () => {
             </div>
           </div>
         </div>
-    </Layout>
+    </EmployeeLayout>
   )
 }
 
