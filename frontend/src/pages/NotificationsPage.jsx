@@ -2,9 +2,30 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { buildApiUrl } from '../config/api';
+import {
+  Bell,
+  CheckCircle,
+  Mail,
+  Trash2,
+  User,
+  Lock,
+  UserCheck,
+  UserX,
+  RefreshCw,
+  Package,
+  PartyPopper,
+  Loader2,
+  Inbox,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
+import { useToast } from '../context/ToastContext';
+import Layout from '../components/Layout';
+import NotificationBell from '../components/NotificationBell';
 
 const NotificationsPage = () => {
   const { user } = useAuth();
+  const { addToast } = useToast();
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all'); // all, unread, read
   const [loading, setLoading] = useState(true);
@@ -27,6 +48,7 @@ const NotificationsPage = () => {
       });
     } catch (error) {
       console.error('Fetch notifications error:', error);
+      addToast('Chyba pri načítavaní notifikácií', 'error');
     } finally {
       setLoading(false);
     }
@@ -50,8 +72,10 @@ const NotificationsPage = () => {
       setNotifications(prev =>
         prev.map(n => (n.id === id ? { ...n, is_read: 1, read_at: new Date().toISOString() } : n))
       );
+      addToast('Označené ako prečítané', 'success');
     } catch (error) {
       console.error('Mark as read error:', error);
+      addToast('Chyba pri označení', 'error');
     }
   };
 
@@ -67,8 +91,10 @@ const NotificationsPage = () => {
       setNotifications(prev =>
         prev.map(n => (n.id === id ? { ...n, is_read: 0, read_at: null } : n))
       );
+      addToast('Označené ako neprečítané', 'success');
     } catch (error) {
       console.error('Mark as unread error:', error);
+      addToast('Chyba pri označení', 'error');
     }
   };
 
@@ -82,8 +108,10 @@ const NotificationsPage = () => {
       );
 
       fetchNotifications(pagination.offset);
+      addToast('Všetky notifikácie označené', 'success');
     } catch (error) {
       console.error('Mark all as read error:', error);
+      addToast('Chyba pri označení', 'error');
     }
   };
 
@@ -98,8 +126,10 @@ const NotificationsPage = () => {
 
       setNotifications(prev => prev.filter(n => n.id !== id));
       setPagination(prev => ({ ...prev, total: prev.total - 1 }));
+      addToast('Notifikácia vymazaná', 'success');
     } catch (error) {
       console.error('Delete notification error:', error);
+      addToast('Chyba pri mazaní', 'error');
     }
   };
 
@@ -113,10 +143,11 @@ const NotificationsPage = () => {
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
 
-      alert(`Vymazané ${response.data.deletedCount} notifikácií.`);
+      addToast(`Vymazaných ${response.data.deletedCount} notifikácií`, 'success');
       fetchNotifications(0);
     } catch (error) {
       console.error('Delete all read error:', error);
+      addToast('Chyba pri mazaní', 'error');
     }
   };
 
@@ -131,25 +162,26 @@ const NotificationsPage = () => {
     });
   };
 
-  // Get notification icon
+  // Get notification icon component
   const getNotificationIcon = (type) => {
+    const iconProps = { className: "w-6 h-6" };
     switch (type) {
       case 'employee_created':
-        return '👤';
+        return <User {...iconProps} />;
       case 'password_changed':
-        return '🔐';
+        return <Lock {...iconProps} />;
       case 'employee_approved':
-        return '✅';
+        return <UserCheck {...iconProps} />;
       case 'employee_deactivated':
-        return '🚫';
+        return <UserX {...iconProps} />;
       case 'employee_reactivated':
-        return '🔄';
+        return <RefreshCw {...iconProps} />;
       case 'order_created':
-        return '📦';
+        return <Package {...iconProps} />;
       case 'order_completed':
-        return '🎉';
+        return <PartyPopper {...iconProps} />;
       default:
-        return '🔔';
+        return <Bell {...iconProps} />;
     }
   };
 
@@ -157,50 +189,60 @@ const NotificationsPage = () => {
   const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text mb-2">
-            Notifikácie
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Všetky vaše notifikácie na jednom mieste
-          </p>
-        </div>
+    <Layout
+      title="Notifikácie"
+      subtitle="Všetky vaše notifikácie na jednom mieste"
+      showSearch={false}
+    >
+      <div className="max-w-5xl mx-auto">
 
         {/* Filter & Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6">
+        <div className="card p-6 mb-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             {/* Filter Tabs */}
-            <div className="flex gap-2">
+            <div className="inline-flex bg-[rgb(var(--color-bg-secondary))] p-1 rounded-xl gap-1">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  filter === 'all'
-                    ? 'bg-gradient-to-r from-orange-400 to-red-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
+                className={`
+                  px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200
+                  ${filter === 'all'
+                    ? 'bg-gradient-accent text-white shadow-medium'
+                    : 'text-secondary hover:text-primary hover:bg-[rgb(var(--color-bg-elevated))]'
+                  }
+                `}
               >
-                Všetky ({pagination.total})
+                Všetky
+                {pagination.total > 0 && (
+                  <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${
+                    filter === 'all'
+                      ? 'bg-white/20'
+                      : 'bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400'
+                  }`}>
+                    {pagination.total}
+                  </span>
+                )}
               </button>
               <button
                 onClick={() => setFilter('unread')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  filter === 'unread'
-                    ? 'bg-gradient-to-r from-orange-400 to-red-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
+                className={`
+                  px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200
+                  ${filter === 'unread'
+                    ? 'bg-gradient-accent text-white shadow-medium'
+                    : 'text-secondary hover:text-primary hover:bg-[rgb(var(--color-bg-elevated))]'
+                  }
+                `}
               >
                 Neprečítané
               </button>
               <button
                 onClick={() => setFilter('read')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  filter === 'read'
-                    ? 'bg-gradient-to-r from-orange-400 to-red-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
+                className={`
+                  px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200
+                  ${filter === 'read'
+                    ? 'bg-gradient-accent text-white shadow-medium'
+                    : 'text-secondary hover:text-primary hover:bg-[rgb(var(--color-bg-elevated))]'
+                  }
+                `}
               >
                 Prečítané
               </button>
@@ -209,16 +251,27 @@ const NotificationsPage = () => {
             {/* Actions */}
             <div className="flex gap-2">
               <button
-                onClick={markAllAsRead}
-                className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                onClick={() => fetchNotifications(pagination.offset)}
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2.5 bg-[rgb(var(--color-bg-secondary))] hover:bg-primary-100 dark:hover:bg-primary-800 text-primary rounded-xl font-semibold text-sm transition-all duration-200 border-2 border-transparent hover:border-accent-500 hover:shadow-soft active:scale-95 disabled:opacity-50"
+                title="Obnoviť"
               >
-                Označiť všetko
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <span className="hidden md:inline">Obnoviť</span>
+              </button>
+              <button
+                onClick={markAllAsRead}
+                className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-xl font-semibold text-sm transition-all duration-200 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-soft active:scale-95"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span className="hidden lg:inline">Označiť všetko</span>
               </button>
               <button
                 onClick={deleteAllRead}
-                className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl font-semibold text-sm transition-all duration-200 border-2 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700 hover:shadow-soft active:scale-95"
               >
-                Vymazať prečítané
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden lg:inline">Vymazať prečítané</span>
               </button>
             </div>
           </div>
@@ -226,50 +279,52 @@ const NotificationsPage = () => {
 
         {/* Notifications List */}
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 className="w-12 h-12 text-accent-500 animate-spin mb-4" />
+            <p className="text-secondary font-medium">Načítavam notifikácie...</p>
           </div>
         ) : notifications.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-12 text-center">
-            <svg
-              className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-              />
-            </svg>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">Žiadne notifikácie</p>
+          <div className="card p-16 text-center">
+            <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-accent-100 to-accent-200 dark:from-accent-900/30 dark:to-accent-800/30 rounded-2xl flex items-center justify-center">
+              <Inbox className="w-10 h-10 text-accent-600 dark:text-accent-400" />
+            </div>
+            <h3 className="text-xl font-display font-bold text-primary mb-2">Žiadne notifikácie</h3>
+            <p className="text-secondary">
+              {filter === 'unread' && 'Nemáte žiadne neprečítané notifikácie'}
+              {filter === 'read' && 'Nemáte žiadne prečítané notifikácie'}
+              {filter === 'all' && 'Zatiaľ ste nedostali žiadne notifikácie'}
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
             {notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg p-5 transition-all hover:shadow-xl ${
+                className={`card p-5 transition-all ${
                   !notification.is_read ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
                 }`}
               >
                 <div className="flex items-start gap-4">
                   {/* Icon */}
-                  <div className="text-4xl">{getNotificationIcon(notification.type)}</div>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    !notification.is_read
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                      : 'bg-secondary/20 text-tertiary'
+                  }`}>
+                    {getNotificationIcon(notification.type)}
+                  </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        <h3 className="text-lg font-semibold text-primary">
                           {notification.title}
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-300 mt-1">
+                        <p className="text-secondary mt-1">
                           {notification.message}
                         </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                        <p className="text-sm text-tertiary mt-2">
                           {formatDate(notification.created_at)}
                           {notification.is_read && notification.read_at && (
                             <span className="ml-2">
@@ -280,49 +335,30 @@ const NotificationsPage = () => {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-shrink-0">
                         {!notification.is_read ? (
                           <button
                             onClick={() => markAsRead(notification.id)}
-                            className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                            className="p-2.5 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg transition-all duration-200 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-soft active:scale-90"
                             title="Označiť ako prečítané"
                           >
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                              <path
-                                fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
+                            <CheckCircle className="w-5 h-5" />
                           </button>
                         ) : (
                           <button
                             onClick={() => markAsUnread(notification.id)}
-                            className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                            className="p-2.5 bg-[rgb(var(--color-bg-secondary))] hover:bg-primary-100 dark:hover:bg-primary-800 text-secondary hover:text-primary rounded-lg transition-all duration-200 border-2 border-transparent hover:border-accent-500 hover:shadow-soft active:scale-90"
                             title="Označiť ako neprečítané"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"
-                              />
-                            </svg>
+                            <Mail className="w-5 h-5" />
                           </button>
                         )}
                         <button
                           onClick={() => deleteNotification(notification.id)}
-                          className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                          className="p-2.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg transition-all duration-200 border-2 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700 hover:shadow-soft active:scale-90"
                           title="Vymazať"
                         >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </div>
@@ -335,30 +371,36 @@ const NotificationsPage = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Strana {currentPage} z {totalPages} (Celkom: {pagination.total})
+          <div className="flex items-center justify-between mt-6 card p-5 flex-wrap gap-4">
+            <p className="text-sm font-semibold text-secondary">
+              Strana {currentPage} z {totalPages}
+              <span className="ml-2 px-2 py-1 rounded-lg bg-[rgb(var(--color-bg-secondary))] text-primary text-xs">
+                {pagination.total} celkom
+              </span>
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => fetchNotifications(Math.max(0, pagination.offset - pagination.limit))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-[rgb(var(--color-bg-secondary))] hover:bg-primary-100 dark:hover:bg-primary-800 text-primary rounded-lg font-semibold text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[rgb(var(--color-bg-secondary))] border-2 border-transparent hover:border-accent-500 hover:shadow-soft active:scale-95"
               >
-                Predchádzajúca
+                <ChevronLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Predchádzajúca</span>
               </button>
               <button
                 onClick={() => fetchNotifications(pagination.offset + pagination.limit)}
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-[rgb(var(--color-bg-secondary))] hover:bg-primary-100 dark:hover:bg-primary-800 text-primary rounded-lg font-semibold text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[rgb(var(--color-bg-secondary))] border-2 border-transparent hover:border-accent-500 hover:shadow-soft active:scale-95"
               >
-                Ďalšia
+                <span className="hidden sm:inline">Ďalšia</span>
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
+          </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

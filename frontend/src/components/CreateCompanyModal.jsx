@@ -1,25 +1,27 @@
 import { useState } from 'react'
+import { useToast } from '../context/ToastContext'
+import { Mail, Copy, Check, X, Send, Link as LinkIcon, Info } from 'lucide-react'
 import axios from 'axios'
 
 const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
+  const toast = useToast()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const [success, setSuccess] = useState(null)
   const [copied, setCopied] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
 
     try {
       const response = await axios.post('/api/companies', { email })
       setSuccess(response.data)
       setEmail('')
+      toast.success('Pozvánka bola úspešne odoslaná!')
       if (onSuccess) onSuccess(response.data)
     } catch (err) {
-      setError(err.response?.data?.message || 'Chyba pri odosielaní pozvánky')
+      toast.error(err.response?.data?.message || 'Chyba pri odosielaní pozvánky')
     } finally {
       setLoading(false)
     }
@@ -29,21 +31,13 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
     if (success?.invite?.invite_link) {
       navigator.clipboard.writeText(success.invite.invite_link)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
-  }
-
-  const handleCopyToken = () => {
-    if (success?.invite?.invite_token) {
-      navigator.clipboard.writeText(success.invite.invite_token)
-      setCopied(true)
+      toast.success('Link bol skopírovaný do schránky!')
       setTimeout(() => setCopied(false), 2000)
     }
   }
 
   const handleClose = () => {
     setEmail('')
-    setError('')
     setSuccess(null)
     setCopied(false)
     onClose()
@@ -52,17 +46,20 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-elevated rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-600 to-red-700 p-6 rounded-t-2xl">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-black text-white">📧 Pozvať novú firmu</h2>
+            <div className="flex items-center gap-3">
+              <Mail className="w-7 h-7 text-white" />
+              <h2 className="text-xl md:text-2xl font-display font-bold text-white">Pozvať novú firmu</h2>
+            </div>
             <button
               onClick={handleClose}
               className="text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200"
             >
-              ✕
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -71,31 +68,26 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
           {!success ? (
             // Invite Form
             <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-100 border-2 border-red-400 text-red-700 px-4 py-3 rounded-xl font-semibold">
-                  {error}
-                </div>
-              )}
-
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 border-2 border-blue-200 dark:border-blue-800">
-                <p className="text-sm text-gray-700 dark:text-gray-300 font-semibold mb-4">
-                  ℹ️ Zadajte email majiteľa firmy. Dostane registračný link, cez ktorý si vyplní všetky údaje o firme.
+              <div className="card border-2 border-blue-200 dark:border-blue-800 p-6">
+                <p className="text-sm text-secondary font-semibold flex items-center gap-2">
+                  <Info className="w-5 h-5" />
+                  Zadajte email majiteľa firmy. Dostane registračný link, cez ktorý si vyplní všetky údaje o firme.
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">
+                <label className="block text-sm font-semibold text-secondary mb-2">
                   Email majiteľa firmy *
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-lg"
+                  className="input text-lg"
                   placeholder="majitel@firma.sk"
                   required
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-medium">
+                <p className="text-xs text-tertiary mt-2 font-medium">
                   Na tento email príde pozvánka s registračným linkom
                 </p>
               </div>
@@ -104,16 +96,26 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl transition-all duration-200"
+                  className="btn btn-outline flex-1"
                 >
                   Zrušiť
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-gradient-to-r from-orange-600 to-red-700 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                  className="btn btn-primary flex-1 flex items-center justify-center gap-2"
                 >
-                  {loading ? 'Odosielam...' : '📧 Poslať pozvánku'}
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      Odosielam...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Poslať pozvánku
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -121,24 +123,26 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
             // Success State
             <div className="space-y-6">
               <div className="text-center py-6">
-                <div className="text-6xl mb-4">✅</div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <h3 className="text-2xl font-display font-bold text-primary mb-2">
                   Pozvánka odoslaná!
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 font-semibold">
+                <p className="text-secondary font-semibold">
                   {success.invite.email}
                 </p>
               </div>
 
               {/* Info Box */}
-              <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-2 border-orange-200 dark:border-orange-800 rounded-xl p-6">
+              <div className="card border-2 border-orange-200 dark:border-orange-800 p-6">
                 <div className="flex gap-3">
-                  <div className="text-3xl">📧</div>
+                  <Mail className="w-8 h-8 text-orange-600 dark:text-orange-400 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-orange-900 dark:text-orange-300 font-bold mb-2">
+                    <p className="text-sm text-secondary font-bold mb-2">
                       Email bol odoslaný na adresu majiteľa firmy
                     </p>
-                    <p className="text-xs text-orange-800 dark:text-orange-400">
+                    <p className="text-xs text-tertiary">
                       Majiteľ dostane registračný link, cez ktorý si vyplní všetky údaje o firme.
                       Po dokončení registrácie bude firma aktivovaná.
                     </p>
@@ -148,23 +152,28 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
 
               <div className="space-y-4">
                 {/* Invite Link - for backup */}
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 border-2 border-blue-200 dark:border-blue-800">
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">
-                    🔗 Registračný link (záloha)
+                <div className="card border-2 border-blue-200 dark:border-blue-800 p-4">
+                  <label className="block text-sm font-semibold text-secondary mb-2 flex items-center gap-2">
+                    <LinkIcon className="w-4 h-4" />
+                    Registračný link (záloha)
                   </label>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Ak email nepríde, môžete poslať tento link manuálne:</p>
+                  <p className="text-xs text-tertiary mb-2">Ak email nepríde, môžete poslať tento link manuálne:</p>
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={success.invite.invite_link}
                       readOnly
-                      className="flex-1 px-4 py-2 bg-white dark:bg-gray-700 dark:text-gray-200 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-sm font-mono"
+                      className="input flex-1 text-sm font-mono"
                     />
                     <button
                       onClick={handleCopyLink}
-                      className="bg-gradient-to-r from-orange-400 to-red-500 hover:from-blue-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg font-bold transition-all duration-200 whitespace-nowrap"
+                      className="btn bg-gradient-accent hover:opacity-90 text-white px-4 whitespace-nowrap"
                     >
-                      {copied ? '✓ OK' : '📋'}
+                      {copied ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -172,9 +181,10 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
 
               <button
                 onClick={handleClose}
-                className="w-full bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-600 hover:to-red-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                className="btn btn-primary w-full flex items-center justify-center gap-2"
               >
-                ✓ Hotovo
+                <Check className="w-4 h-4" />
+                Hotovo
               </button>
             </div>
           )}

@@ -124,7 +124,7 @@ test.describe('Super Admin Dashboard', () => {
   });
 
   test('should display correct user role', async ({ page }) => {
-    // Should see "Super Admin" somewhere
-    await expect(page.locator('text=/super admin/i')).toBeVisible();
+    // Should see "Super Admin" in the header or user menu
+    await expect(page.locator('text=/super admin/i').first()).toBeVisible();
   });
 });

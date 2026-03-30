@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
+import {
+  Building2,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Search,
+  Eye,
+  Mail,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
+} from 'lucide-react'
 import axios from 'axios'
-import Sidebar from '../components/Sidebar'
-import UserMenu from '../components/UserMenu'
-import NotificationBell from '../components/NotificationBell'
+import Layout from '../components/Layout'
 import CreateCompanyModal from '../components/CreateCompanyModal'
-import Footer from '../components/Footer'
+import KPICard from '../components/KPICard'
 
 const SuperAdminDashboard = () => {
   const [companies, setCompanies] = useState([])
@@ -21,6 +32,7 @@ const SuperAdminDashboard = () => {
 
   const { user } = useAuth()
   const navigate = useNavigate()
+  const toast = useToast()
 
   useEffect(() => {
     fetchCompanies()
@@ -102,8 +114,8 @@ const SuperAdminDashboard = () => {
   }
 
   const getSortIcon = (field) => {
-    if (sortField !== field) return '⇅'
-    return sortDirection === 'asc' ? '↑' : '↓'
+    if (sortField !== field) return <ArrowUpDown className="w-4 h-4" />
+    return sortDirection === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />
   }
 
   // Calculate stats
@@ -115,122 +127,126 @@ const SuperAdminDashboard = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <div className="px-6 py-2 flex justify-between items-center">
-          <div>
-            <h1 className="text-lg font-black text-gray-900 dark:text-white">Dashboard</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Spravujte všetky firmy v systéme</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <NotificationBell />
-            <UserMenu />
-          </div>
-        </div>
-      </header>
-
-      {/* Main Container with Sidebar */}
-      <div className="flex flex-1 overflow-hidden min-h-0">
-        {/* Sidebar */}
-        <Sidebar />
-
-        {/* Page Content */}
-        <main className="flex-1 px-6 py-8 overflow-y-auto">
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 cursor-pointer"
-                 onClick={() => setStatusFilter('all')}>
-              <div className="text-blue-100 text-sm font-semibold mb-2 uppercase tracking-wide">Celkom firiem</div>
-              <div className="text-4xl font-black text-white mb-2">{stats.total}</div>
-              <div className="text-blue-100 text-xs">Všetky registrované</div>
+    <Layout
+      title="Super Admin Dashboard"
+      subtitle="Spravujte všetky firmy v systéme"
+      showSearch={false}
+    >
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+              {[...Array(4)].map((_, i) => (
+                <KPICard key={i} loading={true} />
+              ))}
             </div>
-
-            <div className="bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 cursor-pointer"
-                 onClick={() => setStatusFilter('active')}>
-              <div className="text-green-100 text-sm font-semibold mb-2 uppercase tracking-wide">✓ Aktívne</div>
-              <div className="text-4xl font-black text-white mb-2">{stats.active}</div>
-              <div className="text-green-100 text-xs">Plne funkčné firmy</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+              <div onClick={() => setStatusFilter('all')} className="cursor-pointer">
+                <KPICard
+                  title="Celkom firiem"
+                  value={stats.total}
+                  subtitle="Všetky registrované"
+                  icon={Building2}
+                  color="info"
+                />
+              </div>
+              <div onClick={() => setStatusFilter('active')} className="cursor-pointer">
+                <KPICard
+                  title="Aktívne firmy"
+                  value={stats.active}
+                  subtitle="Plne funkčné"
+                  icon={CheckCircle2}
+                  color="success"
+                />
+              </div>
+              <div onClick={() => setStatusFilter('pending')} className="cursor-pointer">
+                <KPICard
+                  title="Čakajúce firmy"
+                  value={stats.pending}
+                  subtitle="Na aktiváciu"
+                  icon={Clock}
+                  color="warning"
+                />
+              </div>
+              <div onClick={() => setStatusFilter('inactive')} className="cursor-pointer">
+                <KPICard
+                  title="Neaktívne firmy"
+                  value={stats.inactive}
+                  subtitle="Deaktivované"
+                  icon={XCircle}
+                  color="error"
+                />
+              </div>
             </div>
+          )}
 
-            <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 cursor-pointer"
-                 onClick={() => setStatusFilter('pending')}>
-              <div className="text-orange-100 text-sm font-semibold mb-2 uppercase tracking-wide">⏳ Pending</div>
-              <div className="text-4xl font-black text-white mb-2">{stats.pending}</div>
-              <div className="text-orange-100 text-xs">Čakajú na aktiváciu</div>
-            </div>
-
-            <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-200 cursor-pointer"
-                 onClick={() => setStatusFilter('inactive')}>
-              <div className="text-red-100 text-sm font-semibold mb-2 uppercase tracking-wide">❌ Neaktívne</div>
-              <div className="text-4xl font-black text-white mb-2">{stats.inactive}</div>
-              <div className="text-red-100 text-xs">Deaktivované</div>
-            </div>
-          </div>
-
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+        <div className="mb-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Firmy v systéme</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <h2 className="text-xl md:text-2xl font-display font-bold text-primary">Firmy v systéme</h2>
+              <p className="text-sm text-tertiary font-medium mt-1">
                 Zobrazených: {filteredCompanies.length} z {stats.total} firiem
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
               {/* Search */}
               <div className="relative flex-1 lg:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tertiary" />
                 <input
                   type="text"
                   placeholder="Hľadať firmu..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-2 bg-elevated border border-primary/20 focus:border-accent-500 rounded-xl text-sm text-primary placeholder:text-tertiary transition-all duration-200"
                 />
-                <span className="absolute left-3 top-3 text-gray-400">🔍</span>
               </div>
 
               {/* Filter */}
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2.5 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 font-semibold"
+                className="px-4 py-2 bg-elevated border border-primary/20 focus:border-accent-500 rounded-xl text-sm text-primary transition-all duration-200"
               >
                 <option value="all">Všetky stavy</option>
-                <option value="active">✓ Aktívne</option>
-                <option value="pending">⏳ Pending</option>
-                <option value="inactive">❌ Neaktívne</option>
+                <option value="active">Aktívne</option>
+                <option value="pending">Čakajúce</option>
+                <option value="inactive">Neaktívne</option>
               </select>
 
               {/* Add Company Button */}
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-gradient-to-r from-orange-600 to-red-700 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 whitespace-nowrap"
+                className="px-4 py-2 bg-gradient-accent text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap flex items-center justify-center gap-2 text-sm"
               >
-                📧 Pozvať firmu
+                <Mail className="w-4 h-4" />
+                Pozvať firmu
               </button>
             </div>
           </div>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-500 rounded-xl p-4 mb-4 text-center">
+              <p className="text-sm text-red-700 dark:text-red-300 font-semibold">{error}</p>
             </div>
           )}
 
           {loading ? (
-            <div className="text-center py-16">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-200 dark:border-orange-700 border-t-orange-600 dark:border-t-orange-400"></div>
-              <p className="mt-4 text-gray-600 dark:text-gray-400 font-medium">Načítavanie...</p>
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-accent-200 dark:border-accent-700 border-t-accent-600 dark:border-t-accent-400"></div>
+              <p className="mt-3 text-sm text-secondary font-medium">Načítavanie...</p>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="bg-elevated border border-[rgb(var(--color-border-primary))] rounded-xl overflow-hidden shadow-sm">
               {filteredCompanies.length === 0 ? (
-                <div className="p-12 text-center">
-                  <div className="text-6xl mb-4">
-                    {searchQuery || statusFilter !== 'all' ? '🔍' : '🏢'}
+                <div className="p-8 text-center">
+                  <div className="w-12 h-12 mx-auto mb-3 bg-gradient-accent rounded-xl flex items-center justify-center">
+                    {searchQuery || statusFilter !== 'all' ? (
+                      <Search className="w-6 h-6 text-white" />
+                    ) : (
+                      <Building2 className="w-6 h-6 text-white" />
+                    )}
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium">
+                  <p className="text-sm text-secondary font-medium">
                     {searchQuery || statusFilter !== 'all'
                       ? 'Žiadne výsledky pre zadané kritériá'
                       : 'Žiadne firmy v systéme'}
@@ -241,114 +257,114 @@ const SuperAdminDashboard = () => {
                         setSearchQuery('')
                         setStatusFilter('all')
                       }}
-                      className="mt-4 text-orange-600 dark:text-orange-400 hover:underline font-semibold"
+                      className="mt-3 text-sm text-accent-500 hover:text-accent-600 font-semibold hover:underline"
                     >
                       Vymazať filtre
                     </button>
                   )}
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+                <table className="min-w-full divide-y divide-[rgb(var(--color-border-primary))]">
+                  <thead className="bg-[rgb(var(--color-bg-secondary))]">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-80">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide w-80">
                         ID
                       </th>
                       <th
                         onClick={() => handleSort('name')}
-                        className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-[rgb(var(--color-bg-primary))] transition-colors duration-200"
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           Názov
-                          <span className="text-orange-500">{getSortIcon('name')}</span>
+                          <span className="text-accent-500">{getSortIcon('name')}</span>
                         </div>
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-40">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide w-40">
                         DIČ
                       </th>
                       <th
                         onClick={() => handleSort('created_at')}
-                        className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 w-48"
+                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-[rgb(var(--color-bg-primary))] transition-colors duration-200 w-48"
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           Vytvorené
-                          <span className="text-orange-500">{getSortIcon('created_at')}</span>
+                          <span className="text-accent-500">{getSortIcon('created_at')}</span>
                         </div>
                       </th>
                       <th
                         onClick={() => handleSort('status')}
-                        className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 w-44"
+                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-[rgb(var(--color-bg-primary))] transition-colors duration-200 w-44"
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           Status
-                          <span className="text-orange-500">{getSortIcon('status')}</span>
+                          <span className="text-accent-500">{getSortIcon('status')}</span>
                         </div>
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-40">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide w-40">
                         Akcie
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
+                  <tbody className="bg-elevated divide-y divide-[rgb(var(--color-border-primary))]">
                     {filteredCompanies.map((company, index) => (
                       <tr
                         key={company.public_id || company.id}
-                        className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-200 group"
+                        className="hover:bg-[rgb(var(--color-bg-secondary))] transition-all duration-200 group"
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
-                        <td className="px-6 py-5">
-                          <span className="text-xs font-mono text-gray-600 dark:text-gray-400 break-all">
+                        <td className="px-4 py-3">
+                          <span className="text-xs font-mono text-tertiary break-all">
                             {company.public_id || 'N/A'}
                           </span>
                         </td>
-                        <td className="px-6 py-5 whitespace-nowrap">
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             {company.logo_url && company.status === 'active' ? (
                               <img
                                 src={company.logo_url}
                                 alt={company.name}
-                                className="w-10 h-10 rounded-lg object-cover shadow-md group-hover:shadow-lg transition-all duration-200"
+                                className="w-8 h-8 rounded-lg object-cover shadow-sm group-hover:shadow-md transition-all duration-200"
                               />
                             ) : (
-                              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition-all duration-200">
+                              <div className="w-8 h-8 bg-gradient-accent rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm group-hover:shadow-md transition-all duration-200">
                                 {company.name.charAt(0)}
                               </div>
                             )}
-                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200">
+                            <span className="text-sm font-semibold text-primary group-hover:text-accent-500 transition-colors duration-200">
                               {company.name}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-medium">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-secondary">
                           {company.dic || '-'}
                         </td>
-                        <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-medium">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-secondary">
                           {company.created_at ? new Date(company.created_at).toLocaleDateString('sk-SK', {
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit'
                           }) : '-'}
                         </td>
-                        <td className="px-6 py-5 whitespace-nowrap">
-                          <span className={`px-3 py-1 inline-flex text-xs font-bold rounded-full shadow-sm ${
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                             company.status === 'active'
-                              ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
                               : company.status === 'inactive'
-                              ? 'bg-gradient-to-r from-red-400 to-red-500 text-white'
-                              : 'bg-gradient-to-r from-orange-400 to-red-500 text-white'
+                              ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                              : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
                           }`}>
-                            {company.status === 'active' && '✓ Aktívna'}
-                            {company.status === 'pending' && '⏳ Pending'}
-                            {company.status === 'inactive' && '❌ Neaktívna'}
+                            {company.status === 'active' && 'Aktívna'}
+                            {company.status === 'pending' && 'Čakajúca'}
+                            {company.status === 'inactive' && 'Neaktívna'}
                           </span>
                         </td>
-                        <td className="px-6 py-5 whitespace-nowrap">
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <button
                             onClick={() => navigate(`/superadmin/company/${company.public_id}`)}
-                            className="bg-gradient-to-r from-orange-400 to-red-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                            className="px-3 py-1.5 bg-gradient-accent text-white text-sm font-semibold rounded-xl hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5"
                           >
-                            <span>👁️</span>
-                            <span>Detail</span>
+                            <Eye className="w-4 h-4" />
+                            <span className="hidden sm:inline">Detail</span>
                           </button>
                         </td>
                       </tr>
@@ -359,11 +375,6 @@ const SuperAdminDashboard = () => {
             </div>
           )}
         </div>
-      </main>
-      </div>
-
-      {/* Footer */}
-      <Footer />
 
       {/* Create Company Modal */}
       <CreateCompanyModal
@@ -371,7 +382,7 @@ const SuperAdminDashboard = () => {
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleCompanyCreated}
       />
-    </div>
+    </Layout>
   )
 }
 
