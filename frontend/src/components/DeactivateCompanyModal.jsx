@@ -1,18 +1,19 @@
 import { useState } from 'react'
+import { useToast } from '../context/ToastContext'
+import { AlertTriangle, X } from 'lucide-react'
 import axios from 'axios'
 
 const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
+  const toast = useToast()
   const [confirmName, setConfirmName] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   const handleDeactivate = async () => {
     if (confirmName !== company.name) {
-      setError('Názov firmy sa nezhoduje!')
+      toast.error('Názov firmy sa nezhoduje!')
       return
     }
 
-    setError('')
     setLoading(true)
 
     try {
@@ -20,10 +21,11 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
         companyName: confirmName
       })
 
+      toast.success('Firma bola úspešne deaktivovaná.')
       if (onSuccess) onSuccess()
       handleClose()
     } catch (err) {
-      setError(err.response?.data?.message || 'Chyba pri deaktivácii firmy')
+      toast.error(err.response?.data?.message || 'Chyba pri deaktivácii firmy')
     } finally {
       setLoading(false)
     }
@@ -31,24 +33,26 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
 
   const handleClose = () => {
     setConfirmName('')
-    setError('')
     onClose()
   }
 
   if (!isOpen || !company) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full border-4 border-red-500">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-elevated rounded-2xl shadow-xl max-w-lg w-full border-4 border-red-500 dark:border-red-600 animate-scale-in">
         {/* Header */}
         <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-t-2xl">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-black text-white">⚠️ Deaktivovať firmu</h2>
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-7 h-7 text-white" />
+              <h2 className="text-xl md:text-2xl font-display font-bold text-white">Deaktivovať firmu</h2>
+            </div>
             <button
               onClick={handleClose}
               className="text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200"
             >
-              ✕
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -56,8 +60,9 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
         <div className="p-6">
           {/* Warning */}
           <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-400 dark:border-red-700 rounded-xl p-4 mb-6">
-            <p className="text-red-900 dark:text-red-300 font-bold mb-2">
-              🚨 POZOR: Toto je nebezpečná operácia!
+            <p className="text-red-900 dark:text-red-300 font-bold mb-2 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              POZOR: Toto je nebezpečná operácia!
             </p>
             <p className="text-red-800 dark:text-red-400 text-sm">
               Deaktivovaním firmy:
@@ -70,7 +75,7 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
           </div>
 
           {/* Company Info */}
-          <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-4 mb-6">
+          <div className="card p-4 mb-6">
             <div className="flex items-center gap-3">
               {company.logo_url ? (
                 <img
@@ -84,25 +89,19 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
                 </div>
               )}
               <div>
-                <p className="font-bold text-gray-900 dark:text-gray-100">{company.name}</p>
-                <p className="text-xs font-mono text-gray-600 dark:text-gray-400">ID: {company.id.substring(0, 8)}...</p>
+                <p className="font-bold text-primary">{company.name}</p>
+                <p className="text-xs font-mono text-tertiary">ID: {company.id.substring(0, 8)}...</p>
               </div>
             </div>
           </div>
 
-          {error && (
-            <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl font-semibold mb-4">
-              {error}
-            </div>
-          )}
-
           {/* Confirmation Input */}
           <div className="mb-6">
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">
+            <label className="block text-sm font-semibold text-secondary mb-2">
               Na potvrdenie napíšte presný názov firmy:
             </label>
-            <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg mb-3">
-              <p className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100">
+            <div className="card p-3 mb-3">
+              <p className="text-sm font-mono font-bold text-primary">
                 {company.name}
               </p>
             </div>
@@ -110,7 +109,7 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
               type="text"
               value={confirmName}
               onChange={(e) => setConfirmName(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+              className="input"
               placeholder="Napíšte názov firmy"
             />
           </div>
@@ -120,16 +119,17 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold py-3 px-4 rounded-xl transition-all duration-200"
+              className="btn btn-outline flex-1"
             >
               Zrušiť
             </button>
             <button
               onClick={handleDeactivate}
               disabled={loading || confirmName !== company.name}
-              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+              className="btn flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {loading ? 'Deaktivujem...' : '⚠️ Deaktivovať firmu'}
+              <AlertTriangle className="w-4 h-4" />
+              {loading ? 'Deaktivujem...' : 'Deaktivovať firmu'}
             </button>
           </div>
         </div>

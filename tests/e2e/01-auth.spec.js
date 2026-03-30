@@ -18,8 +18,8 @@ test.describe('Authentication', () => {
     await page.fill('input[type="password"]', 'wrongpassword');
     await page.click('button[type="submit"]');
 
-    // Wait for error message (exact text from backend)
-    await expect(page.locator('text=Nesprávny email alebo heslo.')).toBeVisible({ timeout: 10000 });
+    // Wait for error message (in static error box or toast)
+    await expect(page.locator('text=/nesprávny email/i').first()).toBeVisible({ timeout: 10000 });
   });
 
   test('should login successfully as superadmin', async ({ page }) => {

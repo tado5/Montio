@@ -4,6 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import axios from 'axios'
+import { Calendar as CalendarIcon, RefreshCw, X, User, DollarSign, Clock, Package, Loader2 } from 'lucide-react'
 
 const Calendar = () => {
   const [events, setEvents] = useState([])
@@ -88,13 +89,17 @@ const Calendar = () => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+    <div className="card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-black text-gray-900 dark:text-white">Kalendár zákaziek</h2>
+        <div className="flex items-center gap-2">
+          <CalendarIcon className="w-6 h-6 text-accent-500" />
+          <h2 className="text-2xl font-bold text-primary">Kalendár zákaziek</h2>
+        </div>
         <button
           onClick={() => fetchCalendarEvents()}
-          className="px-4 py-2 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+          className="btn-primary"
         >
+          <RefreshCw className="w-4 h-4 inline mr-2" />
           Obnoviť
         </button>
       </div>
@@ -107,7 +112,7 @@ const Calendar = () => {
 
       {loading && events.length === 0 ? (
         <div className="flex justify-center items-center h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+          <Loader2 className="w-12 h-12 text-accent-500 animate-spin" />
         </div>
       ) : (
         <div className="calendar-container">
@@ -149,43 +154,49 @@ const Calendar = () => {
       {/* Event Detail Modal */}
       {showModal && selectedEvent && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+          <div className="card max-w-md w-full p-6 transform transition-all">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-black text-gray-900 dark:text-white">Detail zákazky</h3>
+              <h3 className="text-xl font-bold text-primary">Detail zákazky</h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl"
+                className="p-1.5 hover:bg-secondary/20 rounded-lg transition-colors"
               >
-                ×
+                <X className="w-5 h-5 text-tertiary" />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1">Číslo zákazky</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                <div className="flex items-center gap-2 mb-1">
+                  <Package className="w-4 h-4 text-tertiary" />
+                  <p className="text-xs text-tertiary font-semibold">Číslo zákazky</p>
+                </div>
+                <p className="text-lg font-bold text-primary ml-6">
                   {selectedEvent.extendedProps?.orderNumber}
                 </p>
               </div>
 
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1">Zákazník</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                <div className="flex items-center gap-2 mb-1">
+                  <User className="w-4 h-4 text-tertiary" />
+                  <p className="text-xs text-tertiary font-semibold">Zákazník</p>
+                </div>
+                <p className="text-lg font-bold text-primary ml-6">
                   {selectedEvent.extendedProps?.clientName}
                 </p>
               </div>
 
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1">Status</p>
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${getStatusColor(selectedEvent.extendedProps?.status)}`}>
+                <p className="text-xs text-tertiary font-semibold mb-1">Status</p>
+                <span className={`badge ${getStatusColor(selectedEvent.extendedProps?.status)}`}>
                   {getStatusText(selectedEvent.extendedProps?.status)}
                 </span>
               </div>
 
               {selectedEvent.extendedProps?.orderTypeName && (
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1">Typ montáže</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  <p className="text-xs text-tertiary font-semibold mb-1">Typ montáže</p>
+                  <p className="text-lg font-bold text-primary">
                     {selectedEvent.extendedProps.orderTypeName}
                   </p>
                 </div>
@@ -193,8 +204,11 @@ const Calendar = () => {
 
               {selectedEvent.extendedProps?.employeeName && (
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1">Zamestnanec</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  <div className="flex items-center gap-2 mb-1">
+                    <User className="w-4 h-4 text-tertiary" />
+                    <p className="text-xs text-tertiary font-semibold">Zamestnanec</p>
+                  </div>
+                  <p className="text-lg font-bold text-primary ml-6">
                     {selectedEvent.extendedProps.employeeName}
                   </p>
                 </div>
@@ -202,16 +216,22 @@ const Calendar = () => {
 
               {selectedEvent.extendedProps?.totalPrice && (
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1">Cena</p>
-                  <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                  <div className="flex items-center gap-2 mb-1">
+                    <DollarSign className="w-4 h-4 text-tertiary" />
+                    <p className="text-xs text-tertiary font-semibold">Cena</p>
+                  </div>
+                  <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 ml-6">
                     {selectedEvent.extendedProps.totalPrice.toFixed(2)}€
                   </p>
                 </div>
               )}
 
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1">Dátum</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                <div className="flex items-center gap-2 mb-1">
+                  <Clock className="w-4 h-4 text-tertiary" />
+                  <p className="text-xs text-tertiary font-semibold">Dátum</p>
+                </div>
+                <p className="text-lg font-bold text-primary ml-6">
                   {selectedEvent.start?.toLocaleDateString('sk-SK', {
                     weekday: 'long',
                     year: 'numeric',
@@ -222,10 +242,10 @@ const Calendar = () => {
               </div>
             </div>
 
-            <div className="mt-6 flex space-x-3">
+            <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="btn-outline flex-1"
               >
                 Zavrieť
               </button>
@@ -234,7 +254,7 @@ const Calendar = () => {
                   // TODO: Navigate to order detail
                   console.log('Navigate to order:', selectedEvent.id)
                 }}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                className="btn-primary flex-1"
               >
                 Otvoriť detail
               </button>
@@ -257,7 +277,7 @@ const Calendar = () => {
           gap: 0.5rem;
         }
         .fc-button {
-          background: linear-gradient(to right, rgb(251 146 60), rgb(239 68 68)) !important;
+          background: linear-gradient(to right, rgb(249 115 22), rgb(234 88 12)) !important;
           border: none !important;
           font-weight: bold !important;
           padding: 0.5rem 1rem !important;

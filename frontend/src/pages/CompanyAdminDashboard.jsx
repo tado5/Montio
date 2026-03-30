@@ -1,13 +1,25 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import Sidebar from '../components/Sidebar'
-import UserMenu from '../components/UserMenu'
-import NotificationBell from '../components/NotificationBell'
-import Footer from '../components/Footer'
+import { useToast } from '../context/ToastContext'
+import {
+  FileText,
+  Euro,
+  Users,
+  Receipt,
+  Plus,
+  Calendar,
+  Wrench,
+  TrendingUp
+} from 'lucide-react'
+import Layout from '../components/Layout'
+import KPICard from '../components/KPICard'
 import axios from 'axios'
 
 const CompanyAdminDashboard = () => {
   const { user } = useAuth()
+  const navigate = useNavigate()
+  const toast = useToast()
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -28,197 +40,180 @@ const CompanyAdminDashboard = () => {
     } catch (err) {
       console.error('Fetch stats error:', err)
       setError('Nepodarilo sa načítať štatistiky.')
+      toast.error('Nepodarilo sa načítať štatistiky')
     } finally {
       setLoading(false)
     }
   }
 
+  const quickActions = [
+    {
+      label: 'Nová zákazka',
+      icon: Plus,
+      color: 'from-blue-500 to-cyan-500',
+      onClick: () => toast.info('Zákazky - Coming Soon'),
+      disabled: true
+    },
+    {
+      label: 'Pridať zamestnanca',
+      icon: Users,
+      color: 'from-accent-500 to-accent-600',
+      onClick: () => navigate('/company/employees')
+    },
+    {
+      label: 'Vytvoriť faktúru',
+      icon: Receipt,
+      color: 'from-emerald-500 to-emerald-600',
+      onClick: () => toast.info('Fakturácia - Coming Soon'),
+      disabled: true
+    }
+  ]
+
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <div className="px-6 py-2 flex justify-between items-center">
-          <div>
-            <h1 className="text-lg font-black text-gray-900 dark:text-white">Company Dashboard</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Prehľad vašej firmy</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <NotificationBell />
-            <UserMenu />
-          </div>
-        </div>
-      </header>
-
-      {/* Main Container with Sidebar */}
-      <div className="flex flex-1 overflow-hidden min-h-0">
-        {/* Sidebar */}
-        <Sidebar />
-
-        {/* Page Content */}
-        <main className="flex-1 px-6 py-8 overflow-y-auto">
-          {/* KPI Cards */}
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+    <Layout
+      title="Company Dashboard"
+      subtitle="Prehľad vašej firmy"
+      showSearch={false}
+    >
+      {/* Page Content */}
+      {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {[...Array(4)].map((_, i) => (
+                <KPICard key={i} loading={true} />
+              ))}
             </div>
           ) : error ? (
-            <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-6 text-center">
-              <p className="text-red-800 dark:text-red-300 font-semibold">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-500 rounded-2xl p-6 text-center animate-slide-down">
+              <p className="text-red-700 dark:text-red-300 font-semibold">{error}</p>
             </div>
           ) : stats ? (
             <>
               {/* KPI Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {/* Orders Card */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
-                  <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-3xl">📦</div>
-                      <div className="text-right">
-                        <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.orders.total}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Celkom zákaziek</p>
-                      </div>
-                    </div>
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-600 dark:text-gray-400">Aktívne:</span>
-                        <span className="font-bold text-blue-600 dark:text-blue-400">{stats.orders.active}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-600 dark:text-gray-400">Dokončené:</span>
-                        <span className="font-bold text-green-600 dark:text-green-400">{stats.orders.completed}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-600 dark:text-gray-400">Zrušené:</span>
-                        <span className="font-bold text-red-600 dark:text-red-400">{stats.orders.cancelled}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+                <KPICard
+                  title="Celkom zákaziek"
+                  value={stats.orders.total}
+                  subtitle={`${stats.orders.active} aktívnych`}
+                  icon={FileText}
+                  color="info"
+                />
+                <KPICard
+                  title="Príjem tento mesiac"
+                  value={`${stats.revenue.this_month.toFixed(0)}€`}
+                  subtitle={`Celkom: ${stats.revenue.total.toFixed(0)}€`}
+                  icon={Euro}
+                  color="success"
+                  trend="up"
+                  trendValue="+12%"
+                />
+                <KPICard
+                  title="Aktívni zamestnanci"
+                  value={stats.employees.active}
+                  subtitle="Spravovať tím"
+                  icon={Users}
+                  color="primary"
+                />
+                <KPICard
+                  title="Nezaplatené faktúry"
+                  value={stats.invoices.pending}
+                  subtitle="Fakturácia"
+                  icon={Receipt}
+                  color="warning"
+                />
+              </div>
 
-                {/* Revenue Card */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
-                  <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-3xl">💰</div>
-                      <div className="text-right">
-                        <p className="text-2xl font-black text-gray-900 dark:text-white">
-                          {stats.revenue.this_month.toFixed(0)}€
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Tento mesiac</p>
-                      </div>
-                    </div>
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-600 dark:text-gray-400">Celkové príjmy:</span>
-                        <span className="font-bold text-green-600 dark:text-green-400">
-                          {stats.revenue.total.toFixed(0)}€
-                        </span>
-                      </div>
-                    </div>
+              {/* Order Details Card */}
+              <div className="card p-6 mb-6 md:mb-8">
+                <h2 className="text-lg md:text-xl font-display font-bold text-primary mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-accent-500" />
+                  Prehľad zákaziek
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <p className="text-sm text-secondary font-medium mb-1">Aktívne</p>
+                    <p className="text-2xl md:text-3xl font-display font-bold text-blue-600 dark:text-blue-400">
+                      {stats.orders.active}
+                    </p>
                   </div>
-                </div>
-
-                {/* Employees Card */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
-                  <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-3xl">👷</div>
-                      <div className="text-right">
-                        <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.employees.active}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Aktívni zamestnanci</p>
-                      </div>
-                    </div>
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Spravujte svoj tím v sekcii Zamestnanci
-                      </p>
-                    </div>
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                    <p className="text-sm text-secondary font-medium mb-1">Dokončené</p>
+                    <p className="text-2xl md:text-3xl font-display font-bold text-emerald-600 dark:text-emerald-400">
+                      {stats.orders.completed}
+                    </p>
                   </div>
-                </div>
-
-                {/* Invoices Card */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition-opacity duration-200"></div>
-                  <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-3xl">📄</div>
-                      <div className="text-right">
-                        <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.invoices.pending}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Nezaplatené faktúry</p>
-                      </div>
-                    </div>
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Spravujte faktúry v sekcii Fakturácia
-                      </p>
-                    </div>
+                  <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
+                    <p className="text-sm text-secondary font-medium mb-1">Zrušené</p>
+                    <p className="text-2xl md:text-3xl font-display font-bold text-red-600 dark:text-red-400">
+                      {stats.orders.cancelled}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl mb-8">
-                <h2 className="text-xl font-black text-gray-900 dark:text-white mb-4">Rýchle akcie</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <button className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                    <span>📝</span>
-                    <span>Nová zákazka</span>
-                  </button>
-                  <button className="flex items-center justify-center space-x-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                    <span>👤</span>
-                    <span>Pridať zamestnanca</span>
-                  </button>
-                  <button className="flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-400 to-red-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                    <span>💰</span>
-                    <span>Vytvoriť faktúru</span>
-                  </button>
+              <div className="card p-6 mb-6 md:mb-8">
+                <h2 className="text-lg md:text-xl font-display font-bold text-primary mb-4">Rýchle akcie</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                  {quickActions.map((action, index) => (
+                    <button
+                      key={index}
+                      onClick={action.onClick}
+                      disabled={action.disabled}
+                      className={`
+                        flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-semibold text-white
+                        bg-gradient-to-r ${action.color}
+                        transition-all duration-200
+                        ${action.disabled
+                          ? 'opacity-50 cursor-not-allowed'
+                          : 'hover:shadow-medium hover:scale-[1.02] active:scale-[0.98]'
+                        }
+                      `}
+                    >
+                      <action.icon className="w-5 h-5" />
+                      <span className="text-sm md:text-base">{action.label}</span>
+                      {action.disabled && (
+                        <span className="ml-auto badge bg-white/20 text-white text-xs">Soon</span>
+                      )}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               {/* Coming Soon Features */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border-2 border-dashed border-orange-300 dark:border-orange-700">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="text-3xl">📅</div>
-                    <div>
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">Kalendár</h3>
-                      <span className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                        FÁZA 4 - In Progress
-                      </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div className="card p-6 border-2 border-dashed border-accent-500/30">
+                  <div className="flex items-start gap-4 mb-3">
+                    <div className="w-12 h-12 bg-gradient-accent rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-display font-bold text-lg text-primary mb-1">Kalendár</h3>
+                      <span className="badge badge-success">Implementované</span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-secondary">
                     Plánovanie a správa zákaziek v kalendárnom pohľade s FullCalendar integráciou.
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border-2 border-dashed border-orange-300 dark:border-orange-700">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="text-3xl">🔧</div>
-                    <div>
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">Typy montáží</h3>
-                      <span className="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                        FÁZA 4 - In Progress
-                      </span>
+                <div className="card p-6 border-2 border-dashed border-accent-500/30">
+                  <div className="flex items-start gap-4 mb-3">
+                    <div className="w-12 h-12 bg-gradient-accent rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Wrench className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-display font-bold text-lg text-primary mb-1">Typy montáží</h3>
+                      <span className="badge badge-success">Implementované</span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-secondary">
                     Správa typov montáží a ich checklistov. Aktuálne máte {stats.order_types} typov.
                   </p>
                 </div>
               </div>
             </>
           ) : null}
-        </main>
-      </div>
-
-      {/* Footer */}
-      <Footer />
-    </div>
+    </Layout>
   )
 }
 

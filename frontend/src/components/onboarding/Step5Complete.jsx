@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import axios from 'axios'
+import { CheckCircle, Lock, User, Mail, AlertCircle, Loader2, Sparkles, Building2 } from 'lucide-react'
+import { useToast } from '../../context/ToastContext'
 
 export default function Step5Complete({ data, inviteToken, email }) {
-
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const { addToast } = useToast()
 
   const [formState, setFormState] = useState({
     password: '',
@@ -53,6 +55,7 @@ export default function Step5Complete({ data, inviteToken, email }) {
       })
 
       setSuccess(true)
+      addToast('Registrácia dokončená!', 'success')
 
       // Auto-login - save token and user
       const { user, token } = response.data
@@ -67,7 +70,9 @@ export default function Step5Complete({ data, inviteToken, email }) {
         window.location.href = '/company'
       }, 3000)
     } catch (err) {
-      setError(err.response?.data?.error || 'Chyba pri dokončení registrácie')
+      const errorMsg = err.response?.data?.error || 'Chyba pri dokončení registrácie'
+      setError(errorMsg)
+      addToast(errorMsg, 'error')
       setLoading(false)
     }
   }
@@ -75,24 +80,37 @@ export default function Step5Complete({ data, inviteToken, email }) {
   if (success) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Vitajte v MONTIO!</h2>
-        <p className="text-gray-600 mb-6">
+        <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Sparkles className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <h2 className="text-3xl font-bold text-primary mb-2">Vitajte v MONTIO!</h2>
+        <p className="text-secondary mb-6">
           Vaša firma bola úspešne aktivovaná
         </p>
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md mx-auto mb-6">
-          <p className="text-sm text-green-700">
-            <strong>Email:</strong> {email}
-          </p>
-          <p className="text-sm text-green-700">
-            <strong>Firma:</strong> {data.name}
-          </p>
-          <p className="text-sm text-green-700 mt-2">
-            <strong>Rola:</strong> Company Admin
-          </p>
+        <div className="card p-4 max-w-md mx-auto mb-6 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800">
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center justify-center gap-2">
+              <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-emerald-700 dark:text-emerald-400">
+                <strong>Email:</strong> {email}
+              </span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-emerald-700 dark:text-emerald-400">
+                <strong>Firma:</strong> {data.name}
+              </span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <User className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-emerald-700 dark:text-emerald-400">
+                <strong>Rola:</strong> Company Admin
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-600"></div>
+        <div className="flex items-center justify-center gap-2 text-sm text-tertiary">
+          <Loader2 className="w-4 h-4 animate-spin text-accent-500" />
           <span>Presmerovávam na dashboard...</span>
         </div>
       </div>
@@ -101,99 +119,118 @@ export default function Step5Complete({ data, inviteToken, email }) {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">Dokončenie registrácie</h2>
-      <p className="text-gray-600 mb-6">Vytvorte heslo a zadajte Vaše meno</p>
+      <h2 className="text-2xl font-bold text-primary mb-2">Dokončenie registrácie</h2>
+      <p className="text-secondary mb-6">Vytvorte heslo a zadajte Vaše meno</p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-          {error}
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <span className="text-red-700 dark:text-red-400 text-sm">{error}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Email (readonly) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-secondary mb-1">
             Email
           </label>
-          <input
-            type="email"
-            value={email}
-            disabled
-            className="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-600 cursor-not-allowed"
-          />
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+            <input
+              type="email"
+              value={email}
+              disabled
+              className="input pl-10 opacity-60 cursor-not-allowed"
+            />
+          </div>
         </div>
 
         {/* Meno */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-secondary mb-1">
               Meno <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              name="firstName"
-              value={formState.firstName}
-              onChange={handleChange}
-              placeholder="Ján"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              required
-            />
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+              <input
+                type="text"
+                name="firstName"
+                value={formState.firstName}
+                onChange={handleChange}
+                placeholder="Ján"
+                className="input pl-10"
+                required
+              />
+            </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-secondary mb-1">
               Priezvisko <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              name="lastName"
-              value={formState.lastName}
-              onChange={handleChange}
-              placeholder="Novák"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              required
-            />
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+              <input
+                type="text"
+                name="lastName"
+                value={formState.lastName}
+                onChange={handleChange}
+                placeholder="Novák"
+                className="input pl-10"
+                required
+              />
+            </div>
           </div>
         </div>
 
         {/* Heslo */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-secondary mb-1">
             Heslo <span className="text-red-500">*</span>
           </label>
-          <input
-            type="password"
-            name="password"
-            value={formState.password}
-            onChange={handleChange}
-            placeholder="Minimálne 8 znakov"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            required
-          />
-          <p className="text-xs text-gray-500 mt-1">Min 8 znakov</p>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+            <input
+              type="password"
+              name="password"
+              value={formState.password}
+              onChange={handleChange}
+              placeholder="Minimálne 8 znakov"
+              className="input pl-10"
+              required
+            />
+          </div>
+          <p className="text-xs text-tertiary mt-1">Min 8 znakov</p>
         </div>
 
         {/* Potvrdenie hesla */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-secondary mb-1">
             Potvrdenie hesla <span className="text-red-500">*</span>
           </label>
-          <input
-            type="password"
-            name="passwordConfirm"
-            value={formState.passwordConfirm}
-            onChange={handleChange}
-            placeholder="Zadajte heslo znova"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            required
-          />
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+            <input
+              type="password"
+              name="passwordConfirm"
+              value={formState.passwordConfirm}
+              onChange={handleChange}
+              placeholder="Zadajte heslo znova"
+              className="input pl-10"
+              required
+            />
+          </div>
         </div>
 
         {/* Info box */}
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-700">
-            <strong>💡 Tip:</strong> Po dokončení budete automaticky prihlásený do Company Admin Dashboard.
-          </p>
+        <div className="card p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <div className="flex items-start gap-2">
+            <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-blue-700 dark:text-blue-400">
+              Po dokončení budete automaticky prihlásený do Company Admin Dashboard.
+            </p>
+          </div>
         </div>
 
         {/* Buttons */}
@@ -201,9 +238,19 @@ export default function Step5Complete({ data, inviteToken, email }) {
           <button
             type="submit"
             disabled={loading}
-            className="px-8 py-3 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+            className="btn-primary px-8 py-3 font-semibold"
           >
-            {loading ? 'Dokončujem...' : '✓ Dokončiť a prihlásiť sa'}
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 inline mr-2 animate-spin" />
+                Dokončujem...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4 inline mr-2" />
+                Dokončiť a prihlásiť sa
+              </>
+            )}
           </button>
         </div>
       </form>

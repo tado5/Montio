@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
+import { Wrench, Lock, Mail } from 'lucide-react'
 import PasswordChangeModal from '../components/PasswordChangeModal'
 import tsdigitalLogo from '../assets/tsdigital-logo.svg'
 
@@ -14,6 +16,7 @@ const Login = () => {
 
   const { login } = useAuth()
   const navigate = useNavigate()
+  const toast = useToast()
 
   // Check if running on localhost (development mode)
   const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -26,10 +29,9 @@ const Login = () => {
     const result = await login(email, password)
 
     if (result.success) {
-      // Redirect to root, which will redirect to appropriate dashboard based on role
+      toast.success('Úspešné prihlásenie!')
       navigate('/')
     } else if (result.requirePasswordChange) {
-      // Show password change modal
       setPasswordChangeData({
         employeeId: result.employee_id,
         token: result.token
@@ -38,6 +40,7 @@ const Login = () => {
       setLoading(false)
     } else {
       setError(result.message)
+      toast.error(result.message)
       setLoading(false)
     }
   }
@@ -47,7 +50,7 @@ const Login = () => {
     setError('')
     setEmail('')
     setPassword('')
-    alert(message + ' Môžete sa odhlásiť.')
+    toast.success(message + ' Môžete sa prihlásiť.')
   }
 
   const handlePasswordChangeCancel = () => {
@@ -66,128 +69,147 @@ const Login = () => {
     const result = await login(userEmail, userPassword)
 
     if (result.success) {
-      // Redirect to root, which will redirect to appropriate dashboard based on role
+      toast.success('Prihlásenie úspešné!')
       navigate('/')
     } else {
       setError(result.message)
+      toast.error(result.message)
     }
 
     setLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-red-600 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 animate-gradient transition-colors duration-300">
-      <div className="absolute inset-0 bg-black/10 dark:bg-black/30"></div>
-      <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full max-w-md transform transition-all duration-300 hover:scale-[1.01]">
+    <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 dark:from-primary-950 dark:via-primary-900 dark:to-black flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f97316' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}/>
+      </div>
+
+      {/* Orange accent gradients */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-accent-500/20 rounded-full blur-3xl animate-pulse"/>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}/>
+
+      {/* Login card */}
+      <div className="relative bg-elevated border-2 border-primary rounded-2xl shadow-strong p-8 md:p-10 w-full max-w-md backdrop-blur-sm animate-scale-in">
+        {/* Logo and heading */}
         <div className="text-center mb-8">
-          <div className="inline-block bg-gradient-to-r from-orange-600 to-red-600 dark:from-blue-400 dark:to-purple-400 text-transparent bg-clip-text">
-            <h1 className="text-5xl font-black mb-2 tracking-tight">MONTIO</h1>
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-accent rounded-2xl mb-6 shadow-medium">
+            <Wrench className="w-10 h-10 text-white" />
           </div>
-          <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">Prihlásenie do systému</p>
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-primary mb-2 tracking-tight">
+            MONTIO
+          </h1>
+          <p className="text-secondary font-medium">Systém pre montážne firmy</p>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+          <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-500 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-6 animate-slide-down">
+            <p className="text-sm font-medium">{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-gray-700 dark:text-gray-200 text-sm font-semibold mb-2">
+            <label className="block text-primary font-semibold mb-2 text-sm">
               Email
             </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 dark:text-white hover:bg-white dark:hover:bg-gray-600"
-              placeholder="vas@email.sk"
-              required
-            />
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input pl-11"
+                placeholder="vas@email.sk"
+                required
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-gray-700 dark:text-gray-200 text-sm font-semibold mb-2">
+            <label className="block text-primary font-semibold mb-2 text-sm">
               Heslo
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-gray-50 dark:bg-gray-700 dark:text-white hover:bg-white dark:hover:bg-gray-600"
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input pl-11"
+                placeholder="••••••••"
+                required
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+            className="btn btn-primary w-full py-3.5 text-base font-semibold"
           >
-            {loading ? 'Prihlasovanie...' : 'Prihlásiť sa'}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                Prihlasovanie...
+              </span>
+            ) : (
+              'Prihlásiť sa'
+            )}
           </button>
         </form>
 
         {/* Development Quick Login */}
         {isDev && (
-          <div className="mt-6 pt-6 border-t-2 border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-4 font-bold uppercase tracking-wide">
-              🔧 Development Mode
+          <div className="mt-6 pt-6 border-t-2 border-primary">
+            <p className="text-xs text-tertiary text-center mb-4 font-bold uppercase tracking-wider flex items-center justify-center gap-2">
+              <Wrench className="w-3 h-3"/>
+              Development Mode
             </p>
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => quickLogin('admin@montio.sk', 'admin123')}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-orange-400 to-red-600 hover:from-orange-600 hover:to-red-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
+                className="btn btn-ghost text-xs py-2"
               >
                 👑 Super Admin
               </button>
               <button
                 onClick={() => quickLogin('company@montio.sk', 'company123')}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-orange-400 to-red-600 hover:from-orange-600 hover:to-red-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
+                className="btn btn-ghost text-xs py-2"
               >
-                🏢 Company Admin
+                🏢 Company
               </button>
               <button
                 onClick={() => quickLogin('employee@montio.sk', 'employee123')}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-orange-400 to-red-600 hover:from-orange-600 hover:to-red-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
+                className="btn btn-ghost text-xs py-2"
               >
                 👷 Employee
               </button>
               <button
                 onClick={() => quickLogin('123Mont@test.sk', 'asdf1234')}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-orange-400 to-red-600 hover:from-orange-600 hover:to-red-700 text-white text-sm font-bold py-2.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
+                className="btn btn-ghost text-xs py-2"
               >
-                🏭 Test Montáže (Company Admin)
+                🏭 Test Montáže
               </button>
             </div>
-            <p className="text-xs text-gray-400 text-center mt-4 font-medium">
-              Len na localhost
-            </p>
           </div>
         )}
 
-        {/* Created by TSDigital */}
-        <div className="mt-8 pt-6 border-t-2 border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-center gap-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-              Created with
-            </p>
-            <span className="text-red-500 text-lg animate-pulse">❤️</span>
-            <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-              by
-            </p>
-            <img
-              src={tsdigitalLogo}
-              alt="TSDigital"
-              className="w-8 h-8 ml-1"
-            />
-            <span className="text-lg font-bold bg-gradient-to-r from-orange-400 to-red-600 bg-clip-text text-transparent">
+        {/* Footer */}
+        <div className="mt-8 pt-6 border-t-2 border-primary">
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <span className="text-secondary">Created with</span>
+            <span className="text-red-500 animate-pulse">❤️</span>
+            <span className="text-secondary">by</span>
+            <img src={tsdigitalLogo} alt="TSDigital" className="w-6 h-6" />
+            <span className="font-bold bg-gradient-to-r from-brand-orange to-brand-red bg-clip-text text-transparent">
               TSDigital
             </span>
           </div>
