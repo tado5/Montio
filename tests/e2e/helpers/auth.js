@@ -20,12 +20,20 @@ export async function login(page, userType = 'superadmin') {
   const user = TEST_USERS[userType];
 
   await page.goto('/');
+
+  // Wait for login page to load
+  await page.waitForSelector('input[type="email"]', { timeout: 5000 });
+
   await page.fill('input[type="email"]', user.email);
   await page.fill('input[type="password"]', user.password);
   await page.click('button[type="submit"]');
 
-  // Wait for successful login (redirect to dashboard)
-  await page.waitForURL(/\/(superadmin|company|employee)/, { timeout: 5000 });
+  // Wait for successful login (redirect chain: / → /superadmin|company|employee)
+  // First wait for navigation away from login page
+  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 10000 });
+
+  // Then wait for final dashboard URL
+  await page.waitForURL(/\/(superadmin|company|employee)/, { timeout: 10000 });
 }
 
 /**
@@ -33,14 +41,18 @@ export async function login(page, userType = 'superadmin') {
  * @param {import('@playwright/test').Page} page
  */
 export async function logout(page) {
-  // Click user menu
-  await page.click('[data-testid="user-menu"], button:has-text("admin@montio.sk")');
+  // Click user menu (try multiple possible selectors)
+  const userMenuButton = page.locator('button:has-text("admin@montio.sk"), button:has-text("@")').first();
+  await userMenuButton.click();
+
+  // Wait for dropdown to appear
+  await page.waitForTimeout(500);
 
   // Click logout
   await page.click('text=Odhlásiť sa');
 
-  // Wait for redirect to login
-  await page.waitForURL('/', { timeout: 5000 });
+  // Wait for redirect to login (could be / or /login)
+  await page.waitForURL(/\/(login)?$/, { timeout: 10000 });
 }
 
 /**
