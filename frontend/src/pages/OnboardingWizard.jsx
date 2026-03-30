@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { Loader2, AlertCircle } from 'lucide-react'
+import { useToast } from '../context/ToastContext'
 import StepProgress from '../components/onboarding/StepProgress'
 import Step1BasicInfo from '../components/onboarding/Step1BasicInfo'
 import Step2LogoBilling from '../components/onboarding/Step2LogoBilling'
@@ -11,6 +13,7 @@ import Step5Complete from '../components/onboarding/Step5Complete'
 export default function OnboardingWizard() {
   const { inviteToken } = useParams()
   const navigate = useNavigate()
+  const { addToast } = useToast()
 
   const [currentStep, setCurrentStep] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -69,10 +72,10 @@ export default function OnboardingWizard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-red-50">
+      <div className="min-h-screen flex items-center justify-center bg-primary">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Načítavam...</p>
+          <Loader2 className="w-12 h-12 text-accent-500 animate-spin mx-auto mb-4" />
+          <p className="text-secondary">Načítavam...</p>
         </div>
       </div>
     )
@@ -80,14 +83,18 @@ export default function OnboardingWizard() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-red-50">
-        <div className="bg-white rounded-xl shadow-xl p-8 max-w-md">
-          <div className="text-red-600 text-5xl mb-4 text-center">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">Neplatný link</h2>
-          <p className="text-gray-600 mb-6 text-center">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-primary">
+        <div className="card p-8 max-w-md">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-primary text-center mb-2">Neplatný link</h2>
+          <p className="text-secondary text-center mb-6">{error}</p>
           <button
             onClick={() => navigate('/login')}
-            className="w-full px-4 py-2 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all"
+            className="btn-primary w-full"
           >
             Späť na prihlásenie
           </button>
@@ -138,17 +145,17 @@ export default function OnboardingWizard() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 py-8 px-4">
+    <div className="min-h-screen bg-primary py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold gradient-accent bg-clip-text text-transparent mb-2">
             Vitajte v MONTIO
           </h1>
-          <p className="text-gray-600">Dokončite registráciu Vašej firmy</p>
+          <p className="text-secondary">Dokončite registráciu Vašej firmy</p>
           {inviteData && (
-            <p className="text-sm text-gray-500 mt-2">
-              Registrácia pre: <span className="font-semibold">{inviteData.email}</span>
+            <p className="text-sm text-tertiary mt-2">
+              Registrácia pre: <span className="font-semibold text-secondary">{inviteData.email}</span>
             </p>
           )}
         </div>
@@ -157,7 +164,7 @@ export default function OnboardingWizard() {
         <StepProgress currentStep={currentStep} totalSteps={5} />
 
         {/* Step Content */}
-        <div className="bg-white rounded-xl shadow-xl p-8 mt-8">
+        <div className="card p-8 mt-8">
           {steps[currentStep]}
         </div>
       </div>

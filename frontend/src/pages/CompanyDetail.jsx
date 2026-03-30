@@ -2,6 +2,20 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
+import {
+  Building2,
+  Users,
+  ClipboardList,
+  FileText,
+  DollarSign,
+  X,
+  CheckCircle,
+  Loader2,
+  ArrowLeft,
+  Clock,
+  Package,
+  Globe
+} from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import UserMenu from '../components/UserMenu'
 import NotificationBell from '../components/NotificationBell'
@@ -70,12 +84,12 @@ const CompanyDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex min-h-screen bg-primary">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-200 dark:border-orange-700 border-t-orange-600 dark:border-t-orange-400 mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400 font-medium">Načítavanie...</p>
+            <Loader2 className="w-12 h-12 text-accent-500 animate-spin mx-auto mb-4" />
+            <p className="text-secondary font-medium">Načítavanie...</p>
           </div>
         </div>
       </div>

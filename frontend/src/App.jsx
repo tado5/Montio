@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { ToastProvider } from './context/ToastContext'
 import Login from './pages/Login'
 import OnboardingWizard from './pages/OnboardingWizard'
 import SuperAdminDashboard from './pages/SuperAdminDashboard'
@@ -43,8 +44,9 @@ function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Router>
-          <Routes>
+        <ToastProvider>
+          <Router>
+            <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register/:inviteToken" element={<OnboardingWizard />} />
 
@@ -130,8 +132,9 @@ function App() {
             />
 
             <Route path="/" element={<DashboardRedirect />} />
-          </Routes>
-        </Router>
+            </Routes>
+          </Router>
+        </ToastProvider>
       </ThemeProvider>
     </AuthProvider>
   )

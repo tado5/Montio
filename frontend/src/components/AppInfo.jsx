@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Info, X, Sparkles } from 'lucide-react'
 import tsdigitalLogo from '../assets/tsdigital-logo.svg'
 import versionData from '../../../version.json'
 
@@ -27,11 +28,11 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
       {showButton && (
         <button
           onClick={() => setIsOpen(true)}
-          className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-red-50 dark:hover:from-blue-900/30 dark:hover:to-red-900/30 rounded-lg transition-all duration-200 group"
+          className="w-full flex items-center gap-2 px-3 py-2 text-secondary hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 group"
           title="O aplikácii"
         >
-          <span className="text-base group-hover:scale-110 transition-transform duration-200">ℹ️</span>
-          <span className="text-sm font-medium group-hover:text-orange-600 dark:group-hover:text-orange-400">
+          <Info className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+          <span className="text-sm font-medium">
             O aplikácii
           </span>
         </button>
@@ -40,24 +41,25 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
       {/* Modal */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
           onClick={() => setIsOpen(false)}
         >
           <div
-            className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full border-2 border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="bg-elevated rounded-xl shadow-xl max-w-md w-full overflow-hidden animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-orange-400 to-red-500 px-6 py-4">
+            <div className="bg-gradient-accent px-6 py-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-white">O aplikácii</h3>
+                <div className="flex items-center gap-2">
+                  <Info className="w-6 h-6 text-white" />
+                  <h3 className="text-xl font-display font-bold text-white">O aplikácii</h3>
+                </div>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -66,33 +68,33 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
             <div className="px-6 py-6 space-y-4">
               {/* App Name */}
               <div className="text-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                <h2 className="text-2xl font-display font-bold text-primary mb-1">
                   {versionData.name}
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-secondary">
                   {versionData.description}
                 </p>
               </div>
 
               {/* Version Info */}
-              <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-4 border border-orange-200 dark:border-orange-800">
+              <div className="bg-[rgb(var(--color-bg-secondary))] border border-orange-200 dark:border-orange-800 rounded-xl p-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Verzia</p>
+                    <p className="text-xs text-tertiary font-medium">Verzia</p>
                     <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
                       v{versionData.version}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Build</p>
-                    <p className="text-lg font-bold text-red-700 dark:text-red-400">
+                    <p className="text-xs text-tertiary font-medium">Build</p>
+                    <p className="text-lg font-bold text-red-600 dark:text-red-400">
                       #{versionData.buildNumber}
                     </p>
                   </div>
                 </div>
-                <div className="mt-3 pt-3 border-t border-orange-200 dark:border-orange-800">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Dátum vydania</p>
-                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <div className="mt-3 pt-3 border-t border-primary/20">
+                  <p className="text-xs text-tertiary font-medium">Dátum vydania</p>
+                  <p className="text-sm font-semibold text-secondary">
                     {new Date(versionData.buildDate).toLocaleDateString('sk-SK', {
                       year: 'numeric',
                       month: 'long',
@@ -103,8 +105,8 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
               </div>
 
               {/* Creator Info */}
-              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2 text-center">
+              <div className="bg-[rgb(var(--color-bg-secondary))] rounded-xl p-4">
+                <p className="text-xs text-tertiary font-medium mb-2 text-center">
                   Created with ❤️ by
                 </p>
                 <div className="flex items-center justify-center gap-3">
@@ -117,7 +119,7 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
                     <p className="text-xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
                       TSDigital
                     </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                    <p className="text-xs text-tertiary">
                       Digital Solutions
                     </p>
                   </div>
@@ -125,14 +127,14 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
               </div>
 
               {/* Latest Changes */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-4 border border-blue-200 dark:border-blue-800">
+              <div className="bg-[rgb(var(--color-bg-secondary))] border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                 <p className="text-xs text-blue-600 dark:text-blue-400 font-bold mb-2 flex items-center gap-2">
-                  <span>✨</span>
+                  <Sparkles className="w-4 h-4" />
                   <span>Novinky v tejto verzii</span>
                 </p>
                 <ul className="space-y-1">
                   {versionData.changelog[versionData.version].changes.map((change, index) => (
-                    <li key={index} className="text-xs text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                    <li key={index} className="text-xs text-secondary flex items-start gap-2">
                       <span className="text-blue-500 mt-0.5">•</span>
                       <span>{change}</span>
                     </li>
@@ -142,10 +144,10 @@ const AppInfo = ({ showButton = true, isOpen: externalIsOpen, onOpenChange }) =>
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-4 border-t border-primary/20">
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full bg-gradient-to-r from-orange-400 to-red-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                className="w-full px-4 py-2 bg-gradient-accent text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 Zavrieť
               </button>

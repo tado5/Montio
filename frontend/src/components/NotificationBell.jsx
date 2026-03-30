@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { useToast } from '../context/ToastContext'
+import { Bell, Check, Inbox } from 'lucide-react'
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +9,7 @@ import { buildApiUrl } from '../config/api';
 const NotificationBell = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast()
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -147,44 +150,47 @@ const NotificationBell = () => {
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+        className={`relative p-2 transition-all duration-200 rounded-lg ${
+          unreadCount > 0
+            ? 'text-accent-500 hover:text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-900/20'
+            : 'text-secondary hover:text-primary hover:bg-primary-50 dark:hover:bg-primary-800'
+        }`}
       >
-        {/* Bell Icon */}
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-          />
-        </svg>
+        <Bell className={`w-6 h-6 ${unreadCount > 0 ? 'animate-pulse' : ''}`} />
 
-        {/* Badge */}
+        {/* Badge with pulse animation */}
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-400 to-red-500 rounded-full">
-            {unreadCount > 99 ? '99+' : unreadCount}
+          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center">
+            {/* Pulse ring */}
+            <span className="absolute inline-flex h-full w-full rounded-full bg-accent-500 opacity-75 animate-ping"></span>
+            {/* Badge */}
+            <span className="relative inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-accent rounded-full shadow-strong min-w-[20px]">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
           </span>
         )}
       </button>
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+        <div className="absolute right-0 mt-3 w-96 bg-elevated rounded-2xl shadow-strong border-2 border-primary z-50 animate-scale-in overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="flex items-center justify-between px-5 py-4 border-b-2 border-primary bg-[rgb(var(--color-bg-secondary))]">
+            <h3 className="text-lg font-display font-bold text-primary flex items-center gap-2">
+              <Bell className="w-5 h-5 text-accent-500" />
               Notifikácie
+              {unreadCount > 0 && (
+                <span className="ml-2 px-2 py-0.5 bg-gradient-accent text-white text-xs font-bold rounded-full shadow-soft">
+                  {unreadCount}
+                </span>
+              )}
             </h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg font-semibold transition-all duration-200 border border-blue-200 dark:border-blue-800 hover:shadow-soft"
               >
+                <Check className="w-3.5 h-3.5" />
                 Označiť všetko
               </button>
             )}
@@ -193,50 +199,42 @@ const NotificationBell = () => {
           {/* Notifications List */}
           <div className="max-h-96 overflow-y-auto">
             {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-accent-200 dark:border-accent-700 border-t-accent-500"></div>
+                <p className="text-sm text-tertiary mt-3 font-medium">Načítavam...</p>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                <svg
-                  className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                  />
-                </svg>
-                <p>Žiadne notifikácie</p>
+              <div className="px-4 py-12 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-accent-100 to-accent-200 dark:from-accent-900/30 dark:to-accent-800/30 rounded-2xl flex items-center justify-center">
+                  <Inbox className="w-8 h-8 text-accent-600 dark:text-accent-400" />
+                </div>
+                <p className="text-sm font-semibold text-primary">Žiadne notifikácie</p>
+                <p className="text-xs text-tertiary mt-1">Budete upozornení na nové udalosti</p>
               </div>
             ) : (
               notifications.map((notification) => (
                 <div
                   key={notification.id}
                   onClick={() => markAsRead(notification.id)}
-                  className={`px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors ${
-                    !notification.is_read ? 'bg-blue-50 dark:bg-blue-900/10' : ''
+                  className={`px-5 py-4 border-b border-primary hover:bg-primary-50 dark:hover:bg-primary-800 cursor-pointer transition-all duration-200 ${
+                    !notification.is_read ? 'bg-blue-50 dark:bg-blue-900/10 border-l-4 border-l-blue-500' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">{getNotificationIcon(notification.type)}</span>
+                    <span className="text-2xl flex-shrink-0">{getNotificationIcon(notification.type)}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-sm font-semibold text-primary line-clamp-1">
                         {notification.title}
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                      <p className="text-sm text-secondary mt-1 line-clamp-2">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="text-xs text-tertiary mt-2 font-medium">
                         {timeAgo(notification.created_at)}
                       </p>
                     </div>
                     {!notification.is_read && (
-                      <span className="w-2 h-2 bg-blue-500 rounded-full mt-1"></span>
+                      <span className="w-2.5 h-2.5 bg-blue-500 rounded-full mt-1 flex-shrink-0 animate-pulse shadow-lg shadow-blue-500/50"></span>
                     )}
                   </div>
                 </div>
@@ -246,13 +244,13 @@ const NotificationBell = () => {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-5 py-4 border-t-2 border-primary bg-[rgb(var(--color-bg-secondary))]">
               <button
                 onClick={() => {
                   setIsOpen(false);
                   navigate('/notifications');
                 }}
-                className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                className="w-full py-2.5 text-center text-sm bg-gradient-accent text-white hover:opacity-90 rounded-lg font-semibold transition-all duration-200 shadow-soft hover:shadow-medium active:scale-95"
               >
                 Zobraziť všetky notifikácie
               </button>

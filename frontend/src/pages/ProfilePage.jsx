@@ -1,18 +1,29 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import Sidebar from '../components/Sidebar'
-import UserMenu from '../components/UserMenu'
-import NotificationBell from '../components/NotificationBell'
+import { useToast } from '../context/ToastContext'
+import {
+  User,
+  Mail,
+  Phone,
+  Building2,
+  Briefcase,
+  Edit2,
+  Save,
+  X,
+  Lock,
+  Shield,
+  CheckCircle2,
+  AlertCircle
+} from 'lucide-react'
+import Layout from '../components/Layout'
 import ReadOnlyBanner from '../components/ReadOnlyBanner'
-import Footer from '../components/Footer'
 import axios from 'axios'
 
 const ProfilePage = () => {
   const { user } = useAuth()
+  const toast = useToast()
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [success, setSuccess] = useState(null)
   const [isEditMode, setIsEditMode] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
 
@@ -47,10 +58,9 @@ const ProfilePage = () => {
         email: profileData.email || '',
         phone: profileData.phone || ''
       })
-      setError(null)
     } catch (err) {
       console.error('Fetch profile error:', err)
-      setError('Nepodarilo sa načítať profil.')
+      toast.error('Nepodarilo sa načítať profil.')
     } finally {
       setLoading(false)
     }
@@ -66,14 +76,12 @@ const ProfilePage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
-      setSuccess('Profil bol aktualizovaný.')
+      toast.success('Profil bol aktualizovaný.')
       setIsEditMode(false)
-      setTimeout(() => setSuccess(null), 3000)
       fetchProfile()
     } catch (err) {
       console.error('Update profile error:', err)
-      setError(err.response?.data?.message || 'Nepodarilo sa aktualizovať profil.')
-      setTimeout(() => setError(null), 3000)
+      toast.error(err.response?.data?.message || 'Nepodarilo sa aktualizovať profil.')
     }
   }
 
@@ -81,14 +89,12 @@ const ProfilePage = () => {
     e.preventDefault()
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setError('Nové heslá sa nezhodujú.')
-      setTimeout(() => setError(null), 3000)
+      toast.error('Nové heslá sa nezhodujú.')
       return
     }
 
     if (passwordForm.newPassword.length < 6) {
-      setError('Nové heslo musí mať aspoň 6 znakov.')
-      setTimeout(() => setError(null), 3000)
+      toast.error('Nové heslo musí mať aspoň 6 znakov.')
       return
     }
 
@@ -103,18 +109,16 @@ const ProfilePage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
-      setSuccess('Heslo bolo zmenené.')
+      toast.success('Heslo bolo zmenené.')
       setPasswordForm({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
       })
       setIsChangingPassword(false)
-      setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
       console.error('Change password error:', err)
-      setError(err.response?.data?.message || 'Nepodarilo sa zmeniť heslo.')
-      setTimeout(() => setError(null), 3000)
+      toast.error(err.response?.data?.message || 'Nepodarilo sa zmeniť heslo.')
     }
   }
 
@@ -133,118 +137,89 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <div className="px-6 py-2 flex justify-between items-center">
-          <div>
-            <h1 className="text-lg font-black text-gray-900 dark:text-white">Môj profil</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Spravujte svoje osobné údaje</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <NotificationBell />
-            <UserMenu />
-          </div>
-        </div>
-      </header>
-
+    <Layout
+      title="Môj profil"
+      subtitle="Spravujte svoje osobné údaje"
+      showSearch={false}
+    >
       {/* Read-Only Banner for Inactive Users */}
       <ReadOnlyBanner />
 
-      {/* Main Container with Sidebar */}
-      <div className="flex flex-1 overflow-hidden min-h-0">
-        {/* Sidebar */}
-        <Sidebar />
-
-        {/* Page Content */}
-        <main className="flex-1 px-6 py-8 overflow-y-auto">
-          {loading ? (
+      {/* Page Content */}
+      {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-accent-200 dark:border-accent-700 border-t-accent-600 dark:border-t-accent-400"></div>
             </div>
           ) : (
             <div className="max-w-4xl mx-auto space-y-6">
-              {/* Success Message */}
-              {success && (
-                <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-2xl p-4 animate-fade-in">
-                  <p className="text-green-800 dark:text-green-300 font-semibold text-center flex items-center justify-center gap-2">
-                    <span>✓</span> {success}
-                  </p>
-                </div>
-              )}
-
-              {/* Error Message */}
-              {error && (
-                <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-4 animate-fade-in">
-                  <p className="text-red-800 dark:text-red-300 font-semibold text-center flex items-center justify-center gap-2">
-                    <span>⚠</span> {error}
-                  </p>
-                </div>
-              )}
 
               {/* Profile Header Card with Avatar */}
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-200"></div>
-                <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                  <div className="flex items-center gap-6">
-                    <div className="relative">
-                      <img
-                        src={getAvatarUrl(profile?.email)}
-                        alt="Avatar"
-                        className="w-32 h-32 rounded-2xl shadow-2xl border-4 border-white dark:border-gray-700"
-                      />
-                      <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-orange-400 to-red-500 rounded-full px-4 py-1">
-                        <span className="text-white text-xs font-bold">{getRoleName(profile?.role)}</span>
-                      </div>
+              <div className="card p-6 md:p-8">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={getAvatarUrl(profile?.email)}
+                      alt="Avatar"
+                      className="w-24 h-24 md:w-32 md:h-32 rounded-2xl shadow-medium border-4 border-[rgb(var(--color-bg-elevated))]"
+                    />
+                    <div className="absolute -bottom-2 -right-2 bg-gradient-accent rounded-full px-3 py-1 shadow-soft">
+                      <span className="text-white text-xs font-bold">{getRoleName(profile?.role)}</span>
                     </div>
-
-                    <div className="flex-1">
-                      <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-2">
-                        {profile?.name || 'Používateľ'}
-                      </h2>
-                      <p className="text-lg text-gray-600 dark:text-gray-400 mb-3">{profile?.email}</p>
-
-                      <div className="flex flex-wrap gap-2">
-                        {profile?.company_name && (
-                          <span className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 text-sm font-bold rounded-full">
-                            <span>🏢</span> {profile.company_name}
-                          </span>
-                        )}
-                        {profile?.position && (
-                          <span className="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 text-sm font-bold rounded-full">
-                            <span>💼</span> {profile.position}
-                          </span>
-                        )}
-                        {profile?.phone && (
-                          <span className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-sm font-bold rounded-full">
-                            <span>📞</span> {profile.phone}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {!isEditMode && !isChangingPassword && (
-                      <button
-                        onClick={() => !user?.isReadOnly && setIsEditMode(true)}
-                        disabled={user?.isReadOnly}
-                        className={`px-6 py-3 rounded-xl font-bold transition-all duration-200 ${
-                          user?.isReadOnly
-                            ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg transform hover:scale-105'
-                        }`}
-                      >
-                        ✏️ Upraviť profil
-                      </button>
-                    )}
                   </div>
+
+                  <div className="flex-1 text-center md:text-left">
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-primary mb-2">
+                      {profile?.name || 'Používateľ'}
+                    </h2>
+                    <p className="text-base md:text-lg text-secondary mb-3 flex items-center justify-center md:justify-start gap-2">
+                      <Mail className="w-5 h-5" />
+                      {profile?.email}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                      {profile?.company_name && (
+                        <span className="badge badge-info inline-flex items-center gap-1">
+                          <Building2 className="w-3 h-3" />
+                          {profile.company_name}
+                        </span>
+                      )}
+                      {profile?.position && (
+                        <span className="badge badge-neutral inline-flex items-center gap-1">
+                          <Briefcase className="w-3 h-3" />
+                          {profile.position}
+                        </span>
+                      )}
+                      {profile?.phone && (
+                        <span className="badge badge-success inline-flex items-center gap-1">
+                          <Phone className="w-3 h-3" />
+                          {profile.phone}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {!isEditMode && !isChangingPassword && (
+                    <button
+                      onClick={() => !user?.isReadOnly && setIsEditMode(true)}
+                      disabled={user?.isReadOnly}
+                      className={`btn flex items-center gap-2 whitespace-nowrap ${
+                        user?.isReadOnly
+                          ? 'opacity-50 cursor-not-allowed'
+                          : 'btn-secondary'
+                      }`}
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      Upraviť profil
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Edit Profile Form */}
               {isEditMode && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 animate-fade-in">
+                <div className="card p-6 animate-slide-down">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white">Upraviť údaje</h3>
+                    <h3 className="text-xl md:text-2xl font-display font-bold text-primary">Upraviť údaje</h3>
                     <button
                       onClick={() => {
                         setIsEditMode(false)
@@ -254,59 +229,69 @@ const ProfilePage = () => {
                           phone: profile?.phone || ''
                         })
                       }}
-                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-bold"
+                      className="btn btn-ghost p-2"
                     >
-                      ✕ Zrušiť
+                      <X className="w-5 h-5" />
                     </button>
                   </div>
 
                   <form onSubmit={handleProfileSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-sm font-semibold text-secondary mb-2">
                           Meno a priezvisko *
                         </label>
-                        <input
-                          type="text"
-                          value={profileForm.name}
-                          onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none"
-                          required
-                        />
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+                          <input
+                            type="text"
+                            value={profileForm.name}
+                            onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                            className="input pl-10"
+                            required
+                          />
+                        </div>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-sm font-semibold text-secondary mb-2">
                           Email *
                         </label>
-                        <input
-                          type="email"
-                          value={profileForm.email}
-                          onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none"
-                          required
-                        />
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+                          <input
+                            type="email"
+                            value={profileForm.email}
+                            onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                            className="input pl-10"
+                            required
+                          />
+                        </div>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-sm font-semibold text-secondary mb-2">
                           Telefón
                         </label>
-                        <input
-                          type="tel"
-                          value={profileForm.phone}
-                          onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                          placeholder="+421..."
-                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none"
-                        />
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+                          <input
+                            type="tel"
+                            value={profileForm.phone}
+                            onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                            placeholder="+421..."
+                            className="input pl-10"
+                          />
+                        </div>
                       </div>
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                      className="btn btn-primary w-full flex items-center justify-center gap-2"
                     >
-                      💾 Uložiť zmeny
+                      <Save className="w-5 h-5" />
+                      Uložiť zmeny
                     </button>
                   </form>
                 </div>
@@ -314,44 +299,52 @@ const ProfilePage = () => {
 
               {/* Change Password Section */}
               {!isEditMode && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+                <div className="card p-6">
                   {!isChangingPassword ? (
                     <div>
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                         <div>
-                          <h3 className="text-xl font-black text-gray-900 dark:text-white">Zabezpečenie</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          <h3 className="text-xl font-display font-bold text-primary">Zabezpečenie</h3>
+                          <p className="text-sm text-secondary mt-1">
                             Spravujte svoje prístupové heslo
                           </p>
                         </div>
                         <button
                           onClick={() => !user?.isReadOnly && setIsChangingPassword(true)}
                           disabled={user?.isReadOnly}
-                          className={`px-4 py-2 rounded-xl font-bold transition-all duration-200 ${
+                          className={`btn flex items-center gap-2 ${
                             user?.isReadOnly
-                              ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed opacity-50'
-                              : 'bg-gradient-to-r from-orange-400 to-red-500 text-white hover:shadow-lg transform hover:scale-105'
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'btn-primary'
                           }`}
                         >
-                          🔐 Zmeniť heslo
+                          <Lock className="w-4 h-4" />
+                          Zmeniť heslo
                         </button>
                       </div>
-                      <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
-                        <span className="text-2xl">🛡️</span>
+                      <div className="flex items-center gap-3 p-4 bg-secondary rounded-xl">
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Shield className="w-6 h-6 text-white" />
+                        </div>
                         <div>
-                          <p className="text-sm font-bold text-gray-900 dark:text-white">Heslo je zabezpečené</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                          <p className="text-sm font-bold text-primary flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                            Heslo je zabezpečené
+                          </p>
+                          <p className="text-xs text-tertiary">
                             Naposledy zmenené: {new Date(profile?.created_at).toLocaleDateString('sk-SK')}
                           </p>
                         </div>
                       </div>
 
                       {user?.isReadOnly && (
-                        <div className="flex items-center gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border-2 border-yellow-200 dark:border-yellow-800 mt-4">
-                          <span className="text-2xl">🔒</span>
+                        <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border-2 border-amber-200 dark:border-amber-800 mt-4">
+                          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <AlertCircle className="w-6 h-6 text-white" />
+                          </div>
                           <div>
-                            <p className="text-sm font-bold text-yellow-900 dark:text-yellow-300">READ-ONLY režim</p>
-                            <p className="text-xs text-yellow-800 dark:text-yellow-400">
+                            <p className="text-sm font-bold text-amber-900 dark:text-amber-300">READ-ONLY režim</p>
+                            <p className="text-xs text-amber-800 dark:text-amber-400">
                               Váš účet je deaktivovaný. Nemôžete upravovať profil ani meniť heslo.
                             </p>
                           </div>
@@ -359,9 +352,9 @@ const ProfilePage = () => {
                       )}
                     </div>
                   ) : (
-                    <div className="animate-fade-in">
+                    <div className="animate-slide-down">
                       <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-2xl font-black text-gray-900 dark:text-white">Zmeniť heslo</h3>
+                        <h3 className="text-xl md:text-2xl font-display font-bold text-primary">Zmeniť heslo</h3>
                         <button
                           onClick={() => {
                             setIsChangingPassword(false)
@@ -371,62 +364,72 @@ const ProfilePage = () => {
                               confirmPassword: ''
                             })
                           }}
-                          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-bold"
+                          className="btn btn-ghost p-2"
                         >
-                          ✕ Zrušiť
+                          <X className="w-5 h-5" />
                         </button>
                       </div>
 
                       <form onSubmit={handlePasswordSubmit}>
                         <div className="space-y-4 mb-6">
                           <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-semibold text-secondary mb-2">
                               Aktuálne heslo *
                             </label>
-                            <input
-                              type="password"
-                              value={passwordForm.currentPassword}
-                              onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                              required
-                            />
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+                              <input
+                                type="password"
+                                value={passwordForm.currentPassword}
+                                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                                className="input pl-10"
+                                required
+                              />
+                            </div>
                           </div>
 
                           <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-semibold text-secondary mb-2">
                               Nové heslo *
                             </label>
-                            <input
-                              type="password"
-                              value={passwordForm.newPassword}
-                              onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                              minLength="6"
-                              required
-                            />
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimálne 6 znakov</p>
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+                              <input
+                                type="password"
+                                value={passwordForm.newPassword}
+                                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                                className="input pl-10"
+                                minLength="6"
+                                required
+                              />
+                            </div>
+                            <p className="text-xs text-tertiary mt-1">Minimálne 6 znakov</p>
                           </div>
 
                           <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-semibold text-secondary mb-2">
                               Potvrdiť nové heslo *
                             </label>
-                            <input
-                              type="password"
-                              value={passwordForm.confirmPassword}
-                              onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                              minLength="6"
-                              required
-                            />
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+                              <input
+                                type="password"
+                                value={passwordForm.confirmPassword}
+                                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                                className="input pl-10"
+                                minLength="6"
+                                required
+                              />
+                            </div>
                           </div>
                         </div>
 
                         <button
                           type="submit"
-                          className="w-full px-4 py-3 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                          className="btn btn-primary w-full flex items-center justify-center gap-2"
                         >
-                          🔐 Zmeniť heslo
+                          <Lock className="w-5 h-5" />
+                          Zmeniť heslo
                         </button>
                       </form>
                     </div>
@@ -435,12 +438,7 @@ const ProfilePage = () => {
               )}
             </div>
           )}
-        </main>
-      </div>
-
-      {/* Footer */}
-      <Footer />
-    </div>
+    </Layout>
   )
 }
 

@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import axios from 'axios'
+import { Plus, Trash2, ClipboardList, AlertCircle, ArrowLeft } from 'lucide-react'
+import { useToast } from '../../context/ToastContext'
 
 export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, inviteToken }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const { addToast } = useToast()
 
   const [orderTypes, setOrderTypes] = useState(
     data.orderTypes.length > 0
@@ -94,10 +97,14 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
       // Update parent state
       updateData({ orderTypes: cleanedOrderTypes })
 
+      addToast('Typy montáží uložené', 'success')
+
       // Go to next step
       nextStep()
     } catch (err) {
-      setError(err.response?.data?.error || 'Chyba pri ukladaní')
+      const errorMsg = err.response?.data?.error || 'Chyba pri ukladaní'
+      setError(errorMsg)
+      addToast(errorMsg, 'error')
     } finally {
       setLoading(false)
     }
@@ -105,37 +112,41 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">Typy montáží</h2>
-      <p className="text-gray-600 mb-6">Definujte typy montáží a ich checklists</p>
+      <h2 className="text-2xl font-bold text-primary mb-2">Typy montáží</h2>
+      <p className="text-secondary mb-6">Definujte typy montáží a ich checklists</p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-          {error}
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <span className="text-red-700 dark:text-red-400 text-sm">{error}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Order Types */}
         {orderTypes.map((orderType, otIndex) => (
-          <div key={otIndex} className="border-2 border-gray-200 rounded-lg p-4 relative">
+          <div key={otIndex} className="card p-4 relative">
             {/* Remove button */}
             {orderTypes.length > 1 && (
               <button
                 type="button"
                 onClick={() => removeOrderType(otIndex)}
-                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                className="absolute top-3 right-3 p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors group"
               >
-                ✕
+                <Trash2 className="w-4 h-4 text-red-500 group-hover:text-red-600" />
               </button>
             )}
 
-            <h3 className="font-semibold text-gray-700 mb-3">
-              Typ montáže #{otIndex + 1}
-            </h3>
+            <div className="flex items-center gap-2 mb-3">
+              <ClipboardList className="w-5 h-5 text-accent-500" />
+              <h3 className="font-semibold text-primary">
+                Typ montáže #{otIndex + 1}
+              </h3>
+            </div>
 
             {/* Name */}
             <div className="mb-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-secondary mb-1">
                 Názov <span className="text-red-500">*</span>
               </label>
               <input
@@ -143,14 +154,14 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
                 value={orderType.name}
                 onChange={e => updateOrderType(otIndex, 'name', e.target.value)}
                 placeholder="napr. Klimatizácia - inštalácia"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="input"
                 required
               />
             </div>
 
             {/* Description */}
             <div className="mb-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-secondary mb-1">
                 Popis (voliteľné)
               </label>
               <textarea
@@ -158,18 +169,18 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
                 onChange={e => updateOrderType(otIndex, 'description', e.target.value)}
                 placeholder="Krátky popis typu montáže"
                 rows="2"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="input"
               />
             </div>
 
             {/* Checklist */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-secondary mb-2">
                 Checklist položky
               </label>
 
               {orderType.checklist.map((checklistItem, clIndex) => (
-                <div key={clIndex} className="flex items-center space-x-2 mb-2">
+                <div key={clIndex} className="flex items-center gap-2 mb-2">
                   <input
                     type="text"
                     value={checklistItem.item}
@@ -177,28 +188,28 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
                       updateChecklistItem(otIndex, clIndex, 'item', e.target.value)
                     }
                     placeholder="napr. Montáž vnútornej jednotky"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    className="input flex-1 text-sm"
                   />
 
-                  <label className="flex items-center space-x-1 whitespace-nowrap">
+                  <label className="flex items-center gap-1 whitespace-nowrap">
                     <input
                       type="checkbox"
                       checked={checklistItem.required}
                       onChange={e =>
                         updateChecklistItem(otIndex, clIndex, 'required', e.target.checked)
                       }
-                      className="rounded text-orange-600 focus:ring-orange-500"
+                      className="rounded text-accent-500 focus:ring-accent-500"
                     />
-                    <span className="text-xs text-gray-600">Povinné</span>
+                    <span className="text-xs text-secondary">Povinné</span>
                   </label>
 
                   {orderType.checklist.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeChecklistItem(otIndex, clIndex)}
-                      className="text-red-500 hover:text-red-700 text-sm"
+                      className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors group"
                     >
-                      ✕
+                      <Trash2 className="w-4 h-4 text-red-500 group-hover:text-red-600" />
                     </button>
                   )}
                 </div>
@@ -207,9 +218,10 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
               <button
                 type="button"
                 onClick={() => addChecklistItem(otIndex)}
-                className="mt-2 text-sm text-orange-600 hover:text-orange-700"
+                className="mt-2 text-sm text-accent-500 hover:text-accent-600 flex items-center gap-1"
               >
-                + Pridať položku
+                <Plus className="w-4 h-4" />
+                Pridať položku
               </button>
             </div>
           </div>
@@ -220,9 +232,10 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
           <button
             type="button"
             onClick={addOrderType}
-            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-orange-500 hover:text-orange-600 transition-colors"
+            className="w-full py-3 card-interactive border-2 border-dashed border-primary flex items-center justify-center gap-2"
           >
-            + Pridať ďalší typ montáže
+            <Plus className="w-5 h-5 text-accent-500" />
+            <span className="text-accent-500 font-medium">Pridať ďalší typ montáže</span>
           </button>
         )}
 
@@ -231,16 +244,17 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
           <button
             type="button"
             onClick={prevStep}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
+            className="btn-outline"
           >
-            ← Späť
+            <ArrowLeft className="w-4 h-4 inline mr-2" />
+            Späť
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary"
           >
-            {loading ? 'Ukladám...' : 'Ďalej →'}
+            {loading ? 'Ukladám...' : 'Ďalej'}
           </button>
         </div>
       </form>

@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import axios from 'axios'
+import { Building2, Hash, MapPin, Mail, AlertCircle } from 'lucide-react'
+import { useToast } from '../../context/ToastContext'
 
 export default function Step1BasicInfo({ data, updateData, nextStep, inviteToken, email }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const { addToast } = useToast()
 
   const [formState, setFormState] = useState({
     name: data.name || '',
@@ -57,10 +60,14 @@ export default function Step1BasicInfo({ data, updateData, nextStep, inviteToken
       // Update parent state
       updateData(formState)
 
+      addToast('Údaje uložené', 'success')
+
       // Go to next step
       nextStep()
     } catch (err) {
-      setError(err.response?.data?.error || 'Chyba pri ukladaní')
+      const errorMsg = err.response?.data?.error || 'Chyba pri ukladaní'
+      setError(errorMsg)
+      addToast(errorMsg, 'error')
     } finally {
       setLoading(false)
     }
@@ -68,95 +75,111 @@ export default function Step1BasicInfo({ data, updateData, nextStep, inviteToken
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">Základné údaje firmy</h2>
-      <p className="text-gray-600 mb-6">Zadajte základné informácie o Vašej firme</p>
+      <h2 className="text-2xl font-bold text-primary mb-2">Základné údaje firmy</h2>
+      <p className="text-secondary mb-6">Zadajte základné informácie o Vašej firme</p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-          {error}
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <span className="text-red-700 dark:text-red-400 text-sm">{error}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Názov firmy */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-secondary mb-1">
             Názov firmy <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="name"
-            value={formState.name}
-            onChange={handleChange}
-            placeholder="napr. Montáže SK s.r.o."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            required
-          />
+          <div className="relative">
+            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+            <input
+              type="text"
+              name="name"
+              value={formState.name}
+              onChange={handleChange}
+              placeholder="napr. Montáže SK s.r.o."
+              className="input pl-10"
+              required
+            />
+          </div>
         </div>
 
         {/* IČO */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-secondary mb-1">
             IČO <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="ico"
-            value={formState.ico}
-            onChange={handleChange}
-            placeholder="12345678"
-            maxLength="8"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            required
-          />
-          <p className="text-xs text-gray-500 mt-1">8 číslic</p>
+          <div className="relative">
+            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+            <input
+              type="text"
+              name="ico"
+              value={formState.ico}
+              onChange={handleChange}
+              placeholder="12345678"
+              maxLength="8"
+              className="input pl-10"
+              required
+            />
+          </div>
+          <p className="text-xs text-tertiary mt-1">8 číslic</p>
         </div>
 
         {/* DIČ */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-secondary mb-1">
             DIČ (voliteľné)
           </label>
-          <input
-            type="text"
-            name="dic"
-            value={formState.dic}
-            onChange={handleChange}
-            placeholder="2023456789"
-            maxLength="10"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-          <p className="text-xs text-gray-500 mt-1">10 číslic</p>
+          <div className="relative">
+            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+            <input
+              type="text"
+              name="dic"
+              value={formState.dic}
+              onChange={handleChange}
+              placeholder="2023456789"
+              maxLength="10"
+              className="input pl-10"
+            />
+          </div>
+          <p className="text-xs text-tertiary mt-1">10 číslic</p>
         </div>
 
         {/* Adresa */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-secondary mb-1">
             Adresa <span className="text-red-500">*</span>
           </label>
-          <textarea
-            name="address"
-            value={formState.address}
-            onChange={handleChange}
-            placeholder="Hlavná 123, 81101 Bratislava"
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            required
-          />
+          <div className="relative">
+            <MapPin className="absolute left-3 top-3 w-5 h-5 text-tertiary" />
+            <textarea
+              name="address"
+              value={formState.address}
+              onChange={handleChange}
+              placeholder="Hlavná 123, 81101 Bratislava"
+              rows="3"
+              className="input pl-10"
+              required
+            />
+          </div>
         </div>
 
         {/* Email (readonly) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-secondary mb-1">
             Email
           </label>
-          <input
-            type="email"
-            value={email}
-            disabled
-            className="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-600 cursor-not-allowed"
-          />
-          <p className="text-xs text-gray-500 mt-1">Email sa používa na prihlásenie</p>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
+            <input
+              type="email"
+              value={email}
+              disabled
+              className="input pl-10 opacity-60 cursor-not-allowed"
+            />
+          </div>
+          <p className="text-xs text-tertiary mt-1">Email sa používa na prihlásenie</p>
         </div>
 
         {/* Buttons */}
@@ -164,9 +187,9 @@ export default function Step1BasicInfo({ data, updateData, nextStep, inviteToken
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary"
           >
-            {loading ? 'Ukladám...' : 'Ďalej →'}
+            {loading ? 'Ukladám...' : 'Ďalej'}
           </button>
         </div>
       </form>

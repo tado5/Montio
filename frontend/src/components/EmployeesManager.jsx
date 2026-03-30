@@ -1,11 +1,27 @@
 import { useState, useEffect } from 'react'
+import { useToast } from '../context/ToastContext'
+import {
+  UserPlus,
+  Search,
+  Edit2,
+  UserX,
+  RefreshCw,
+  Trash2,
+  Mail,
+  Phone,
+  Briefcase,
+  CheckCircle2,
+  X,
+  Save,
+  Lock
+} from 'lucide-react'
 import axios from 'axios'
 
 const EmployeesManager = () => {
+  const toast = useToast()
   const [employees, setEmployees] = useState([])
   const [jobPositions, setJobPositions] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -48,7 +64,7 @@ const EmployeesManager = () => {
       setError(null)
     } catch (err) {
       console.error('Fetch employees error:', err)
-      setError('Nepodarilo sa načítať zamestnancov.')
+      toast.error('Nepodarilo sa načítať zamestnancov.')
     } finally {
       setLoading(false)
     }
@@ -92,7 +108,7 @@ const EmployeesManager = () => {
       fetchEmployees()
     } catch (err) {
       console.error('Approve employee error:', err)
-      alert(err.response?.data?.message || 'Nepodarilo sa schváliť zamestnanca.')
+      toast.error(err.response?.data?.message || 'Nepodarilo sa schváliť zamestnanca.')
     }
   }
 
@@ -109,10 +125,10 @@ const EmployeesManager = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       fetchEmployees()
-      alert('Zamestnanec bol reaktivovaný.')
+      toast.success('Zamestnanec bol reaktivovaný.')
     } catch (err) {
       console.error('Reactivate employee error:', err)
-      alert(err.response?.data?.message || 'Nepodarilo sa reaktivovať zamestnanca.')
+      toast.error(err.response?.data?.message || 'Nepodarilo sa reaktivovať zamestnanca.')
     }
   }
 
@@ -135,10 +151,10 @@ const EmployeesManager = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       fetchEmployees()
-      alert('Zamestnanec bol natrvalo vymazaný.')
+      toast.success('Zamestnanec bol natrvalo vymazaný.')
     } catch (err) {
       console.error('Hard delete employee error:', err)
-      alert(err.response?.data?.message || 'Nepodarilo sa vymazať zamestnanca.')
+      toast.error(err.response?.data?.message || 'Nepodarilo sa vymazať zamestnanca.')
     }
   }
 
@@ -154,10 +170,10 @@ const EmployeesManager = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       )
-      alert(response.data.message + '\nEmail: ' + response.data.email)
+      toast.success(response.data.message + ' - Email: ' + response.data.email)
     } catch (err) {
       console.error('Resend credentials error:', err)
-      alert(err.response?.data?.message || 'Nepodarilo sa znovu poslať prihlasovacie údaje.')
+      toast.error(err.response?.data?.message || 'Nepodarilo sa znovu poslať prihlasovacie údaje.')
     }
   }
 
@@ -182,7 +198,7 @@ const EmployeesManager = () => {
       fetchEmployees()
     } catch (err) {
       console.error('Create employee error:', err)
-      alert(err.response?.data?.message || 'Nepodarilo sa vytvoriť zamestnanca.')
+      toast.error(err.response?.data?.message || 'Nepodarilo sa vytvoriť zamestnanca.')
     }
   }
 
@@ -207,7 +223,7 @@ const EmployeesManager = () => {
       fetchEmployees()
     } catch (err) {
       console.error('Update employee error:', err)
-      alert(err.response?.data?.message || 'Nepodarilo sa aktualizovať zamestnanca.')
+      toast.error(err.response?.data?.message || 'Nepodarilo sa aktualizovať zamestnanca.')
     }
   }
 
@@ -224,7 +240,7 @@ const EmployeesManager = () => {
       fetchEmployees()
     } catch (err) {
       console.error('Delete employee error:', err)
-      alert(err.response?.data?.message || 'Nepodarilo sa deaktivovať zamestnanca.')
+      toast.error(err.response?.data?.message || 'Nepodarilo sa deaktivovať zamestnanca.')
     }
   }
 
@@ -239,15 +255,15 @@ const EmployeesManager = () => {
     return statusMap[status] || status
   }
 
-  const getStatusColor = (status) => {
-    const colorMap = {
-      'created': 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30',
-      'pending_approval': 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30',
-      'active': 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30',
-      'inactive': 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30',
-      'deleted': 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30'
+  const getStatusBadgeClass = (status) => {
+    const classMap = {
+      'created': 'badge-warning',
+      'pending_approval': 'badge-info',
+      'active': 'badge-success',
+      'inactive': 'badge-neutral',
+      'deleted': 'badge-error'
     }
-    return colorMap[status] || 'text-gray-600 bg-gray-100'
+    return classMap[status] || 'badge-neutral'
   }
 
   // Filter employees
@@ -260,33 +276,38 @@ const EmployeesManager = () => {
   })
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-black text-gray-900 dark:text-white">Zamestnanci</h2>
+    <div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-primary">Zamestnanci</h2>
+          <p className="text-sm text-tertiary mt-1">Správa tímu a prístupov</p>
+        </div>
         <button
           onClick={handleCreate}
-          className="px-4 py-2 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+          className="btn btn-primary flex items-center gap-2 whitespace-nowrap"
         >
-          + Pridať zamestnanca
+          <UserPlus className="w-5 h-5" />
+          Pridať zamestnanca
         </button>
       </div>
 
       {/* Search and Filter */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
           <input
             type="text"
             placeholder="Hľadať podľa mena, emailu alebo pozície..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
+            className="input pl-10"
           />
         </div>
         <div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full md:w-auto px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
+            className="input w-full md:w-auto"
           >
             <option value="all">Všetci</option>
             <option value="created">Vytvorení</option>
@@ -299,18 +320,17 @@ const EmployeesManager = () => {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-        </div>
-      ) : error ? (
-        <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-6 text-center">
-          <p className="text-red-800 dark:text-red-300 font-semibold">{error}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-accent-200 dark:border-accent-700 border-t-accent-600 dark:border-t-accent-400"></div>
         </div>
       ) : filteredEmployees.length === 0 ? (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-2xl p-6 text-center">
-          <p className="text-blue-800 dark:text-blue-300 font-semibold">
+        <div className="card border-2 border-dashed border-primary p-12 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-accent rounded-2xl flex items-center justify-center">
+            <Search className="w-8 h-8 text-white" />
+          </div>
+          <p className="text-secondary font-medium">
             {searchTerm || statusFilter !== 'all'
               ? 'Žiadni zamestnanci nezodpovedajú filtru.'
-              : 'Zatiaľ nemáte žiadnych zamestnancov. Vytvorte prvého kliknutím na tlačidlo "+ Pridať zamestnanca".'}
+              : 'Zatiaľ nemáte žiadnych zamestnancov. Vytvorte prvého kliknutím na tlačidlo "Pridať zamestnanca".'}
           </p>
         </div>
       ) : (
@@ -318,38 +338,41 @@ const EmployeesManager = () => {
           {filteredEmployees.map((employee) => (
             <div
               key={employee.id}
-              className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border-2 border-gray-200 dark:border-gray-700 hover:border-orange-400 dark:hover:border-orange-500 transition-all duration-200"
+              className="card-interactive p-4"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
+                  <h3 className="font-display font-bold text-lg text-primary mb-1">
                     {employee.name}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  <p className="text-sm text-secondary mb-1 flex items-center gap-1">
+                    <Briefcase className="w-3 h-3" />
                     {employee.position}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                  <p className="text-xs text-tertiary font-mono flex items-center gap-1">
+                    <Mail className="w-3 h-3" />
                     {employee.email}
                   </p>
                   {employee.phone && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-xs text-tertiary mt-1 flex items-center gap-1">
+                      <Phone className="w-3 h-3" />
                       {employee.phone}
                     </p>
                   )}
                 </div>
-                <span className={`inline-block px-2 py-1 rounded-full text-xs font-bold ${getStatusColor(employee.status)}`}>
+                <span className={`badge ${getStatusBadgeClass(employee.status)}`}>
                   {getStatusText(employee.status)}
                 </span>
               </div>
 
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
+              <div className="border-t border-primary pt-3 mb-3">
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-gray-600 dark:text-gray-400">Celkom zákaziek:</span>
+                  <span className="text-secondary">Celkom zákaziek:</span>
                   <span className="font-bold text-blue-600 dark:text-blue-400">{employee.total_orders}</span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-gray-600 dark:text-gray-400">Dokončené:</span>
-                  <span className="font-bold text-green-600 dark:text-green-400">{employee.completed_orders}</span>
+                  <span className="text-secondary">Dokončené:</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">{employee.completed_orders}</span>
                 </div>
               </div>
 
@@ -359,11 +382,12 @@ const EmployeesManager = () => {
                   <>
                     <button
                       onClick={() => handleResendCredentials(employee)}
-                      className="w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-lg transition-colors"
+                      className="btn btn-secondary w-full flex items-center justify-center gap-2 text-sm"
                     >
-                      📧 Poslať prihlasovacie údaje
+                      <Mail className="w-4 h-4" />
+                      Poslať prihlasovacie údaje
                     </button>
-                    <div className="text-center text-xs text-gray-500 dark:text-gray-400 py-1">
+                    <div className="text-center text-xs text-tertiary py-1">
                       Čaká na prvé prihlásenie
                     </div>
                   </>
@@ -374,15 +398,17 @@ const EmployeesManager = () => {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleApprove(employee)}
-                      className="flex-1 px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-lg transition-colors"
+                      className="btn flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-sm flex items-center justify-center gap-1"
                     >
-                      ✅ Schváliť
+                      <CheckCircle2 className="w-4 h-4" />
+                      Schváliť
                     </button>
                     <button
                       onClick={() => handleEdit(employee)}
-                      className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-lg transition-colors"
+                      className="btn btn-secondary flex-1 text-sm flex items-center justify-center gap-1"
                     >
-                      ✏️ Upraviť
+                      <Edit2 className="w-4 h-4" />
+                      Upraviť
                     </button>
                   </div>
                 )}
@@ -392,15 +418,17 @@ const EmployeesManager = () => {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEdit(employee)}
-                      className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-lg transition-colors"
+                      className="btn btn-secondary flex-1 text-sm flex items-center justify-center gap-1"
                     >
-                      ✏️ Upraviť
+                      <Edit2 className="w-4 h-4" />
+                      Upraviť
                     </button>
                     <button
                       onClick={() => handleDelete(employee)}
-                      className="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-bold rounded-lg transition-colors"
+                      className="btn flex-1 bg-red-500 hover:bg-red-600 text-white text-sm flex items-center justify-center gap-1"
                     >
-                      🚫 Deaktivovať
+                      <UserX className="w-4 h-4" />
+                      Deaktivovať
                     </button>
                   </div>
                 )}
@@ -410,20 +438,22 @@ const EmployeesManager = () => {
                   <div className="flex flex-col space-y-2">
                     <button
                       onClick={() => handleReactivate(employee)}
-                      className="w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-lg transition-colors"
+                      className="btn w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm flex items-center justify-center gap-1"
                     >
-                      🔄 Reaktivovať
+                      <RefreshCw className="w-4 h-4" />
+                      Reaktivovať
                     </button>
                     {employee.total_orders === 0 && (
                       <button
                         onClick={() => handleHardDelete(employee)}
-                        className="w-full px-3 py-2 bg-red-700 hover:bg-red-800 text-white text-sm font-bold rounded-lg transition-colors"
+                        className="btn w-full bg-red-700 hover:bg-red-800 text-white text-sm flex items-center justify-center gap-1"
                       >
-                        🗑️ Vymazať natrvalo
+                        <Trash2 className="w-4 h-4" />
+                        Vymazať natrvalo
                       </button>
                     )}
                     {employee.total_orders > 0 && (
-                      <div className="text-center text-xs text-gray-500 dark:text-gray-400 py-1">
+                      <div className="text-center text-xs text-tertiary py-1">
                         Má {employee.total_orders} zákaziek - nemožno vymazať
                       </div>
                     )}
@@ -438,94 +468,107 @@ const EmployeesManager = () => {
       {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-6">Nový zamestnanec</h3>
+          <div className="bg-elevated rounded-2xl shadow-xl max-w-md w-full p-6 animate-scale-in">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl md:text-2xl font-display font-bold text-primary">Nový zamestnanec</h3>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                className="btn btn-ghost p-2"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
             <form onSubmit={handleSubmitCreate}>
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Meno a priezvisko *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                  required
-                />
-              </div>
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Meno a priezvisko *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                  required
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Heslo *
-                </label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                  minLength="6"
-                  required
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Heslo *
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="input"
+                    minLength="6"
+                    required
+                  />
+                  <p className="text-xs text-tertiary mt-1">Minimálne 6 znakov</p>
+                </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Pozícia *
-                </label>
-                <select
-                  value={formData.position}
-                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                  required
-                >
-                  <option value="">Vyber pozíciu...</option>
-                  {jobPositions.map((position) => (
-                    <option key={position.id} value={position.name}>
-                      {position.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Pozícia *
+                  </label>
+                  <select
+                    value={formData.position}
+                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                    className="input"
+                    required
+                  >
+                    <option value="">Vyber pozíciu...</option>
+                    {jobPositions.map((position) => (
+                      <option key={position.id} value={position.name}>
+                        {position.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Telefón
-                </label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+421..."
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Telefón
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+421..."
+                    className="input"
+                  />
+                </div>
               </div>
 
               <div className="flex space-x-3">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  className="btn btn-outline flex-1"
                 >
                   Zrušiť
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                  className="btn btn-primary flex-1 flex items-center justify-center gap-2"
                 >
+                  <Save className="w-4 h-4" />
                   Vytvoriť
                 </button>
               </div>
@@ -537,95 +580,107 @@ const EmployeesManager = () => {
       {/* Edit Modal */}
       {showEditModal && selectedEmployee && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-6">
-              Upraviť zamestnanca
-            </h3>
+          <div className="bg-elevated rounded-2xl shadow-xl max-w-md w-full p-6 animate-scale-in">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl md:text-2xl font-display font-bold text-primary">
+                Upraviť zamestnanca
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                className="btn btn-ghost p-2"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
             <form onSubmit={handleSubmitEdit}>
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Meno a priezvisko *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                  required
-                />
-              </div>
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Meno a priezvisko *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                  required
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Pozícia *
-                </label>
-                <select
-                  value={formData.position}
-                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                  required
-                >
-                  <option value="">Vyber pozíciu...</option>
-                  {jobPositions.map((position) => (
-                    <option key={position.id} value={position.name}>
-                      {position.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Pozícia *
+                  </label>
+                  <select
+                    value={formData.position}
+                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                    className="input"
+                    required
+                  >
+                    <option value="">Vyber pozíciu...</option>
+                    {jobPositions.map((position) => (
+                      <option key={position.id} value={position.name}>
+                        {position.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Telefón
-                </label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Telefón
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="input"
+                  />
+                </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Status
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-orange-500 dark:focus:border-orange-400 focus:outline-none"
-                >
-                  <option value="active">Aktívny</option>
-                  <option value="inactive">Neaktívny</option>
-                </select>
+                <div>
+                  <label className="block text-sm font-semibold text-secondary mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    className="input"
+                  >
+                    <option value="active">Aktívny</option>
+                    <option value="inactive">Neaktívny</option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex space-x-3">
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  className="btn btn-outline flex-1"
                 >
                   Zrušiť
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                  className="btn btn-primary flex-1 flex items-center justify-center gap-2"
                 >
+                  <Save className="w-4 h-4" />
                   Uložiť zmeny
                 </button>
               </div>
@@ -637,30 +692,39 @@ const EmployeesManager = () => {
       {/* Delete Modal */}
       {showDeleteModal && selectedEmployee && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-4">
-              Deaktivovať zamestnanca?
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Naozaj chcete deaktivovať zamestnanca "<strong>{selectedEmployee.name}</strong>"?
-              Zamestnanec nebude môcť pristupovať do systému, ale jeho údaje zostanú zachované.
-            </p>
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-xl p-4 mb-6">
-              <p className="text-sm text-yellow-800 dark:text-yellow-300 font-semibold">
-                ⚠️ Zamestnanec má {selectedEmployee.total_orders} zákaziek.
+          <div className="bg-elevated rounded-2xl shadow-xl max-w-md w-full p-6 animate-scale-in">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                <UserX className="w-6 h-6 text-red-600 dark:text-red-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-display font-bold text-primary mb-2">
+                  Deaktivovať zamestnanca?
+                </h3>
+                <p className="text-secondary text-sm">
+                  Naozaj chcete deaktivovať zamestnanca "<strong>{selectedEmployee.name}</strong>"?
+                  Zamestnanec nebude môcť pristupovať do systému, ale jeho údaje zostanú zachované.
+                </p>
+              </div>
+            </div>
+            <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
+              <p className="text-sm text-amber-900 dark:text-amber-300 font-semibold flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Zamestnanec má {selectedEmployee.total_orders} zákaziek.
               </p>
             </div>
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="btn btn-outline flex-1"
               >
                 Zrušiť
               </button>
               <button
                 onClick={handleSubmitDelete}
-                className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors"
+                className="btn flex-1 bg-red-500 hover:bg-red-600 text-white flex items-center justify-center gap-2"
               >
+                <UserX className="w-4 h-4" />
                 Deaktivovať
               </button>
             </div>
