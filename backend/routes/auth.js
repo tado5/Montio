@@ -80,7 +80,7 @@ router.post('/login', async (req, res) => {
 
     // Nájdenie používateľa s employee info
     const [users] = await pool.query(
-      `SELECT u.id, u.email, u.password_hash, u.role, u.company_id, u.theme,
+      `SELECT u.id, u.email, u.password_hash, u.role, u.company_id, u.theme, u.name, u.position, u.avatar_url,
               e.id as employee_id, e.status as employee_status, e.must_change_password
        FROM users u
        LEFT JOIN employees e ON u.id = e.user_id
@@ -170,7 +170,10 @@ router.post('/login', async (req, res) => {
         email: user.email,
         role: user.role,
         company_id: user.company_id,
-        theme: user.theme || 'light',
+        theme: user.theme || 'dark',
+        name: user.name || null,
+        position: user.position || null,
+        avatar_url: user.avatar_url || null,
         employee_id: user.employee_id || null,
         employee_status: user.employee_status || null,
         isReadOnly: isReadOnly

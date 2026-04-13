@@ -37,3 +37,9 @@ coverage/
 
 # Development
 DEV_CREDENTIALS.md
+
+# Uploads (user-generated content)
+backend/uploads/
+!backend/uploads/.gitkeep
+!backend/uploads/avatars/.gitkeep
+!backend/uploads/logos/.gitkeep

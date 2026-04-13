@@ -126,6 +126,11 @@ const ProfilePage = () => {
     setProfile({ ...profile, avatar_url: newAvatarUrl })
     setShowAvatarModal(false)
     toast.success(newAvatarUrl ? 'Avatar aktualizovaný' : 'Avatar vymazaný')
+    // Update user in AuthContext and localStorage
+    if (user) {
+      const updatedUser = { ...user, avatar_url: newAvatarUrl }
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+    }
   }
 
   const getRoleColor = () => {
