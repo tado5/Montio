@@ -75,7 +75,7 @@ const UserMenu = () => {
       {/* User Avatar Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-xl px-3 py-2 transition-all duration-200 group"
+        className="flex items-center gap-3 hover:bg-primary-50 dark:hover:bg-primary-800 rounded-xl px-1.5 md:px-3 py-1 md:py-2 transition-all duration-200 group"
       >
         <div className="text-right hidden lg:block">
           <div className="flex items-center gap-2 justify-end">
@@ -86,7 +86,7 @@ const UserMenu = () => {
             {user.email}
           </p>
         </div>
-        <div className="w-11 h-11 rounded-xl overflow-hidden shadow-soft group-hover:shadow-medium transition-all duration-200 transform group-hover:scale-105 ring-2 ring-accent-500/20 group-hover:ring-accent-500">
+        <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl overflow-hidden shadow-soft group-hover:shadow-medium transition-all duration-200 transform group-hover:scale-105 ring-2 ring-accent-500/20 group-hover:ring-accent-500">
           <img
             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}&backgroundColor=f97316,ea580c,fb923c`}
             alt="Avatar"

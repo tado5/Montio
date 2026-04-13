@@ -11,6 +11,7 @@ import EmployeeDashboard from './pages/EmployeeDashboard'
 import CalendarPage from './pages/CalendarPage'
 import OrderTypesPage from './pages/OrderTypesPage'
 import EmployeesPage from './pages/EmployeesPage'
+import CompanySettingsPage from './pages/CompanySettingsPage'
 import ProfilePage from './pages/ProfilePage'
 import NotificationsPage from './pages/NotificationsPage'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -100,6 +101,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['companyadmin']}>
                   <EmployeesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/settings"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin']}>
+                  <CompanySettingsPage />
                 </ProtectedRoute>
               }
             />

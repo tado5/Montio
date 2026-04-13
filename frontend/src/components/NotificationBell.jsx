@@ -145,18 +145,27 @@ const NotificationBell = () => {
 
   if (!user) return null;
 
+  const handleBellClick = () => {
+    // On mobile, navigate directly to notifications page
+    if (window.innerWidth < 768) {
+      navigate('/notifications');
+    } else {
+      setIsOpen(!isOpen);
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Bell Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`relative p-2 transition-all duration-200 rounded-lg ${
+        onClick={handleBellClick}
+        className={`relative p-1 md:p-2 transition-all duration-200 rounded-lg ${
           unreadCount > 0
             ? 'text-accent-500 hover:text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-900/20'
             : 'text-secondary hover:text-primary hover:bg-primary-50 dark:hover:bg-primary-800'
         }`}
       >
-        <Bell className={`w-6 h-6 ${unreadCount > 0 ? 'animate-pulse' : ''}`} />
+        <Bell className={`w-4 h-4 md:w-5 md:h-5 ${unreadCount > 0 ? 'animate-pulse' : ''}`} />
 
         {/* Badge with pulse animation */}
         {unreadCount > 0 && (

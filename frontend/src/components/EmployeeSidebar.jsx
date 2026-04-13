@@ -53,7 +53,7 @@ const EmployeeSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleColla
       <aside
         className={`
           fixed lg:relative top-0 left-0 h-screen z-40
-          ${isCollapsed ? 'w-20' : 'w-72'}
+          ${isCollapsed ? 'w-16' : 'w-64'}
           bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950
           flex flex-col
           transition-all duration-300 ease-in-out
@@ -73,27 +73,27 @@ const EmployeeSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleColla
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-green-500/5 pointer-events-none"></div>
 
         {/* Logo Section */}
-        <div className="relative px-4 py-4 border-b border-emerald-500/20">
+        <div className="relative px-3 py-2.5 border-b border-emerald-500/20">
           {isCollapsed ? (
-            <div className="w-12 h-12 mx-auto bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 border border-emerald-400/30">
-              <Wrench className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 mx-auto bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 border border-emerald-400/30">
+              <Wrench className="w-5 h-5 text-white" />
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {/* Main Logo */}
-              <div className="flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-lg shadow-emerald-500/30 border border-emerald-400/30">
-                <Wrench className="w-5 h-5 text-white" />
-                <span className="text-lg font-black text-white tracking-wider" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+              <div className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-lg shadow-emerald-500/30 border border-emerald-400/30">
+                <Wrench className="w-4 h-4 text-white" />
+                <span className="text-base font-black text-white tracking-wider" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
                   MONTIO
                 </span>
               </div>
 
               {/* Employee Badge */}
-              <div className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-900/50 border border-emerald-500/20 rounded-lg backdrop-blur-sm">
-                <Shield className="w-4 h-4 text-emerald-400" />
+              <div className="flex items-center justify-center gap-1.5 px-2 py-1.5 bg-slate-900/50 border border-emerald-500/20 rounded-lg backdrop-blur-sm">
+                <Shield className="w-3.5 h-3.5 text-emerald-400" />
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-mono text-slate-500 leading-none uppercase tracking-wider">Field</span>
-                  <span className="text-xs font-mono text-emerald-300 leading-none font-bold">Technician</span>
+                  <span className="text-[9px] font-mono text-slate-500 leading-none uppercase tracking-wider">Field</span>
+                  <span className="text-[11px] font-mono text-emerald-300 leading-none font-bold">Technician</span>
                 </div>
               </div>
             </div>
@@ -101,8 +101,8 @@ const EmployeeSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleColla
         </div>
 
         {/* Navigation */}
-        <nav className="relative flex-1 overflow-y-auto p-4">
-          <ul className="space-y-2">
+        <nav className="relative flex-1 overflow-y-auto p-3">
+          <ul className="space-y-1.5">
             {menuItems.map((item, index) => {
               const Icon = item.Icon
               const active = isActive(item.path)
@@ -117,7 +117,7 @@ const EmployeeSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleColla
                     onClick={() => handleNavigation(item.path, item.disabled)}
                     disabled={item.disabled}
                     className={`
-                      w-full flex items-center gap-3 rounded-xl font-bold text-sm px-4 py-3.5
+                      w-full flex items-center gap-2 rounded-xl font-bold text-[13px] px-3 py-2.5
                       transition-all duration-300 group relative overflow-hidden
                       ${isCollapsed ? 'justify-center' : ''}
                       ${
@@ -135,25 +135,25 @@ const EmployeeSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleColla
                       <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/5 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     )}
 
-                    <Icon className={`${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'} flex-shrink-0 relative z-10 ${active ? 'drop-shadow-lg' : ''}`} />
+                    <Icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'} flex-shrink-0 relative z-10 ${active ? 'drop-shadow-lg' : ''}`} />
 
                     {!isCollapsed && (
                       <>
                         <div className="flex-1 text-left relative z-10">
                           <div className="font-bold tracking-wide">{item.label}</div>
-                          <div className={`text-[10px] font-mono mt-0.5 ${active ? 'text-emerald-100' : 'text-slate-500 group-hover:text-slate-400'}`}>
+                          <div className={`text-[9px] font-mono mt-0.5 ${active ? 'text-emerald-100' : 'text-slate-500 group-hover:text-slate-400'}`}>
                             {item.description}
                           </div>
                         </div>
                         {item.disabled && (
-                          <span className="relative z-10 text-[10px] px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded font-mono text-slate-500">SOON</span>
+                          <span className="relative z-10 text-[9px] px-1.5 py-0.5 bg-slate-800/50 border border-slate-700/50 rounded font-mono text-slate-500">SOON</span>
                         )}
                       </>
                     )}
 
                     {/* Active indicator */}
                     {active && !isCollapsed && (
-                      <div className="absolute right-3 w-1.5 h-8 bg-white rounded-full shadow-lg shadow-white/50"></div>
+                      <div className="absolute right-2 w-1 h-6 bg-white rounded-full shadow-lg shadow-white/50"></div>
                     )}
                   </button>
                 </li>
@@ -163,27 +163,27 @@ const EmployeeSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleColla
 
           {/* Today's Tasks Card - Only when expanded */}
           {!isCollapsed && (
-            <div className="mt-6 p-4 bg-slate-900/50 border border-slate-700/50 rounded-xl backdrop-blur-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <CheckSquare className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">Today's Tasks</span>
+            <div className="mt-4 p-3 bg-slate-900/50 border border-slate-700/50 rounded-xl backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 mb-2">
+                <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Today's Tasks</span>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-mono text-slate-500">Total</span>
-                  <span className="text-xs font-mono text-green-400 font-bold">3</span>
+                  <span className="text-[11px] font-mono text-slate-500">Total</span>
+                  <span className="text-[11px] font-mono text-green-400 font-bold">3</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-mono text-slate-500">Completed</span>
-                  <span className="text-xs font-mono text-emerald-400 font-bold">1</span>
+                  <span className="text-[11px] font-mono text-slate-500">Completed</span>
+                  <span className="text-[11px] font-mono text-emerald-400 font-bold">1</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-mono text-slate-500">Progress</span>
+                  <span className="text-[11px] font-mono text-slate-500">Progress</span>
                   <div className="flex items-center gap-1">
-                    <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="w-14 h-1 bg-slate-800 rounded-full overflow-hidden">
                       <div className="h-full w-[33%] bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"></div>
                     </div>
-                    <span className="text-xs font-mono text-emerald-400 font-bold">33%</span>
+                    <span className="text-[11px] font-mono text-emerald-400 font-bold">33%</span>
                   </div>
                 </div>
               </div>
@@ -192,24 +192,24 @@ const EmployeeSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleColla
         </nav>
 
         {/* Bottom actions */}
-        <div className="relative p-4 space-y-2 border-t border-emerald-500/20">
+        <div className="relative p-3 space-y-1.5 border-t border-emerald-500/20">
           {/* Help Button */}
           <button
             onClick={() => setIsInfoOpen(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900/50 hover:bg-slate-800/50 border border-slate-700/50 hover:border-emerald-500/30 rounded-lg transition-all text-sm font-mono text-slate-300 hover:text-white"
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-900/50 hover:bg-slate-800/50 border border-slate-700/50 hover:border-emerald-500/30 rounded-lg transition-all text-[13px] font-mono text-slate-300 hover:text-white"
             title="System Information"
           >
-            <HelpCircle className="w-4 h-4" />
+            <HelpCircle className="w-3.5 h-3.5" />
             {!isCollapsed && <span>Help & Info</span>}
           </button>
 
           {/* Collapse Toggle */}
           <button
             onClick={onToggleCollapse}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg transition-all text-sm font-mono font-bold text-emerald-400 hover:text-emerald-300"
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg transition-all text-[13px] font-mono font-bold text-emerald-400 hover:text-emerald-300"
             title={isCollapsed ? 'Expand' : 'Collapse'}
           >
-            {isCollapsed ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
+            {isCollapsed ? <ChevronsRight className="w-3.5 h-3.5" /> : <ChevronsLeft className="w-3.5 h-3.5" />}
             {!isCollapsed && <span>Collapse</span>}
           </button>
         </div>

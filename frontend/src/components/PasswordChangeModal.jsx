@@ -62,7 +62,7 @@ const PasswordChangeModal = ({ employeeId, token, onSuccess, onCancel }) => {
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-elevated rounded-2xl shadow-xl max-w-md w-full p-6 animate-scale-in">
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <div className="w-16 h-16 bg-gradient-accent rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-white" />
           </div>
@@ -76,7 +76,7 @@ const PasswordChangeModal = ({ employeeId, token, onSuccess, onCancel }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4 mb-6">
+          <div className="space-y-4 mb-4">
             <div>
               <label className="block text-sm font-semibold text-secondary mb-2">
                 Aktuálne heslo *
