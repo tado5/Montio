@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 import { useAuth } from './AuthContext'
 
 const ThemeContext = createContext(null)
@@ -45,7 +45,7 @@ export const ThemeProvider = ({ children }) => {
     // Save to database if user is logged in
     if (user) {
       try {
-        await axios.put('/api/auth/theme', { theme: newTheme })
+        await api.put('/api/auth/theme', { theme: newTheme })
 
         // Update user in AuthContext and localStorage
         if (updateUser) {

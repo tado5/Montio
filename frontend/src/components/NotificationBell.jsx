@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '../context/ToastContext'
 import { Bell, Check, Inbox } from 'lucide-react'
-import axios from 'axios';
+import { api } from '../utils/apiClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { buildApiUrl } from '../config/api';
 
 const NotificationBell = () => {
   const { user } = useAuth();
@@ -19,9 +18,7 @@ const NotificationBell = () => {
   // Fetch unread count
   const fetchUnreadCount = async () => {
     try {
-      const response = await axios.get(buildApiUrl('api/notifications/unread-count'), {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const response = await api.get('/api/notifications/unread-count');
       setUnreadCount(response.data.count);
     } catch (error) {
       console.error('Fetch unread count error:', error);
@@ -32,9 +29,7 @@ const NotificationBell = () => {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(buildApiUrl('api/notifications?limit=5'), {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const response = await api.get('/api/notifications?limit=5');
       setNotifications(response.data.notifications);
     } catch (error) {
       console.error('Fetch notifications error:', error);
@@ -46,11 +41,7 @@ const NotificationBell = () => {
   // Mark as read
   const markAsRead = async (id) => {
     try {
-      await axios.put(
-        buildApiUrl(`api/notifications/${id}/read`),
-        {},
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-      );
+      await api.put(`/api/notifications/${id}/read`, {});
 
       // Update local state
       setNotifications(prev =>
@@ -65,11 +56,7 @@ const NotificationBell = () => {
   // Mark all as read
   const markAllAsRead = async () => {
     try {
-      await axios.put(
-        buildApiUrl('api/notifications/mark-all-read'),
-        {},
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-      );
+      await api.put('/api/notifications/mark-all-read', {});
 
       setNotifications(prev => prev.map(n => ({ ...n, is_read: 1 })));
       setUnreadCount(0);

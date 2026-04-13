@@ -1,6 +1,9 @@
 import express from 'express';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
+import { asyncHandler, safeFileOperation } from '../utils/errorHandler.js';
+import { isValidEmail, isValidIBAN, parseJSON } from '../utils/validation.js';
+import { ERROR_MESSAGES, FILE_UPLOAD } from '../config/constants.js';
 import { logActivity } from '../middleware/logger.js';
 import multer from 'multer';
 import sharp from 'sharp';
@@ -28,8 +31,7 @@ const upload = multer({
 });
 
 // GET /api/company/settings - Get company settings (companyadmin only)
-router.get('/settings', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.get('/settings', verifyToken, requireRole('companyadmin'), asyncHandler(async (req, res) => {
     const companyId = req.user.company_id;
 
     // Get company data
@@ -48,42 +50,10 @@ router.get('/settings', verifyToken, requireRole('companyadmin'), async (req, re
     const company = companies[0];
 
     // Parse JSON fields
-    let billingData = null;
-    let financialData = null;
-    let contactData = null;
-    let invoiceSettings = null;
-
-    if (company.billing_data) {
-      try {
-        billingData = JSON.parse(company.billing_data);
-      } catch (e) {
-        console.error('Error parsing billing_data:', e);
-      }
-    }
-
-    if (company.financial_data) {
-      try {
-        financialData = JSON.parse(company.financial_data);
-      } catch (e) {
-        console.error('Error parsing financial_data:', e);
-      }
-    }
-
-    if (company.contact_data) {
-      try {
-        contactData = JSON.parse(company.contact_data);
-      } catch (e) {
-        console.error('Error parsing contact_data:', e);
-      }
-    }
-
-    if (company.invoice_settings) {
-      try {
-        invoiceSettings = JSON.parse(company.invoice_settings);
-      } catch (e) {
-        console.error('Error parsing invoice_settings:', e);
-      }
-    }
+    const billingData = parseJSON(company.billing_data, 'billing_data');
+    const financialData = parseJSON(company.financial_data, 'financial_data');
+    const contactData = parseJSON(company.contact_data, 'contact_data');
+    const invoiceSettings = parseJSON(company.invoice_settings, 'invoice_settings');
 
     res.json({
       company: {
@@ -100,16 +70,10 @@ router.get('/settings', verifyToken, requireRole('companyadmin'), async (req, re
         created_at: company.created_at
       }
     });
-
-  } catch (error) {
-    console.error('Get settings error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/company/settings/basic - Update basic company info (companyadmin only)
-router.put('/settings/basic', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.put('/settings/basic', verifyToken, requireRole('companyadmin'), asyncHandler(async (req, res) => {
     const companyId = req.user.company_id;
     const { name, ico, dic, address } = req.body;
 
@@ -169,16 +133,10 @@ router.put('/settings/basic', verifyToken, requireRole('companyadmin'), async (r
       message: 'Základné údaje boli aktualizované.',
       company: { name, ico, dic, address }
     });
-
-  } catch (error) {
-    console.error('Update basic settings error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/company/settings/logo - Update company logo (companyadmin only)
-router.put('/settings/logo', verifyToken, requireRole('companyadmin'), upload.single('logo'), async (req, res) => {
-  try {
+router.put('/settings/logo', verifyToken, requireRole('companyadmin'), upload.single('logo'), asyncHandler(async (req, res) => {
     const companyId = req.user.company_id;
     const logoFile = req.file;
 
@@ -256,16 +214,10 @@ router.put('/settings/logo', verifyToken, requireRole('companyadmin'), upload.si
       message: 'Logo bolo aktualizované.',
       logo_url: logoUrl
     });
-
-  } catch (error) {
-    console.error('Update logo error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/company/settings/billing - Update billing info (companyadmin only)
-router.put('/settings/billing', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.put('/settings/billing', verifyToken, requireRole('companyadmin'), asyncHandler(async (req, res) => {
     const companyId = req.user.company_id;
     const { iban, swift, variable_symbol, due_days } = req.body;
 
@@ -292,14 +244,7 @@ router.put('/settings/billing', verifyToken, requireRole('companyadmin'), async 
       [companyId]
     );
 
-    let oldBillingData = null;
-    if (oldData[0].billing_data) {
-      try {
-        oldBillingData = JSON.parse(oldData[0].billing_data);
-      } catch (e) {
-        console.error('Error parsing old billing_data:', e);
-      }
-    }
+    const oldBillingData = parseJSON(oldData[0].billing_data, 'billing_data');
 
     // Create billing data object
     const billingData = {
@@ -342,16 +287,10 @@ router.put('/settings/billing', verifyToken, requireRole('companyadmin'), async 
       message: 'Fakturačné údaje boli aktualizované.',
       billing: billingData
     });
-
-  } catch (error) {
-    console.error('Update billing settings error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/company/settings/financial - Update financial settings (companyadmin only)
-router.put('/settings/financial', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.put('/settings/financial', verifyToken, requireRole('companyadmin'), asyncHandler(async (req, res) => {
     const companyId = req.user.company_id;
     const {
       vat_registered,
@@ -389,14 +328,7 @@ router.put('/settings/financial', verifyToken, requireRole('companyadmin'), asyn
       [companyId]
     );
 
-    let oldFinancialData = null;
-    if (oldData[0].financial_data) {
-      try {
-        oldFinancialData = JSON.parse(oldData[0].financial_data);
-      } catch (e) {
-        console.error('Error parsing old financial_data:', e);
-      }
-    }
+    const oldFinancialData = parseJSON(oldData[0].financial_data, 'financial_data');
 
     // Create financial data object
     const financialData = {
@@ -441,16 +373,10 @@ router.put('/settings/financial', verifyToken, requireRole('companyadmin'), asyn
       message: 'Finančné nastavenia boli aktualizované.',
       financial: financialData
     });
-
-  } catch (error) {
-    console.error('Update financial settings error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/company/settings/contact - Update contact info (companyadmin only)
-router.put('/settings/contact', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.put('/settings/contact', verifyToken, requireRole('companyadmin'), asyncHandler(async (req, res) => {
     const companyId = req.user.company_id;
     const {
       phone,
@@ -480,14 +406,7 @@ router.put('/settings/contact', verifyToken, requireRole('companyadmin'), async 
       [companyId]
     );
 
-    let oldContactData = null;
-    if (oldData[0].contact_data) {
-      try {
-        oldContactData = JSON.parse(oldData[0].contact_data);
-      } catch (e) {
-        console.error('Error parsing old contact_data:', e);
-      }
-    }
+    const oldContactData = parseJSON(oldData[0].contact_data, 'contact_data');
 
     // Create contact data object
     const contactData = {
@@ -532,16 +451,10 @@ router.put('/settings/contact', verifyToken, requireRole('companyadmin'), async 
       message: 'Kontaktné údaje boli aktualizované.',
       contact: contactData
     });
-
-  } catch (error) {
-    console.error('Update contact settings error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/company/settings/invoice - Update invoice settings (companyadmin only)
-router.put('/settings/invoice', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.put('/settings/invoice', verifyToken, requireRole('companyadmin'), asyncHandler(async (req, res) => {
     const companyId = req.user.company_id;
     const {
       footer_note,
@@ -574,14 +487,7 @@ router.put('/settings/invoice', verifyToken, requireRole('companyadmin'), async 
       [companyId]
     );
 
-    let oldInvoiceSettings = null;
-    if (oldData[0].invoice_settings) {
-      try {
-        oldInvoiceSettings = JSON.parse(oldData[0].invoice_settings);
-      } catch (e) {
-        console.error('Error parsing old invoice_settings:', e);
-      }
-    }
+    const oldInvoiceSettings = parseJSON(oldData[0].invoice_settings, 'invoice_settings');
 
     // Create invoice settings object
     const invoiceSettings = {
@@ -625,11 +531,6 @@ router.put('/settings/invoice', verifyToken, requireRole('companyadmin'), async 
       message: 'Nastavenia faktúr boli aktualizované.',
       invoice_settings: invoiceSettings
     });
-
-  } catch (error) {
-    console.error('Update invoice settings error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 export default router;

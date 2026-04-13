@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import { api } from '../../utils/apiClient'
 import { Plus, Trash2, ClipboardList, AlertCircle, ArrowLeft } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 
@@ -89,7 +89,7 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
     }))
 
     try {
-      await axios.post('/api/onboarding/step3', {
+      await api.post('/api/onboarding/step3', {
         inviteToken,
         orderTypes: cleanedOrderTypes
       })

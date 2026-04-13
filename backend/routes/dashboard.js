@@ -1,26 +1,14 @@
 import express from 'express';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
+import { ensureCompanyId } from '../middleware/companyMiddleware.js';
+import { asyncHandler } from '../utils/errorHandler.js';
 
 const router = express.Router();
 
 // GET /api/dashboard/stats - Get KPI stats for Company Admin
-router.get('/stats', verifyToken, requireRole('companyadmin', 'employee'), async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const userRole = req.user.role;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+router.get('/stats', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
+    const companyId = req.company_id;
 
     // Get orders statistics
     const [ordersStats] = await pool.query(
@@ -91,29 +79,11 @@ router.get('/stats', verifyToken, requireRole('companyadmin', 'employee'), async
     };
 
     res.json({ stats });
-
-  } catch (error) {
-    console.error('Get dashboard stats error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // GET /api/dashboard/chart/revenue - Get revenue chart data (last 12 months)
-router.get('/chart/revenue', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+router.get('/chart/revenue', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
+    const companyId = req.company_id;
 
     // Get revenue per month for last 12 months
     const [revenueData] = await pool.query(
@@ -130,29 +100,11 @@ router.get('/chart/revenue', verifyToken, requireRole('companyadmin'), async (re
     );
 
     res.json({ data: revenueData });
-
-  } catch (error) {
-    console.error('Get revenue chart error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // GET /api/dashboard/chart/order-types - Get order types chart data
-router.get('/chart/order-types', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+router.get('/chart/order-types', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
+    const companyId = req.company_id;
 
     // Get top 5 order types by count
     const [orderTypesData] = await pool.query(
@@ -169,16 +121,10 @@ router.get('/chart/order-types', verifyToken, requireRole('companyadmin'), async
     );
 
     res.json({ data: orderTypesData });
-
-  } catch (error) {
-    console.error('Get order types chart error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // GET /api/dashboard/employee - Get employee-specific dashboard data
-router.get('/employee', verifyToken, requireRole('employee'), async (req, res) => {
-  try {
+router.get('/employee', verifyToken, requireRole('employee'), asyncHandler(async (req, res) => {
     const userId = req.user.id;
 
     // Get employee info
@@ -271,11 +217,6 @@ router.get('/employee', verifyToken, requireRole('employee'), async (req, res) =
       assignedOrders,
       recentActivity
     });
-
-  } catch (error) {
-    console.error('Employee dashboard error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 export default router;

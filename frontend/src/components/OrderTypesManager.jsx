@@ -9,7 +9,7 @@ import {
   Save,
   AlertCircle
 } from 'lucide-react'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 
 const OrderTypesManager = () => {
   const toast = useToast()
@@ -32,8 +32,8 @@ const OrderTypesManager = () => {
   const fetchOrderTypes = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('token')
-      const response = await axios.get('/api/order-types', {
+      
+      const response = await api.get('/api/order-types', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setOrderTypes(response.data.orderTypes)
@@ -83,10 +83,10 @@ const OrderTypesManager = () => {
   const handleSubmitCreate = async (e) => {
     e.preventDefault()
     try {
-      const token = localStorage.getItem('token')
+      
       const cleanChecklist = formData.checklist.filter(item => item.trim() !== '')
 
-      await axios.post(
+      await api.post(
         '/api/order-types',
         {
           name: formData.name,
@@ -108,10 +108,10 @@ const OrderTypesManager = () => {
   const handleSubmitEdit = async (e) => {
     e.preventDefault()
     try {
-      const token = localStorage.getItem('token')
+      
       const cleanChecklist = formData.checklist.filter(item => item.trim() !== '')
 
-      await axios.put(
+      await api.put(
         `/api/order-types/${selectedOrderType.id}`,
         {
           name: formData.name,
@@ -132,9 +132,9 @@ const OrderTypesManager = () => {
 
   const handleSubmitDelete = async () => {
     try {
-      const token = localStorage.getItem('token')
+      
 
-      await axios.delete(
+      await api.delete(
         `/api/order-types/${selectedOrderType.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )

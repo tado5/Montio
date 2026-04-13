@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import EmployeeLayout from '../components/EmployeeLayout'
 import ReadOnlyBanner from '../components/ReadOnlyBanner'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 
 const EmployeeDashboard = () => {
   const { user } = useAuth()
@@ -28,8 +28,8 @@ const EmployeeDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('token')
-      const response = await axios.get('/api/dashboard/employee', {
+      
+      const response = await api.get('/api/dashboard/employee', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setDashboardData(response.data)

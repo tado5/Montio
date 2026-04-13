@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import { api } from '../../utils/apiClient'
 import { CheckCircle, Lock, User, Mail, AlertCircle, Loader2, Sparkles, Building2 } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 
@@ -47,7 +47,7 @@ export default function Step5Complete({ data, inviteToken, email }) {
     }
 
     try {
-      const response = await axios.post('/api/onboarding/complete', {
+      const response = await api.post('/api/onboarding/complete', {
         inviteToken,
         password: formState.password,
         firstName: formState.firstName,
@@ -62,8 +62,7 @@ export default function Step5Complete({ data, inviteToken, email }) {
       localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(user))
 
-      // Set axios authorization header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      // Token is automatically managed by apiClient interceptor
 
       // Redirect after 3 seconds (full page reload to load user into context)
       setTimeout(() => {

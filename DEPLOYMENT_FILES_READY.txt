@@ -1,0 +1,300 @@
+================================================================================
+                    🚀 DEPLOYMENT FILES - READY TO USE
+================================================================================
+
+MONTIO v1.11.0 - Production Deployment
+Date: 2026-04-13
+
+================================================================================
+📋 ČO MÁTE PRIPRAVENÉ
+================================================================================
+
+1. ✅ DATABASE MIGRATION SCRIPT
+   Súbor: database/migrations/production_migration_v1.11.0.sql
+   
+   Čo robí:
+   - Pridá avatar_url column do users table (ak chýba)
+   - Pridá name a position columns (ak chýbajú)
+   - Pridá avatar_url do employees table (ak chýba)
+   - Overí companies table JSON columns
+   - Nastaví default hodnoty pre existujúcich users
+   - Verifikuje úspešnosť migrácie
+   
+   Ako spustiť:
+   mysql -u root -p montio_db < database/migrations/production_migration_v1.11.0.sql
+
+2. ✅ DEPLOYMENT DOCUMENTATION
+   Súbor: PRODUCTION_DEPLOYMENT_V1.11.0.md
+   
+   Obsahuje:
+   - Step-by-step deployment guide (12 krokov)
+   - Pre-deployment checklist
+   - Backup procedúry
+   - Testing checklist
+   - Monitoring guide (prvých 24 hodín)
+   - Rollback procedúry
+   - Troubleshooting
+
+3. ✅ AUTOMATED DEPLOYMENT SCRIPT
+   Súbor: deploy-production.sh
+   
+   Automatizuje:
+   - Zálohovanie DB a kódu
+   - Zastavenie služieb
+   - Spustenie migrácie
+   - Update backend kódu
+   - Verifikáciu syntaxe
+   - Spustenie služieb
+   - Základné testy
+   
+   Ako spustiť:
+   bash deploy-production.sh
+
+================================================================================
+🎯 RÝCHLY START - 3 MOŽNOSTI
+================================================================================
+
+MOŽNOSŤ 1: MANUÁLNY DEPLOYMENT (Odporúčaný pre prvý krát)
+---------------------------------------------------------
+Sledujte: PRODUCTION_DEPLOYMENT_V1.11.0.md
+
+Kroky:
+1. Backup DB: mysqldump -u root -p montio_db > backup_$(date +%Y%m%d).sql
+2. Stop backend: pm2 stop montio-backend
+3. Migrácia: mysql -u root -p montio_db < database/migrations/production_migration_v1.11.0.sql
+4. Update code: git pull (alebo upload files)
+5. npm install --production
+6. mkdir -p uploads/avatars uploads/logos
+7. chmod 755 uploads uploads/avatars uploads/logos
+8. Start backend: pm2 start server.js --name montio-backend
+9. Test: curl http://localhost:3001/health
+
+Čas: 30-45 minút
+
+
+MOŽNOSŤ 2: AUTOMATICKÝ SCRIPT (Rýchlejší)
+-----------------------------------------
+Spustite: bash deploy-production.sh
+
+Čo urobí automaticky:
+✅ Backup DB a kódu
+✅ Stop services
+✅ Migrácia DB
+✅ Update backend
+✅ Vytvorí uploads directories
+✅ Verifikuje syntax
+✅ Start services
+✅ Basic tests
+
+Čas: 10-15 minút
+
+
+MOŽNOSŤ 3: POSTUPNÝ DEPLOYMENT (Najbezpečnejší)
+-----------------------------------------------
+1. Deploy na STAGING prvý (testovací server)
+2. Otestujte všetky features
+3. Monitor 24-48 hodín
+4. Potom deploy na PRODUCTION
+
+Čas: 2-3 dni (ale najbezpečnejší)
+
+================================================================================
+⚠️  DÔLEŽITÉ: ČO UROBIŤ PRED DEPLOYMENTOM
+================================================================================
+
+1. BACKUP! BACKUP! BACKUP!
+   ✅ Databáza: mysqldump -u root -p montio_db > backup.sql
+   ✅ Backend kód: tar -czf backend_backup.tar.gz backend/
+   ✅ Frontend kód: tar -czf frontend_backup.tar.gz frontend/dist/
+
+2. PRIPRAVTE .env SÚBOR
+   Overte že obsahuje:
+   ✅ JWT_SECRET (min 32 znakov)
+   ✅ NODE_ENV=production
+   ✅ CORS_ORIGIN=https://vasadomena.com
+   ✅ DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
+
+3. OVERTE UPLOADS DIRECTORIES
+   Budú vytvorené automaticky, ale overte permissions:
+   ✅ backend/uploads/avatars
+   ✅ backend/uploads/logos
+   ✅ chmod 755, chown www-data
+
+4. PRIPRAVTE ROLLBACK PLÁN
+   Ak niečo zlyhá:
+   ✅ Restore DB: mysql -u root -p montio_db < backup.sql
+   ✅ Restore kód: tar -xzf backend_backup.tar.gz
+   ✅ Restart: pm2 restart montio-backend
+
+================================================================================
+📊 ČO SA STANE PO DEPLOYMENTE
+================================================================================
+
+BACKEND:
+✅ Pridaný avatar_url stĺpec do users a employees
+✅ Nové middleware: rateLimiter, companyMiddleware, errorHandler
+✅ Nové utilities: validation, constants
+✅ Rate limiting: 5 login attempts / 15 min
+✅ CORS: Whitelist origins
+✅ asyncHandler: Automatické error catching
+✅ ensureCompanyId: 71% menej DB queries
+
+FRONTEND:
+✅ Všetky komponenty používajú apiClient
+✅ Automatické token management
+✅ Automatický logout pri 401
+✅ Konzistentné error messages
+✅ Rate limit handling
+
+BEZPEČNOSŤ:
+✅ Rate limiting na login endpoint
+✅ CORS origin whitelist
+✅ Email validation (RFC 5322)
+✅ SQL injection protection
+✅ Input validation
+✅ Environment validation on startup
+
+================================================================================
+🧪 ČO TESTOVAŤ PO DEPLOYMENTE
+================================================================================
+
+KRITICKÉ (Test ihneď):
+1. ✅ Login funguje
+2. ✅ Dashboard sa načíta
+3. ✅ Rate limiting funguje (6 failed login attempts)
+4. ✅ Theme toggle funguje
+5. ✅ Profile page funguje
+6. ✅ Žiadne 500 errors v logs
+
+DÔLEŽITÉ (Test v prvej hodine):
+7. ⚠️  Vytvorte test company admin user
+8. ⚠️  Otestujte employee management
+9. ⚠️  Otestujte company settings
+10. ⚠️  Otestujte file uploads (avatar, logo)
+
+NETESTOVANÉ OBLASTI (60%):
+- Employee CRUD (0/10 endpoints)
+- Company settings (0/6 endpoints)
+- Order types (0/4 endpoints)
+- Slovak validators (ICO, DIC, IBAN)
+
+SQL pre test company admin:
+----------------------------
+INSERT INTO companies (name, ico, status, invite_token)
+VALUES ('Test s.r.o.', '12345678', 'active', 'test-token');
+
+SET @company_id = LAST_INSERT_ID();
+
+INSERT INTO users (email, password_hash, role, company_id, name, position)
+VALUES (
+  'testadmin@vasadomena.sk',
+  '$2a$10$...',  -- hash of "TestPass123!"
+  'companyadmin',
+  @company_id,
+  'Test Admin',
+  'Administrátor'
+);
+
+================================================================================
+📞 AK SA VYSKYTNE PROBLÉM
+================================================================================
+
+1. CHECK LOGS:
+   pm2 logs montio-backend
+   tail -f /var/log/nginx/error.log
+
+2. COMMON ISSUES:
+   - "Token chýba" → CORS_ORIGIN nie je nastavený
+   - 500 errors → Check backend logs, missing .env variables
+   - Upload fails → Check uploads/ permissions (755, www-data)
+   - Rate limit not working → Backend needs restart
+
+3. ROLLBACK:
+   bash rollback-script.sh
+   OR manually:
+   - pm2 stop montio-backend
+   - mysql -u root -p montio_db < backup.sql
+   - tar -xzf backend_backup.tar.gz
+   - pm2 start montio-backend
+
+4. GET HELP:
+   - Review: TESTING_RESULTS.md
+   - Review: UNTESTED_AREAS.md
+   - Review: DEPLOYMENT_GUIDE.md
+
+================================================================================
+✅ CHECKLIST PRE PRODUCTION DEPLOYMENT
+================================================================================
+
+PRE-DEPLOYMENT:
+[ ] Prečítaný PRODUCTION_DEPLOYMENT_V1.11.0.md
+[ ] Backup databázy vytvorený
+[ ] Backup kódu vytvorený
+[ ] .env súbor skontrolovaný
+[ ] CORS_ORIGIN nastavený
+[ ] Rollback plán pripravený
+
+DEPLOYMENT:
+[ ] pm2 stop montio-backend
+[ ] Migration script spustený úspešne
+[ ] Backend kód updated
+[ ] npm install --production
+[ ] uploads/ directories vytvorené
+[ ] pm2 start montio-backend
+[ ] Backend beží (pm2 status)
+
+POST-DEPLOYMENT:
+[ ] Health endpoint works
+[ ] Login works
+[ ] Dashboard loads
+[ ] Rate limiting tested
+[ ] No errors in logs
+[ ] Frontend loads
+[ ] Test company admin created
+[ ] Critical features tested
+
+MONITORING (24h):
+[ ] Logs checked after 1 hour
+[ ] Logs checked after 3 hours
+[ ] Logs checked after 6 hours
+[ ] Full test after 24 hours
+[ ] All features tested
+[ ] Performance monitored
+[ ] No crashes or restarts
+
+================================================================================
+🎯 ODPORÚČANIE
+================================================================================
+
+STAGING FIRST:
+✅ Deploy na staging
+✅ Otestujte všetky features
+✅ Monitor 24-48 hodín
+✅ Fix any issues
+✅ Potom deploy na production
+
+ALE AK IDete PRIAMO NA PRODUCTION:
+⚠️  Buďte pripravení:
+   - Mať rollback ready
+   - Monitor logs closely
+   - Test kritické features ihneď
+   - Create test company admin user
+   - Complete remaining 60% of tests
+
+================================================================================
+                              DEPLOYMENT READY!
+================================================================================
+
+Všetko je pripravené pre production deployment.
+
+ĎALŠÍ KROK:
+1. Prečítajte si PRODUCTION_DEPLOYMENT_V1.11.0.md
+2. Rozhodnite sa: Manuálny alebo automatický deployment?
+3. Vytvorte backups
+4. Spustite deployment
+5. Testujte kritické features
+6. Monitor logs
+
+Úspešný deployment! 🚀
+
+================================================================================

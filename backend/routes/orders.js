@@ -1,27 +1,17 @@
 import express from 'express';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
+import { ensureCompanyId } from '../middleware/companyMiddleware.js';
+import { asyncHandler } from '../utils/errorHandler.js';
 
 const router = express.Router();
 
 // GET /api/orders/calendar - Get orders for calendar view
-router.get('/calendar', verifyToken, requireRole('companyadmin', 'employee'), async (req, res) => {
-  try {
+router.get('/calendar', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const userRole = req.user.role;
+    const companyId = req.company_id;
     const { start, end, employee_id, order_type_id, status } = req.query;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
 
     // Build query
     let query = `
@@ -129,30 +119,12 @@ router.get('/calendar', verifyToken, requireRole('companyadmin', 'employee'), as
     });
 
     res.json({ events });
-
-  } catch (error) {
-    console.error('Get calendar orders error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // GET /api/orders/:id - Get single order detail
-router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), async (req, res) => {
-  try {
+router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+    const companyId = req.company_id;
 
     // Get order
     const [orders] = await pool.query(
@@ -177,11 +149,6 @@ router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), async (
     const order = orders[0];
 
     res.json({ order });
-
-  } catch (error) {
-    console.error('Get order detail error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 export default router;

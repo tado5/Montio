@@ -15,7 +15,7 @@ import {
   Save,
   Lock
 } from 'lucide-react'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 
 const EmployeesManager = () => {
   const toast = useToast()
@@ -43,10 +43,7 @@ const EmployeesManager = () => {
 
   const fetchJobPositions = async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await axios.get('/api/job-positions', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const response = await api.get('/api/job-positions')
       setJobPositions(response.data.positions)
     } catch (err) {
       console.error('Fetch job positions error:', err)
@@ -56,14 +53,11 @@ const EmployeesManager = () => {
   const fetchEmployees = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('token')
-      const response = await axios.get('/api/employees', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const response = await api.get('/api/employees')
       setEmployees(response.data.employees)
     } catch (err) {
       console.error('Fetch employees error:', err)
-      toast.error('Nepodarilo sa načítať zamestnancov.')
+      toast.error(err.userMessage || 'Nepodarilo sa načítať zamestnancov.')
     } finally {
       setLoading(false)
     }
@@ -98,16 +92,11 @@ const EmployeesManager = () => {
     }
 
     try {
-      const token = localStorage.getItem('token')
-      await axios.put(
-        `/api/employees/${employee.id}/approve`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.put(`/api/employees/${employee.id}/approve`, {})
       fetchEmployees()
     } catch (err) {
       console.error('Approve employee error:', err)
-      toast.error(err.response?.data?.message || 'Nepodarilo sa schváliť zamestnanca.')
+      toast.error(err.userMessage || 'Nepodarilo sa schváliť zamestnanca.')
     }
   }
 
@@ -117,17 +106,12 @@ const EmployeesManager = () => {
     }
 
     try {
-      const token = localStorage.getItem('token')
-      await axios.put(
-        `/api/employees/${employee.id}/reactivate`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.put(`/api/employees/${employee.id}/reactivate`, {})
       fetchEmployees()
       toast.success('Zamestnanec bol reaktivovaný.')
     } catch (err) {
       console.error('Reactivate employee error:', err)
-      toast.error(err.response?.data?.message || 'Nepodarilo sa reaktivovať zamestnanca.')
+      toast.error(err.userMessage || 'Nepodarilo sa reaktivovať zamestnanca.')
     }
   }
 
@@ -144,16 +128,12 @@ const EmployeesManager = () => {
     }
 
     try {
-      const token = localStorage.getItem('token')
-      await axios.delete(
-        `/api/employees/${employee.id}/permanent`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.delete(`/api/employees/${employee.id}/permanent`)
       fetchEmployees()
       toast.success('Zamestnanec bol natrvalo vymazaný.')
     } catch (err) {
       console.error('Hard delete employee error:', err)
-      toast.error(err.response?.data?.message || 'Nepodarilo sa vymazať zamestnanca.')
+      toast.error(err.userMessage || 'Nepodarilo sa vymazať zamestnanca.')
     }
   }
 
@@ -163,83 +143,61 @@ const EmployeesManager = () => {
     }
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await axios.post(
-        `/api/employees/${employee.id}/resend-credentials`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      const response = await api.post(`/api/employees/${employee.id}/resend-credentials`, {})
       toast.success(response.data.message + ' - Email: ' + response.data.email)
     } catch (err) {
       console.error('Resend credentials error:', err)
-      toast.error(err.response?.data?.message || 'Nepodarilo sa znovu poslať prihlasovacie údaje.')
+      toast.error(err.userMessage || 'Nepodarilo sa znovu poslať prihlasovacie údaje.')
     }
   }
 
   const handleSubmitCreate = async (e) => {
     e.preventDefault()
     try {
-      const token = localStorage.getItem('token')
-
-      await axios.post(
-        '/api/employees',
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          position: formData.position,
-          phone: formData.phone || null
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.post('/api/employees', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        position: formData.position,
+        phone: formData.phone || null
+      })
 
       setShowCreateModal(false)
       fetchEmployees()
     } catch (err) {
       console.error('Create employee error:', err)
-      toast.error(err.response?.data?.message || 'Nepodarilo sa vytvoriť zamestnanca.')
+      toast.error(err.userMessage || 'Nepodarilo sa vytvoriť zamestnanca.')
     }
   }
 
   const handleSubmitEdit = async (e) => {
     e.preventDefault()
     try {
-      const token = localStorage.getItem('token')
-
-      await axios.put(
-        `/api/employees/${selectedEmployee.id}`,
-        {
-          name: formData.name,
-          email: formData.email,
-          position: formData.position,
-          phone: formData.phone || null,
-          status: formData.status
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.put(`/api/employees/${selectedEmployee.id}`, {
+        name: formData.name,
+        email: formData.email,
+        position: formData.position,
+        phone: formData.phone || null,
+        status: formData.status
+      })
 
       setShowEditModal(false)
       fetchEmployees()
     } catch (err) {
       console.error('Update employee error:', err)
-      toast.error(err.response?.data?.message || 'Nepodarilo sa aktualizovať zamestnanca.')
+      toast.error(err.userMessage || 'Nepodarilo sa aktualizovať zamestnanca.')
     }
   }
 
   const handleSubmitDelete = async () => {
     try {
-      const token = localStorage.getItem('token')
-
-      await axios.delete(
-        `/api/employees/${selectedEmployee.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.delete(`/api/employees/${selectedEmployee.id}`)
 
       setShowDeleteModal(false)
       fetchEmployees()
     } catch (err) {
       console.error('Delete employee error:', err)
-      toast.error(err.response?.data?.message || 'Nepodarilo sa deaktivovať zamestnanca.')
+      toast.error(err.userMessage || 'Nepodarilo sa deaktivovať zamestnanca.')
     }
   }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { useToast } from '../context/ToastContext'
 import StepProgress from '../components/onboarding/StepProgress'
@@ -47,7 +47,7 @@ export default function OnboardingWizard() {
 
   const validateToken = async () => {
     try {
-      const response = await axios.get(`/api/invites/${inviteToken}`)
+      const response = await api.get(`/api/invites/${inviteToken}`)
 
       if (!response.data.valid) {
         setError('Invite token is invalid or expired')

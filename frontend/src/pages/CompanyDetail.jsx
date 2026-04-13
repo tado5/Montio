@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 import {
   Building2,
   Users,
@@ -44,7 +44,7 @@ const CompanyDetail = () => {
 
   const fetchCompanyDetail = async () => {
     try {
-      const response = await axios.get(`/api/companies/${id}`)
+      const response = await api.get(`/api/companies/${id}`)
       setData(response.data)
       setLoading(false)
     } catch (err) {
@@ -56,7 +56,7 @@ const CompanyDetail = () => {
   const handleActivate = async () => {
     setActionLoading(true)
     try {
-      await axios.put(`/api/companies/${id}/activate`)
+      await api.put(`/api/companies/${id}/activate`)
       await fetchCompanyDetail()
     } catch (err) {
       setError(err.response?.data?.message || 'Chyba pri aktivácii firmy')

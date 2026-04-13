@@ -1,26 +1,16 @@
 import express from 'express';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
+import { ensureCompanyId } from '../middleware/companyMiddleware.js';
+import { asyncHandler } from '../utils/errorHandler.js';
+import { parseJSON } from '../utils/validation.js';
 import { logActivity } from '../middleware/logger.js';
 
 const router = express.Router();
 
 // GET /api/order-types - Get all order types for company
-router.get('/', verifyToken, requireRole('companyadmin', 'employee'), async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+router.get('/', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
+    const companyId = req.company_id;
 
     // Get order types with usage stats
     const [orderTypes] = await pool.query(
@@ -42,35 +32,17 @@ router.get('/', verifyToken, requireRole('companyadmin', 'employee'), async (req
     const formattedOrderTypes = orderTypes.map(ot => ({
       ...ot,
       default_checklist: typeof ot.default_checklist === 'string'
-        ? JSON.parse(ot.default_checklist)
+        ? parseJSON(ot.default_checklist, 'default_checklist')
         : ot.default_checklist
     }));
 
     res.json({ orderTypes: formattedOrderTypes });
-
-  } catch (error) {
-    console.error('Get order types error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // GET /api/order-types/:id - Get single order type
-router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), async (req, res) => {
-  try {
+router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+    const companyId = req.company_id;
 
     // Get order type
     const [orderTypes] = await pool.query(
@@ -85,39 +57,22 @@ router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), async (
     const orderType = {
       ...orderTypes[0],
       default_checklist: typeof orderTypes[0].default_checklist === 'string'
-        ? JSON.parse(orderTypes[0].default_checklist)
+        ? parseJSON(orderTypes[0].default_checklist, 'default_checklist')
         : orderTypes[0].default_checklist
     };
 
     res.json({ orderType });
-
-  } catch (error) {
-    console.error('Get order type error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // POST /api/order-types - Create new order type
-router.post('/', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.post('/', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { name, description, checklist } = req.body;
     const userId = req.user.id;
+    const companyId = req.company_id;
 
     if (!name || !checklist || !Array.isArray(checklist)) {
       return res.status(400).json({ message: 'Názov a checklist sú povinné.' });
     }
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
 
     // Create order type
     const [result] = await pool.query(
@@ -150,35 +105,18 @@ router.post('/', verifyToken, requireRole('companyadmin'), async (req, res) => {
         default_checklist: checklist
       }
     });
-
-  } catch (error) {
-    console.error('Create order type error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/order-types/:id - Update order type
-router.put('/:id', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.put('/:id', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { name, description, checklist } = req.body;
     const userId = req.user.id;
+    const companyId = req.company_id;
 
     if (!name || !checklist || !Array.isArray(checklist)) {
       return res.status(400).json({ message: 'Názov a checklist sú povinné.' });
     }
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
 
     // Check if order type exists and belongs to user's company
     const [existing] = await pool.query(
@@ -222,30 +160,13 @@ router.put('/:id', verifyToken, requireRole('companyadmin'), async (req, res) =>
         default_checklist: checklist
       }
     });
-
-  } catch (error) {
-    console.error('Update order type error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // DELETE /api/order-types/:id - Delete order type
-router.delete('/:id', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.delete('/:id', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+    const companyId = req.company_id;
 
     // Check if order type exists and belongs to user's company
     const [existing] = await pool.query(
@@ -293,11 +214,6 @@ router.delete('/:id', verifyToken, requireRole('companyadmin'), async (req, res)
     );
 
     res.json({ message: 'Typ montáže vymazaný.' });
-
-  } catch (error) {
-    console.error('Delete order type error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 export default router;

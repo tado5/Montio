@@ -1,12 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-
-// API URL configuration - use environment variable or detect from window.location
-const API_BASE = import.meta.env.VITE_API_URL ||
-  (window.location.hostname === 'localhost'
-    ? 'http://localhost:3001'
-    : window.location.origin);
-const API_URL = `${API_BASE}/api`
+import { api } from '../utils/apiClient'
 
 const CompanySettingsManager = () => {
   const [loading, setLoading] = useState(true)
@@ -78,10 +71,7 @@ const CompanySettingsManager = () => {
   const loadSettings = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('token')
-      const res = await axios.get(`${API_URL}/company/settings`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const res = await api.get('/api/company/settings')
 
       const { company } = res.data
       setCompany(company)
@@ -142,7 +132,7 @@ const CompanySettingsManager = () => {
       setLoading(false)
     } catch (err) {
       console.error('Load settings error:', err)
-      setError('Chyba pri načítaní nastavení.')
+      setError(err.userMessage || 'Chyba pri načítaní nastavení.')
       setLoading(false)
     }
   }
@@ -155,18 +145,13 @@ const CompanySettingsManager = () => {
       setError('')
       setSuccess('')
 
-      const token = localStorage.getItem('token')
-      const res = await axios.put(
-        `${API_URL}/company/settings/basic`,
-        basicForm,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      const res = await api.put('/api/company/settings/basic', basicForm)
 
       setSuccess(res.data.message)
       await loadSettings()
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
-      setError(err.response?.data?.message || 'Chyba pri ukladaní.')
+      setError(err.userMessage || 'Chyba pri ukladaní.')
     } finally {
       setSaving(false)
     }
@@ -179,18 +164,13 @@ const CompanySettingsManager = () => {
       setError('')
       setSuccess('')
 
-      const token = localStorage.getItem('token')
-      const res = await axios.put(
-        `${API_URL}/company/settings/billing`,
-        billingForm,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      const res = await api.put('/api/company/settings/billing', billingForm)
 
       setSuccess(res.data.message)
       await loadSettings()
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
-      setError(err.response?.data?.message || 'Chyba pri ukladaní.')
+      setError(err.userMessage || 'Chyba pri ukladaní.')
     } finally {
       setSaving(false)
     }
@@ -203,18 +183,13 @@ const CompanySettingsManager = () => {
       setError('')
       setSuccess('')
 
-      const token = localStorage.getItem('token')
-      const res = await axios.put(
-        `${API_URL}/company/settings/financial`,
-        financialForm,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      const res = await api.put('/api/company/settings/financial', financialForm)
 
       setSuccess(res.data.message)
       await loadSettings()
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
-      setError(err.response?.data?.message || 'Chyba pri ukladaní.')
+      setError(err.userMessage || 'Chyba pri ukladaní.')
     } finally {
       setSaving(false)
     }
@@ -227,18 +202,13 @@ const CompanySettingsManager = () => {
       setError('')
       setSuccess('')
 
-      const token = localStorage.getItem('token')
-      const res = await axios.put(
-        `${API_URL}/company/settings/contact`,
-        contactForm,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      const res = await api.put('/api/company/settings/contact', contactForm)
 
       setSuccess(res.data.message)
       await loadSettings()
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
-      setError(err.response?.data?.message || 'Chyba pri ukladaní.')
+      setError(err.userMessage || 'Chyba pri ukladaní.')
     } finally {
       setSaving(false)
     }
@@ -251,18 +221,13 @@ const CompanySettingsManager = () => {
       setError('')
       setSuccess('')
 
-      const token = localStorage.getItem('token')
-      const res = await axios.put(
-        `${API_URL}/company/settings/invoice`,
-        invoiceForm,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      const res = await api.put('/api/company/settings/invoice', invoiceForm)
 
       setSuccess(res.data.message)
       await loadSettings()
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
-      setError(err.response?.data?.message || 'Chyba pri ukladaní.')
+      setError(err.userMessage || 'Chyba pri ukladaní.')
     } finally {
       setSaving(false)
     }
@@ -292,17 +257,11 @@ const CompanySettingsManager = () => {
       const formData = new FormData()
       formData.append('logo', logoFile)
 
-      const token = localStorage.getItem('token')
-      const res = await axios.put(
-        `${API_URL}/company/settings/logo`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
+      const res = await api.put('/api/company/settings/logo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      )
+      })
 
       setSuccess(res.data.message)
       await loadSettings()
@@ -311,7 +270,7 @@ const CompanySettingsManager = () => {
 
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
-      setError(err.response?.data?.message || 'Chyba pri uploade loga.')
+      setError(err.userMessage || 'Chyba pri uploade loga.')
     } finally {
       setUploadingLogo(false)
     }
