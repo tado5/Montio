@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+// API URL configuration - use environment variable or detect from window.location
+const API_BASE = import.meta.env.VITE_API_URL ||
+  (window.location.hostname === 'localhost'
+    ? 'http://localhost:3001'
+    : window.location.origin);
+const API_URL = `${API_BASE}/api`
 
 const CompanySettingsManager = () => {
   const [loading, setLoading] = useState(true)
