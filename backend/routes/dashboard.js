@@ -176,4 +176,106 @@ router.get('/chart/order-types', verifyToken, requireRole('companyadmin'), async
   }
 });
 
+// GET /api/dashboard/employee - Get employee-specific dashboard data
+router.get('/employee', verifyToken, requireRole('employee'), async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get employee info
+    const [employees] = await pool.query(
+      'SELECT id, company_id FROM employees WHERE user_id = ?',
+      [userId]
+    );
+
+    if (employees.length === 0) {
+      return res.status(404).json({ message: 'Employee nenájdený.' });
+    }
+
+    const employeeId = employees[0].id;
+    const companyId = employees[0].company_id;
+
+    // Get assigned orders (upcoming and in progress)
+    const [assignedOrders] = await pool.query(
+      `SELECT
+        o.id,
+        o.order_number,
+        o.client_name,
+        o.scheduled_date,
+        o.status,
+        ot.name as order_type_name,
+        ot.description as order_type_description
+      FROM orders o
+      LEFT JOIN order_types ot ON o.order_type_id = ot.id
+      WHERE o.assigned_employee_id = ?
+        AND o.status IN ('assigned', 'in_progress')
+      ORDER BY o.scheduled_date ASC
+      LIMIT 10`,
+      [employeeId]
+    );
+
+    // Get completed orders count (this month)
+    const [completedThisMonth] = await pool.query(
+      `SELECT COUNT(*) as count
+      FROM orders
+      WHERE assigned_employee_id = ?
+        AND status = 'completed'
+        AND YEAR(updated_at) = YEAR(CURRENT_DATE)
+        AND MONTH(updated_at) = MONTH(CURRENT_DATE)`,
+      [employeeId]
+    );
+
+    // Get total completed orders
+    const [totalCompleted] = await pool.query(
+      `SELECT COUNT(*) as count
+      FROM orders
+      WHERE assigned_employee_id = ?
+        AND status = 'completed'`,
+      [employeeId]
+    );
+
+    // Get upcoming orders count (next 7 days)
+    const [upcomingOrders] = await pool.query(
+      `SELECT COUNT(*) as count
+      FROM orders
+      WHERE assigned_employee_id = ?
+        AND status IN ('assigned', 'in_progress')
+        AND scheduled_date BETWEEN CURRENT_DATE AND DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY)`,
+      [employeeId]
+    );
+
+    // Get recent activity (last 5 assignments)
+    const [recentActivity] = await pool.query(
+      `SELECT
+        o.id,
+        o.order_number,
+        o.client_name,
+        o.scheduled_date,
+        o.status,
+        o.created_at,
+        ot.name as order_type_name
+      FROM orders o
+      LEFT JOIN order_types ot ON o.order_type_id = ot.id
+      WHERE o.assigned_employee_id = ?
+      ORDER BY o.created_at DESC
+      LIMIT 5`,
+      [employeeId]
+    );
+
+    res.json({
+      stats: {
+        assignedOrders: assignedOrders.length,
+        completedThisMonth: completedThisMonth[0].count,
+        totalCompleted: totalCompleted[0].count,
+        upcomingOrders: upcomingOrders[0].count
+      },
+      assignedOrders,
+      recentActivity
+    });
+
+  } catch (error) {
+    console.error('Employee dashboard error:', error);
+    res.status(500).json({ message: 'Chyba servera.' });
+  }
+});
+
 export default router;

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import DynamicLayout from '../components/DynamicLayout'
 import ReadOnlyBanner from '../components/ReadOnlyBanner'
+import AvatarUpload from '../components/AvatarUpload'
 import axios from 'axios'
 
 const ProfilePage = () => {
@@ -32,6 +33,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true)
   const [isEditMode, setIsEditMode] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [showAvatarModal, setShowAvatarModal] = useState(false)
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -105,7 +107,7 @@ const ProfilePage = () => {
 
     try {
       const token = localStorage.getItem('token')
-      await axios.put('/api/auth/change-password', {
+      await axios.put('/api/auth/profile/password', {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword
       }, {
@@ -118,6 +120,12 @@ const ProfilePage = () => {
     } catch (err) {
       toast.error(err.response?.data?.message || 'Chyba pri zmene hesla')
     }
+  }
+
+  const handleAvatarUpdate = (newAvatarUrl) => {
+    setProfile({ ...profile, avatar_url: newAvatarUrl })
+    setShowAvatarModal(false)
+    toast.success(newAvatarUrl ? 'Avatar aktualizovaný' : 'Avatar vymazaný')
   }
 
   const getRoleColor = () => {
@@ -193,21 +201,21 @@ const ProfilePage = () => {
 
         <div className="relative flex flex-col md:flex-row items-center md:items-start gap-6">
           {/* Avatar */}
-          <div className="relative group">
-            <div className={`w-32 h-32 rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-700 group-hover:border-slate-600 transition-all duration-300`}>
+          <div className="relative group cursor-pointer" onClick={() => setShowAvatarModal(true)}>
+            <div className={`w-32 h-32 rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-700 group-hover:border-orange-500 transition-all duration-300`}>
               <img
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.email)}&backgroundColor=f97316,ea580c,fb923c`}
+                src={profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.email)}&backgroundColor=f97316,ea580c,fb923c`}
                 alt="Avatar"
-                className="w-full h-full"
+                className="w-full h-full object-cover"
               />
             </div>
             {/* Camera overlay */}
             <div className="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
               <Camera className="w-8 h-8 text-white" />
             </div>
-            {/* Coming Soon badge */}
-            <div className="absolute -bottom-2 -right-2 px-2 py-1 bg-slate-800 border border-slate-700 rounded-lg">
-              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Soon</span>
+            {/* Click to change hint */}
+            <div className="absolute -bottom-2 -right-2 px-2 py-1 bg-orange-500/80 border border-orange-400 rounded-lg group-hover:scale-110 transition-transform">
+              <span className="text-[10px] font-mono text-white uppercase tracking-wider font-bold">Click</span>
             </div>
           </div>
 
@@ -542,6 +550,16 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Avatar Upload Modal */}
+      {showAvatarModal && (
+        <AvatarUpload
+          currentAvatar={profile.avatar_url}
+          email={profile.email}
+          onAvatarUpdate={handleAvatarUpdate}
+          onClose={() => setShowAvatarModal(false)}
+        />
+      )}
     </DynamicLayout>
   )
 }

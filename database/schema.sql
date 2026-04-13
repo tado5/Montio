@@ -36,7 +36,11 @@ CREATE TABLE `users` (
   `email` VARCHAR(255) UNIQUE NOT NULL,
   `password_hash` VARCHAR(255) NOT NULL,
   `role` ENUM('superadmin','companyadmin','employee') NOT NULL,
+  `name` VARCHAR(255) NULL,
+  `position` VARCHAR(255) NULL,
+  `avatar_url` TEXT NULL,
   `company_id` INT NULL,
+  `theme` ENUM('light','dark') DEFAULT 'dark',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`company_id`) REFERENCES `companies`(`id`)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

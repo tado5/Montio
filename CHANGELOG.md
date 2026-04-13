@@ -1,5 +1,114 @@
 # MONTIO - Changelog
 
+## [1.10.0] - 2026-04-13 - User Profile & Employee Dashboard 👤
+
+### ✨ Nové funkcie
+
+**User Profile Page:**
+- **Profile Management** - View and edit personal information (name, email, phone)
+- **Avatar System** - Upload custom avatar (JPG, PNG, WebP) or use DiceBear default
+  - Sharp image processing (resize to 256x256, WebP conversion)
+  - File size limit: 5MB
+  - Delete avatar functionality
+- **Password Change** - Change password with current password verification
+- **Role-specific UI** - Different colors and icons for Super Admin, Company Admin, Employee
+
+**Employee Dashboard:**
+- **Real KPI Cards** - Assigned orders, completed this month, total completed, upcoming orders
+- **Assigned Orders List** - View all assigned tasks with status, client name, schedule date
+- **Recent Activity** - Last 5 assignments with timestamps
+- **Empty States** - Informative messages when no data available
+- **Industrial Command Center UI** - Consistent with other dashboards
+
+**UX Improvements:**
+- **LoadingSpinner Component** - Reusable loading spinner with size/color options
+- **EmptyState Component** - Consistent empty state across the app
+- **ErrorState Component** - Error handling with retry functionality
+
+### 🔧 Backend API
+
+**New Endpoints:**
+- `GET /api/auth/profile` - Get current user profile with company info
+- `PUT /api/auth/profile` - Update user profile (name, email, phone)
+- `PUT /api/auth/profile/password` - Change password
+- `PUT /api/auth/avatar` - Upload user avatar (multer + sharp)
+- `DELETE /api/auth/avatar` - Delete user avatar
+- `GET /api/dashboard/employee` - Get employee-specific dashboard data
+
+**New Middleware:**
+- `backend/middleware/upload.js` - Multer configuration for avatar uploads
+
+### 🗄️ Database Changes
+
+**Migration:**
+- `database/migrations/add_avatar_columns.sql`
+
+**Added columns to `users` table:**
+```sql
+name VARCHAR(255) NULL
+position VARCHAR(255) NULL
+avatar_url TEXT NULL
+```
+
+**Updated schema:**
+- `database/schema.sql` - Updated users table definition
+
+### 🐛 Opravy
+
+**Password Change Endpoint Mismatch:**
+- **Problém:** Frontend volal `/api/auth/change-password` namiesto `/api/auth/profile/password`
+- **Oprava:** Upravený frontend ProfilePage.jsx na správny endpoint
+- **Lokácia:** `frontend/src/pages/ProfilePage.jsx:108`
+
+**Default Theme White Background:**
+- **Problém:** Pri prvom načítaní stránky bol login formulár s bielym pozadím
+- **Oprava:** Zmenený default theme z 'light' na 'dark' v ThemeContext
+- **Lokácia:** `frontend/src/context/ThemeContext.jsx:19`
+
+### 📝 Aktualizované súbory
+
+**Backend:**
+- `backend/routes/auth.js` - Profile & avatar endpoints
+- `backend/routes/dashboard.js` - Employee dashboard endpoint
+- `backend/middleware/upload.js` - NEW
+- `backend/uploads/avatars/.gitkeep` - NEW directory
+
+**Frontend:**
+- `frontend/src/pages/ProfilePage.jsx` - Integrated avatar upload
+- `frontend/src/pages/EmployeeDashboard.jsx` - Rewritten with real data
+- `frontend/src/components/AvatarUpload.jsx` - NEW
+- `frontend/src/components/LoadingSpinner.jsx` - NEW
+- `frontend/src/components/EmptyState.jsx` - NEW
+- `frontend/src/components/ErrorState.jsx` - NEW
+- `frontend/src/context/ThemeContext.jsx` - Default theme changed to dark
+
+**Database:**
+- `database/migrations/add_avatar_columns.sql` - NEW
+- `database/schema.sql` - Updated users table
+
+**Documentation:**
+- `TESTING.md` - Updated with v1.10.0 features
+- `CHANGELOG.md` - This file
+
+### 🧪 Testing
+
+- ✅ Manual testing complete (all features tested locally)
+- ✅ Avatar upload/delete tested
+- ✅ Profile edit tested
+- ✅ Password change tested
+- ✅ Employee dashboard tested
+- ⚠️ Production database migration needed
+
+### 📦 Deployment Notes
+
+**Before deploying to production:**
+1. Run migration: `database/migrations/add_avatar_columns.sql`
+2. Create directory: `backend/uploads/avatars/` with write permissions
+3. Test avatar upload on production server
+4. Verify file size limits (5MB)
+
+---
+
 ## [1.9.0] - 2026-04-13 - UI Optimization & Extended Company Settings 🎨
 
 ### ✨ Nové funkcie
