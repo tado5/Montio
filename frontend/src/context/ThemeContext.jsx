@@ -12,11 +12,11 @@ export const ThemeProvider = ({ children }) => {
       const savedUser = localStorage.getItem('user')
       if (savedUser) {
         const parsedUser = JSON.parse(savedUser)
-        return parsedUser.theme || 'light'
+        return parsedUser.theme || 'dark'
       }
-      return localStorage.getItem('theme') || 'light'
+      return localStorage.getItem('theme') || 'dark'
     }
-    return 'light'
+    return 'dark'
   })
 
   // Apply theme to document on mount and when theme changes
