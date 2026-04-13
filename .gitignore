@@ -9,6 +9,9 @@ node_modules/
 .env.production
 backend/.env
 backend/.env.local
+backend/.env.prod
+backend/.env.production
+**/.env*
 
 # Build outputs
 dist/
@@ -38,6 +41,9 @@ coverage/
 # Development
 DEV_CREDENTIALS.md
 PRODUCTION_DEPLOYMENT.md
+docs/deployment/
+PLAN.md
+STATUS.md
 
 # Uploads (user-generated content)
 backend/uploads/
