@@ -88,9 +88,9 @@ const UserMenu = () => {
         </div>
         <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl overflow-hidden shadow-soft group-hover:shadow-medium transition-all duration-200 transform group-hover:scale-105 ring-2 ring-accent-500/20 group-hover:ring-accent-500">
           <img
-            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}&backgroundColor=f97316,ea580c,fb923c`}
+            src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}&backgroundColor=f97316,ea580c,fb923c`}
             alt="Avatar"
-            className="w-full h-full"
+            className="w-full h-full object-cover"
           />
         </div>
       </button>
