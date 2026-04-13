@@ -1,6 +1,8 @@
 # 🧪 MONTIO Testing Guide
 
-Kompletná testing stratégia pred zmenami dizajnu.
+**Last Updated:** 2026-04-13  
+**Version:** v1.10.0  
+**Status:** ✅ Manual testing complete, Playwright tests available
 
 ## 🚀 Quick Start
 
@@ -29,6 +31,13 @@ npm run test:e2e:ui
 
 ### ✅ Backend API Tests (Jest) - **IMPLEMENTED**
 - **auth.test.js** - Auth endpoints validation
+
+### 🆕 New Features to Test (v1.10.0)
+- **User Profile Page** - View, edit, password change
+- **Avatar Upload System** - Upload custom avatar, delete avatar
+- **Employee Dashboard** - Real KPI cards, assigned orders, recent activity
+- **UX Components** - LoadingSpinner, EmptyState, ErrorState
+- **Database Migration** - `avatar_url`, `name`, `position` columns added to users table
 
 ---
 

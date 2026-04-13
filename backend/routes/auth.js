@@ -4,6 +4,14 @@ import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
 import { logActivity } from '../middleware/logger.js';
+import upload from '../middleware/upload.js';
+import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -385,6 +393,140 @@ router.put('/profile/password', verifyToken, async (req, res) => {
 
   } catch (error) {
     console.error('Change password error:', error);
+    res.status(500).json({ message: 'Chyba servera.' });
+  }
+});
+
+// PUT /api/auth/avatar - Upload user avatar
+router.put('/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Súbor s avatárom je povinný.' });
+    }
+
+    const uploadsDir = path.join(__dirname, '../uploads/avatars');
+
+    // Create uploads directory if it doesn't exist
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    // Resize and optimize with sharp
+    const filename = `avatar-${userId}-${Date.now()}.webp`;
+    const outputPath = path.join(uploadsDir, filename);
+
+    await sharp(req.file.path)
+      .resize(256, 256, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .webp({ quality: 85 })
+      .toFile(outputPath);
+
+    // Delete original uploaded file
+    fs.unlinkSync(req.file.path);
+
+    // Get old avatar to delete
+    const [users] = await pool.query(
+      'SELECT avatar_url FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (users.length > 0 && users[0].avatar_url) {
+      const oldAvatarPath = path.join(__dirname, '..', users[0].avatar_url);
+      if (fs.existsSync(oldAvatarPath)) {
+        fs.unlinkSync(oldAvatarPath);
+      }
+    }
+
+    // Update user avatar_url
+    const avatarUrl = `/uploads/avatars/${filename}`;
+    await pool.query(
+      'UPDATE users SET avatar_url = ? WHERE id = ?',
+      [avatarUrl, userId]
+    );
+
+    // Log activity
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    await logActivity(
+      userId,
+      'user.avatar_update',
+      'user',
+      userId,
+      { avatarUrl },
+      req.user.company_id,
+      ipAddress,
+      userAgent
+    );
+
+    res.json({
+      message: 'Avatar aktualizovaný.',
+      avatarUrl
+    });
+
+  } catch (error) {
+    console.error('Avatar upload error:', error);
+
+    // Clean up file if error occurs
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    res.status(500).json({ message: 'Chyba pri nahrávaní avatara.' });
+  }
+});
+
+// DELETE /api/auth/avatar - Delete user avatar
+router.delete('/avatar', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get current avatar
+    const [users] = await pool.query(
+      'SELECT avatar_url FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'Používateľ nenájdený.' });
+    }
+
+    if (users[0].avatar_url) {
+      const avatarPath = path.join(__dirname, '..', users[0].avatar_url);
+      if (fs.existsSync(avatarPath)) {
+        fs.unlinkSync(avatarPath);
+      }
+    }
+
+    // Remove avatar_url from database
+    await pool.query(
+      'UPDATE users SET avatar_url = NULL WHERE id = ?',
+      [userId]
+    );
+
+    // Log activity
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    await logActivity(
+      userId,
+      'user.avatar_delete',
+      'user',
+      userId,
+      {},
+      req.user.company_id,
+      ipAddress,
+      userAgent
+    );
+
+    res.json({ message: 'Avatar vymazaný.' });
+
+  } catch (error) {
+    console.error('Avatar delete error:', error);
     res.status(500).json({ message: 'Chyba servera.' });
   }
 });
