@@ -59,7 +59,7 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
 
         <div className="p-6">
           {/* Warning */}
-          <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-400 dark:border-red-700 rounded-xl p-4 mb-6">
+          <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-400 dark:border-red-700 rounded-xl p-4 mb-4">
             <p className="text-red-900 dark:text-red-300 font-bold mb-2 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
               POZOR: Toto je nebezpečná operácia!
@@ -75,7 +75,7 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
           </div>
 
           {/* Company Info */}
-          <div className="card p-4 mb-6">
+          <div className="card p-4 mb-4">
             <div className="flex items-center gap-3">
               {company.logo_url ? (
                 <img
@@ -96,7 +96,7 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
           </div>
 
           {/* Confirmation Input */}
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-sm font-semibold text-secondary mb-2">
               Na potvrdenie napíšte presný názov firmy:
             </label>

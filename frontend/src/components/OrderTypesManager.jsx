@@ -150,7 +150,7 @@ const OrderTypesManager = () => {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
         <div>
           <h2 className="text-2xl md:text-3xl font-display font-bold text-primary">Typy montáží</h2>
           <p className="text-sm text-tertiary mt-1">Správa typov zákaziek a checklistov</p>
@@ -245,7 +245,7 @@ const OrderTypesManager = () => {
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-elevated rounded-2xl shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto animate-scale-in">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl md:text-2xl font-display font-bold text-primary">Nový typ montáže</h3>
               <button
                 type="button"
@@ -257,7 +257,7 @@ const OrderTypesManager = () => {
             </div>
 
             <form onSubmit={handleSubmitCreate}>
-              <div className="space-y-4 mb-6">
+              <div className="space-y-4 mb-4">
                 <div>
                   <label className="block text-sm font-semibold text-secondary mb-2">
                     Názov *
@@ -346,7 +346,7 @@ const OrderTypesManager = () => {
       {showEditModal && selectedOrderType && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-elevated rounded-2xl shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto animate-scale-in">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl md:text-2xl font-display font-bold text-primary">
                 Upraviť typ montáže
               </h3>
@@ -360,7 +360,7 @@ const OrderTypesManager = () => {
             </div>
 
             <form onSubmit={handleSubmitEdit}>
-              <div className="space-y-4 mb-6">
+              <div className="space-y-4 mb-4">
                 <div>
                   <label className="block text-sm font-semibold text-secondary mb-2">
                     Názov *
@@ -463,7 +463,7 @@ const OrderTypesManager = () => {
                 </p>
               </div>
             </div>
-            <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
               <p className="text-sm text-amber-900 dark:text-amber-300 font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
                 Tento typ bol použitý v {selectedOrderType.usage_count} zákazkách.

@@ -11,43 +11,43 @@ const CompanyAdminHeader = ({ title, subtitle, showSearch = false, onMenuToggle,
       {/* Top accent line with gradient */}
       <div className="h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
 
-      <div className="px-4 md:px-6 lg:px-8 py-3">
+      <div className="px-3 md:px-5 lg:px-6 py-1.5 md:py-1.5 lg:py-2">
         <div className="flex items-center justify-between gap-4">
           {/* Left: Mobile menu + Title + Operations Badge */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
             {/* Mobile menu toggle */}
             <button
               onClick={onMenuToggle}
-              className="lg:hidden p-2 hover:bg-blue-500/10 rounded-lg transition-all border border-blue-500/0 hover:border-blue-500/30"
+              className="lg:hidden p-1.5 hover:bg-blue-500/10 rounded-lg transition-all border border-blue-500/0 hover:border-blue-500/30"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
-                <X className="w-5 h-5 text-blue-400" />
+                <X className="w-4 h-4 text-blue-400" />
               ) : (
-                <Menu className="w-5 h-5 text-blue-400" />
+                <Menu className="w-4 h-4 text-blue-400" />
               )}
             </button>
 
             {/* Operations Badge */}
-            <div className="flex-1 min-w-0 flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-lg backdrop-blur-sm">
-                <Briefcase className="w-4 h-4 text-blue-400" />
+            <div className="flex-1 min-w-0 flex items-center gap-2 md:gap-3">
+              <div className="hidden md:flex items-center gap-1.5 px-2 py-1 bg-blue-500/10 border border-blue-500/30 rounded-lg backdrop-blur-sm">
+                <Briefcase className="w-3.5 h-3.5 text-blue-400" />
                 <span className="font-mono text-xs text-blue-300 tracking-wider">OPS</span>
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl md:text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 animate-pulse truncate" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+                  <h1 className="text-base md:text-lg lg:text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 animate-pulse truncate" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
                     {title}
                   </h1>
-                  <div className="hidden sm:flex items-center gap-1">
+                  <div className="hidden md:flex items-center gap-1">
                     <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                     <div className="w-2 h-2 bg-blue-500/60 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
                     <div className="w-2 h-2 bg-blue-500/30 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                   </div>
                 </div>
                 {subtitle && (
-                  <p className="text-xs text-slate-400 font-mono tracking-wide truncate mt-0.5">
+                  <p className="hidden md:block text-xs text-slate-400 font-mono tracking-wide truncate mt-0.5">
                     {'> '}{subtitle}
                   </p>
                 )}
@@ -78,13 +78,13 @@ const CompanyAdminHeader = ({ title, subtitle, showSearch = false, onMenuToggle,
           )}
 
           {/* Right: Stats + Notifications + User */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 md:gap-2">
             {/* Active Orders Indicator */}
-            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-900/50 border border-slate-700/50 rounded-lg">
-              <Zap className="w-3.5 h-3.5 text-cyan-400" />
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/50 border border-slate-700/50 rounded-lg">
+              <Zap className="w-3 h-3 text-cyan-400" />
               <div className="flex flex-col">
-                <span className="text-[10px] font-mono text-slate-500 leading-none">ACTIVE</span>
-                <span className="text-xs font-mono text-cyan-400 leading-none font-bold">8</span>
+                <span className="text-[9px] font-mono text-slate-500 leading-none">ACTIVE</span>
+                <span className="text-[11px] font-mono text-cyan-400 leading-none font-bold">8</span>
               </div>
             </div>
 

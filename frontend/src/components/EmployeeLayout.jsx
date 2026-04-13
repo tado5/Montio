@@ -52,7 +52,7 @@ const EmployeeLayout = ({ children, title, subtitle, showSearch = false }) => {
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-green-500/5 pointer-events-none"></div>
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-slate-950/50 to-transparent pointer-events-none"></div>
 
-          <div className="relative px-4 md:px-6 lg:px-8 py-6 md:py-8">
+          <div className="relative px-3 md:px-5 lg:px-6 py-4 md:py-5 lg:py-6">
             {children}
           </div>
         </main>

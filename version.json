@@ -1,11 +1,39 @@
 {
-  "version": "1.7.0",
-  "buildNumber": 15,
-  "buildDate": "2026-03-30",
+  "version": "1.9.0",
+  "buildNumber": 17,
+  "buildDate": "2026-04-13",
   "name": "MONTIO APP",
   "description": "Company Management System",
   "author": "TSDigital",
   "changelog": {
+    "1.9.0": {
+      "date": "2026-04-13",
+      "type": "minor",
+      "changes": [
+        "🎨 UI Optimization - 19 komponentov kompaktnejších (spacing ~30-40% redukcia)",
+        "📱 Mobile optimization: Header -42%, Footer -67%, +11% content area",
+        "📏 Sidebar šírka: w-72→w-64 (expanded), w-20→w-16 (collapsed)",
+        "⚙️ Extended Company Settings: 3 nové sekcie (Financial, Contact, Invoices)",
+        "💰 Custom VAT rate support (0-100%, desatinné čísla)",
+        "🗄️ Database migration: 3 nové stĺpce (financial_data, contact_data, invoice_settings)",
+        "🐛 Bug fixes: VAT 0%, Custom VAT input, setError ReferenceError",
+        "📱 Notification bell: na mobile redirect na /notifications",
+        "📊 3 nové API endpointy: financial, contact, invoice settings"
+      ]
+    },
+    "1.8.0": {
+      "date": "2026-04-13",
+      "type": "minor",
+      "changes": [
+        "⚙️ Company Settings Management - FÁZA 4.5",
+        "Backend: 4 nové API endpointy (settings, basic, logo, billing)",
+        "Frontend: CompanySettingsPage + CompanySettingsManager (3 taby)",
+        "Logo upload s Multer + Sharp (drag & drop, live preview)",
+        "Form validation: IČO, DIČ, IBAN, SWIFT, VS, splatnosť",
+        "Activity logging pre všetky settings zmeny",
+        "Responsive design pre mobile/tablet/desktop"
+      ]
+    },
     "1.7.0": {
       "date": "2026-03-30",
       "type": "major",
