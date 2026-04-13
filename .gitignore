@@ -37,6 +37,7 @@ coverage/
 
 # Development
 DEV_CREDENTIALS.md
+PRODUCTION_DEPLOYMENT.md
 
 # Uploads (user-generated content)
 backend/uploads/
