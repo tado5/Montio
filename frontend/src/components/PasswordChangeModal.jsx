@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useToast } from '../context/ToastContext'
 import { Lock, Save, X } from 'lucide-react'
-import axios from 'axios';
+import { api } from '../utils/apiClient';
 import { buildApiUrl } from '../config/api';
 
 const PasswordChangeModal = ({ employeeId, token, onSuccess, onCancel }) => {
@@ -35,7 +35,7 @@ const PasswordChangeModal = ({ employeeId, token, onSuccess, onCancel }) => {
     try {
       setLoading(true);
 
-      const response = await axios.put(
+      const response = await api.put(
         buildApiUrl(`api/employees/${employeeId}/change-password`),
         {
           currentPassword: formData.currentPassword,

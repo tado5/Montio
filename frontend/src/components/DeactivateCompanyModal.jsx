@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useToast } from '../context/ToastContext'
 import { AlertTriangle, X } from 'lucide-react'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 
 const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
   const toast = useToast()
@@ -17,7 +17,7 @@ const DeactivateCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
     setLoading(true)
 
     try {
-      await axios.put(`/api/companies/${company.id}/deactivate`, {
+      await api.put(`/api/companies/${company.id}/deactivate`, {
         companyName: confirmName
       })
 

@@ -3,7 +3,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 import { Calendar as CalendarIcon, RefreshCw, X, User, DollarSign, Clock, Package, Loader2 } from 'lucide-react'
 
 const Calendar = () => {
@@ -20,7 +20,7 @@ const Calendar = () => {
   const fetchCalendarEvents = async (start = null, end = null) => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('token')
+      
 
       let url = '/api/orders/calendar'
       const params = []
@@ -32,7 +32,7 @@ const Calendar = () => {
         url += `?${params.join('&')}`
       }
 
-      const response = await axios.get(url, {
+      const response = await api.get(url, {
         headers: { Authorization: `Bearer ${token}` }
       })
 

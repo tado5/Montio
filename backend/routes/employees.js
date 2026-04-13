@@ -1,6 +1,10 @@
 import express from 'express';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
+import { ensureCompanyId } from '../middleware/companyMiddleware.js';
+import { asyncHandler } from '../utils/errorHandler.js';
+import { isValidEmail, validateRequired } from '../utils/validation.js';
+import { ERROR_MESSAGES } from '../config/constants.js';
 import { logActivity } from '../middleware/logger.js';
 import { createNotification } from './notifications.js';
 import bcrypt from 'bcryptjs';
@@ -8,21 +12,8 @@ import bcrypt from 'bcryptjs';
 const router = express.Router();
 
 // GET /api/employees - Get all employees for company
-router.get('/', verifyToken, requireRole('companyadmin', 'employee'), async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+router.get('/', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
+    const companyId = req.company_id;
 
     // Get employees with user info and order stats
     const [employees] = await pool.query(
@@ -47,30 +38,12 @@ router.get('/', verifyToken, requireRole('companyadmin', 'employee'), async (req
     );
 
     res.json({ employees });
-
-  } catch (error) {
-    console.error('Get employees error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // GET /api/employees/:id - Get single employee
-router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), async (req, res) => {
-  try {
+router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+    const companyId = req.company_id;
 
     // Get employee with user info
     const [employees] = await pool.query(
@@ -94,35 +67,22 @@ router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), async (
     }
 
     res.json({ employee: employees[0] });
-
-  } catch (error) {
-    console.error('Get employee error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // POST /api/employees - Create new employee + user account
-router.post('/', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.post('/', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { name, email, password, position, phone } = req.body;
     const userId = req.user.id;
+    const companyId = req.company_id;
 
     // Validation
     if (!name || !email || !password || !position) {
       return res.status(400).json({ message: 'Meno, email, heslo a pozícia sú povinné.' });
     }
 
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: ERROR_MESSAGES.INVALID_EMAIL });
     }
-
-    const companyId = users[0].company_id;
 
     // Check if email already exists
     const [existingUsers] = await pool.query(
@@ -214,36 +174,23 @@ router.post('/', verifyToken, requireRole('companyadmin'), async (req, res) => {
       connection.release();
       throw err;
     }
-
-  } catch (error) {
-    console.error('Create employee error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/employees/:id - Update employee
-router.put('/:id', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.put('/:id', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { name, email, position, phone, status } = req.body;
     const userId = req.user.id;
+    const companyId = req.company_id;
 
     // Validation
     if (!name || !email || !position) {
       return res.status(400).json({ message: 'Meno, email a pozícia sú povinné.' });
     }
 
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: ERROR_MESSAGES.INVALID_EMAIL });
     }
-
-    const companyId = users[0].company_id;
 
     // Check if employee exists and belongs to user's company
     const [existing] = await pool.query(
@@ -336,30 +283,13 @@ router.put('/:id', verifyToken, requireRole('companyadmin'), async (req, res) =>
       connection.release();
       throw err;
     }
-
-  } catch (error) {
-    console.error('Update employee error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // DELETE /api/employees/:id - Deactivate employee (soft delete)
-router.delete('/:id', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.delete('/:id', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+    const companyId = req.company_id;
 
     // Check if employee exists and belongs to user's company
     const [existing] = await pool.query(
@@ -409,16 +339,10 @@ router.delete('/:id', verifyToken, requireRole('companyadmin'), async (req, res)
     );
 
     res.json({ message: 'Zamestnanec deaktivovaný.' });
-
-  } catch (error) {
-    console.error('Delete employee error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/employees/:id/change-password - Change default password (first login)
-router.put('/:id/change-password', verifyToken, requireRole('employee'), async (req, res) => {
-  try {
+router.put('/:id/change-password', verifyToken, requireRole('employee'), asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.id;
@@ -528,30 +452,13 @@ router.put('/:id/change-password', verifyToken, requireRole('employee'), async (
       connection.release();
       throw err;
     }
-
-  } catch (error) {
-    console.error('Change password error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/employees/:id/approve - Approve employee (pending_approval → active)
-router.put('/:id/approve', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.put('/:id/approve', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+    const companyId = req.company_id;
 
     // Get employee record
     const [employees] = await pool.query(
@@ -615,30 +522,13 @@ router.put('/:id/approve', verifyToken, requireRole('companyadmin'), async (req,
         status: 'active'
       }
     });
-
-  } catch (error) {
-    console.error('Approve employee error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // PUT /api/employees/:id/reactivate - Reactivate employee (inactive → active)
-router.put('/:id/reactivate', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.put('/:id/reactivate', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+    const companyId = req.company_id;
 
     // Get employee record
     const [employees] = await pool.query(
@@ -702,30 +592,13 @@ router.put('/:id/reactivate', verifyToken, requireRole('companyadmin'), async (r
         status: 'active'
       }
     });
-
-  } catch (error) {
-    console.error('Reactivate employee error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // DELETE /api/employees/:id/permanent - Permanently delete employee (only from inactive)
-router.delete('/:id/permanent', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.delete('/:id/permanent', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+    const companyId = req.company_id;
 
     // Get employee record with order count
     const [employees] = await pool.query(
@@ -820,30 +693,13 @@ router.delete('/:id/permanent', verifyToken, requireRole('companyadmin'), async 
       connection.release();
       throw err;
     }
-
-  } catch (error) {
-    console.error('Permanent delete employee error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // POST /api/employees/:id/resend-credentials - Resend default password to employee
-router.post('/:id/resend-credentials', verifyToken, requireRole('companyadmin'), async (req, res) => {
-  try {
+router.post('/:id/resend-credentials', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyncHandler(async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
-
-    // Get user's company_id
-    const [users] = await pool.query(
-      'SELECT company_id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0 || !users[0].company_id) {
-      return res.status(404).json({ message: 'Používateľ nemá priradenú firmu.' });
-    }
-
-    const companyId = users[0].company_id;
+    const companyId = req.company_id;
 
     // Get employee record
     const [employees] = await pool.query(
@@ -909,11 +765,6 @@ router.post('/:id/resend-credentials', verifyToken, requireRole('companyadmin'),
       email: employee.email,
       note: 'V produkcii by bol odoslaný email s prihlasovacími údajmi.'
     });
-
-  } catch (error) {
-    console.error('Resend credentials error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 export default router;

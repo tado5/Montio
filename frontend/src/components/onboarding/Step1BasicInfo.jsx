@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import { api } from '../../utils/apiClient'
 import { Building2, Hash, MapPin, Mail, AlertCircle } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 
@@ -52,7 +52,7 @@ export default function Step1BasicInfo({ data, updateData, nextStep, inviteToken
     }
 
     try {
-      await axios.post('/api/onboarding/step1', {
+      await api.post('/api/onboarding/step1', {
         inviteToken,
         ...formState
       })

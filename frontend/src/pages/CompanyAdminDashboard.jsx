@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import CompanyAdminLayout from '../components/CompanyAdminLayout'
 import KPICard from '../components/KPICard'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 
 const CompanyAdminDashboard = () => {
   const { user } = useAuth()
@@ -31,8 +31,8 @@ const CompanyAdminDashboard = () => {
   const fetchDashboardStats = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('token')
-      const response = await axios.get('/api/dashboard/stats', {
+      
+      const response = await api.get('/api/dashboard/stats', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setStats(response.data.stats)

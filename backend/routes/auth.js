@@ -4,11 +4,25 @@ import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
 import { logActivity } from '../middleware/logger.js';
+import { loginRateLimiter } from '../middleware/rateLimiter.js';
 import upload from '../middleware/upload.js';
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import {
+  isValidEmail,
+  isStrongPassword,
+  validateEmail,
+  validateRequired
+} from '../utils/validation.js';
+import {
+  ERROR_MESSAGES,
+  THEME,
+  FILE_UPLOAD,
+  JWT_CONFIG
+} from '../config/constants.js';
+import { asyncHandler, handleError, safeFileOperation } from '../utils/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,14 +83,18 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/auth/login
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// POST /api/auth/login (with rate limiting)
+router.post('/login', loginRateLimiter, asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email a heslo sú povinné.' });
-    }
+  // Validate inputs
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email a heslo sú povinné.' });
+  }
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ message: ERROR_MESSAGES.INVALID_EMAIL });
+  }
 
     // Nájdenie používateľa s employee info
     const [users] = await pool.query(
@@ -170,7 +188,7 @@ router.post('/login', async (req, res) => {
         email: user.email,
         role: user.role,
         company_id: user.company_id,
-        theme: user.theme || 'dark',
+        theme: user.theme || THEME.DEFAULT,
         name: user.name || null,
         position: user.position || null,
         avatar_url: user.avatar_url || null,
@@ -179,12 +197,7 @@ router.post('/login', async (req, res) => {
         isReadOnly: isReadOnly
       }
     });
-
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+}));
 
 // GET /api/auth/companies (superadmin only)
 router.get('/companies', verifyToken, requireRole('superadmin'), async (req, res) => {

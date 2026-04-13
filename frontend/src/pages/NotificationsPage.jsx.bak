@@ -35,7 +35,8 @@ const NotificationsPage = () => {
     setLoading(true);
     try {
       const response = await api.get(
-        `/api/notifications?filter=${filter}&limit=${pagination.limit}&offset=${newOffset}`
+        `/api/notifications?filter=${filter}&limit=${pagination.limit}&offset=${newOffset}`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
 
       setNotifications(response.data.notifications);
@@ -61,7 +62,11 @@ const NotificationsPage = () => {
   // Mark as read
   const markAsRead = async (id) => {
     try {
-      await api.put(`/api/notifications/${id}/read`);
+      await api.put(
+        `/api/notifications/${id}/read`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
 
       setNotifications(prev =>
         prev.map(n => (n.id === id ? { ...n, is_read: 1, read_at: new Date().toISOString() } : n))
@@ -76,7 +81,11 @@ const NotificationsPage = () => {
   // Mark as unread
   const markAsUnread = async (id) => {
     try {
-      await api.put(`/api/notifications/${id}/unread`);
+      await api.put(
+        `/api/notifications/${id}/unread`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
 
       setNotifications(prev =>
         prev.map(n => (n.id === id ? { ...n, is_read: 0, read_at: null } : n))
@@ -91,7 +100,11 @@ const NotificationsPage = () => {
   // Mark all as read
   const markAllAsRead = async () => {
     try {
-      await api.put(`/api/notifications/mark-all-read`);
+      await api.put(
+        buildApiUrl('api/notifications/mark-all-read'),
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
 
       fetchNotifications(pagination.offset);
       addToast('Všetky notifikácie označené', 'success');
@@ -106,7 +119,9 @@ const NotificationsPage = () => {
     if (!confirm('Naozaj chcete vymazať túto notifikáciu?')) return;
 
     try {
-      await api.delete(`/api/notifications/${id}`);
+      await api.delete(`/api/notifications/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
 
       setNotifications(prev => prev.filter(n => n.id !== id));
       setPagination(prev => ({ ...prev, total: prev.total - 1 }));
@@ -122,7 +137,10 @@ const NotificationsPage = () => {
     if (!confirm('Naozaj chcete vymazať všetky prečítané notifikácie?')) return;
 
     try {
-      const response = await api.delete(`/api/notifications/delete-all-read`);
+      const response = await api.delete(
+        buildApiUrl('api/notifications/delete-all-read'),
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
 
       addToast(`Vymazaných ${response.data.deletedCount} notifikácií`, 'success');
       fetchNotifications(0);

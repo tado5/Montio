@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import { api } from '../../utils/apiClient'
 import { Upload, CreditCard, Hash, Calendar, FileText, AlertCircle, ArrowLeft } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 
@@ -65,7 +65,7 @@ export default function Step2LogoBilling({ data, updateData, nextStep, prevStep,
         formData.append('logo', logoFile)
       }
 
-      const response = await axios.post('/api/onboarding/step2', formData, {
+      const response = await api.post('/api/onboarding/step2', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

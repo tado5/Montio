@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useToast } from '../context/ToastContext'
 import { Mail, Copy, Check, X, Send, Link as LinkIcon, Info } from 'lucide-react'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 
 const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
   const toast = useToast()
@@ -15,7 +15,7 @@ const CreateCompanyModal = ({ isOpen, onClose, onSuccess }) => {
     setLoading(true)
 
     try {
-      const response = await axios.post('/api/companies', { email })
+      const response = await api.post('/api/companies', { email })
       setSuccess(response.data)
       setEmail('')
       toast.success('Pozvánka bola úspešne odoslaná!')

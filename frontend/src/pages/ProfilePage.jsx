@@ -24,7 +24,7 @@ import {
 import DynamicLayout from '../components/DynamicLayout'
 import ReadOnlyBanner from '../components/ReadOnlyBanner'
 import AvatarUpload from '../components/AvatarUpload'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 
 const ProfilePage = () => {
   const { user } = useAuth()
@@ -57,10 +57,7 @@ const ProfilePage = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('token')
-      const response = await axios.get('/api/auth/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const response = await api.get('/api/auth/profile')
 
       const profileData = response.data.profile
       setProfile(profileData)
@@ -72,7 +69,7 @@ const ProfilePage = () => {
       setLoading(false)
     } catch (err) {
       console.error('Fetch profile error:', err)
-      toast.error('Nepodarilo sa načítať profil')
+      toast.error(err.userMessage || 'Nepodarilo sa načítať profil')
       setLoading(false)
     }
   }
@@ -80,15 +77,12 @@ const ProfilePage = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault()
     try {
-      const token = localStorage.getItem('token')
-      await axios.put('/api/auth/profile', profileForm, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      await api.put('/api/auth/profile', profileForm)
       toast.success('Profil úspešne aktualizovaný')
       setIsEditMode(false)
       fetchProfile()
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Chyba pri aktualizácii profilu')
+      toast.error(err.userMessage || 'Chyba pri aktualizácii profilu')
     }
   }
 
@@ -106,19 +100,16 @@ const ProfilePage = () => {
     }
 
     try {
-      const token = localStorage.getItem('token')
-      await axios.put('/api/auth/profile/password', {
+      await api.put('/api/auth/profile/password', {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       })
 
       toast.success('Heslo úspešne zmenené')
       setIsChangingPassword(false)
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Chyba pri zmene hesla')
+      toast.error(err.userMessage || 'Chyba pri zmene hesla')
     }
   }
 

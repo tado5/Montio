@@ -14,7 +14,7 @@ import {
   ArrowUp,
   ArrowDown
 } from 'lucide-react'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 import SuperAdminLayout from '../components/SuperAdminLayout'
 import CreateCompanyModal from '../components/CreateCompanyModal'
 import KPICard from '../components/KPICard'
@@ -40,7 +40,7 @@ const SuperAdminDashboard = () => {
 
   const fetchCompanies = async () => {
     try {
-      const response = await axios.get('/api/auth/companies')
+      const response = await api.get('/api/auth/companies')
       setCompanies(response.data)
       setFilteredCompanies(response.data)
       setLoading(false)

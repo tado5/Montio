@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Camera, Upload, Trash2, X, CheckCircle2 } from 'lucide-react'
-import axios from 'axios'
+import { api } from '../utils/apiClient'
 
 const AvatarUpload = ({ currentAvatar, email, onAvatarUpdate, onClose }) => {
   const [preview, setPreview] = useState(null)
@@ -46,10 +46,8 @@ const AvatarUpload = ({ currentAvatar, email, onAvatarUpdate, onClose }) => {
       const formData = new FormData()
       formData.append('avatar', selectedFile)
 
-      const token = localStorage.getItem('token')
-      const response = await axios.put('/api/auth/avatar', formData, {
+      const response = await api.put('/api/auth/avatar', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       })
@@ -59,7 +57,7 @@ const AvatarUpload = ({ currentAvatar, email, onAvatarUpdate, onClose }) => {
       setSelectedFile(null)
     } catch (error) {
       console.error('Avatar upload error:', error)
-      alert(error.response?.data?.message || 'Chyba pri nahrávaní avatara')
+      alert(error.userMessage || 'Chyba pri nahrávaní avatara')
     } finally {
       setUploading(false)
     }
@@ -70,15 +68,12 @@ const AvatarUpload = ({ currentAvatar, email, onAvatarUpdate, onClose }) => {
 
     try {
       setDeleting(true)
-      const token = localStorage.getItem('token')
-      await axios.delete('/api/auth/avatar', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      await api.delete('/api/auth/avatar')
 
       onAvatarUpdate(null)
     } catch (error) {
       console.error('Avatar delete error:', error)
-      alert(error.response?.data?.message || 'Chyba pri mazaní avatara')
+      alert(error.userMessage || 'Chyba pri mazaní avatara')
     } finally {
       setDeleting(false)
     }
