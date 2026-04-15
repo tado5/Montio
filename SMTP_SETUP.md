@@ -57,9 +57,9 @@ PORT=3001
 DB_HOST=sql14.hostcreators.sk
 DB_PORT=3319
 DB_USER=u46895_montio
-DB_PASSWORD=x52D_Z-lb!UX6n5
+DB_PASSWORD=YOUR_PRODUCTION_PASSWORD_HERE
 DB_NAME=d46895_montio
-JWT_SECRET=montio-super-secret-jwt-key-2026
+JWT_SECRET=YOUR_JWT_SECRET_HERE
 JWT_EXPIRES_IN=7d
 NODE_ENV=production
 ALLOWED_ORIGINS=https://montio.tsdigital.sk,https://www.montio.tsdigital.sk
@@ -81,16 +81,16 @@ PORT=3001
 DB_HOST=sql14.hostcreators.sk
 DB_PORT=3319
 DB_USER=u46895_montio
-DB_PASSWORD=x52D_Z-lb!UX6n5
+DB_PASSWORD=YOUR_PRODUCTION_PASSWORD_HERE
 DB_NAME=d46895_montio
-JWT_SECRET=montio-super-secret-jwt-key-2026
+JWT_SECRET=YOUR_JWT_SECRET_HERE
 JWT_EXPIRES_IN=7d
 NODE_ENV=production
 ALLOWED_ORIGINS=https://montio.tsdigital.sk,https://www.montio.tsdigital.sk
 SMTP_HOST=smtp.hostcreators.sk
 SMTP_PORT=465
 SMTP_USER=montio@tsdigital.sk
-SMTP_PASSWORD=JY-E7I0!_8!uo9qi
+SMTP_PASSWORD=YOUR_SMTP_PASSWORD_HERE
 ```
 
 **✅ MONTIO Production - Configured with Hostcreator SMTP**
