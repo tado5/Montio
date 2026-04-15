@@ -19,6 +19,15 @@ const KPICard = ({
     info: 'from-blue-500 to-blue-600',
   }
 
+  const borderClasses = {
+    accent: 'border-orange-500/30',
+    primary: 'border-slate-600/30',
+    success: 'border-emerald-500/30',
+    warning: 'border-amber-500/30',
+    error: 'border-red-500/30',
+    info: 'border-blue-500/30',
+  }
+
   const getTrendIcon = () => {
     if (!trend || trend === 'neutral') return Minus
     return trend === 'up' ? TrendingUp : TrendingDown
@@ -33,21 +42,25 @@ const KPICard = ({
 
   if (loading) {
     return (
-      <div className="card p-4 md:p-5 animate-pulse">
+      <div className="bg-slate-800/50 border-2 border-slate-700/50 rounded-xl p-4 md:p-5 animate-pulse backdrop-blur-sm">
         <div className="flex items-start justify-between mb-3">
           <div className="space-y-2 flex-1">
-            <div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-1/2"/>
-            <div className="h-7 bg-[rgb(var(--color-bg-secondary))] rounded w-3/4"/>
+            <div className="h-3 bg-slate-700/50 rounded w-1/2"/>
+            <div className="h-7 bg-slate-700/50 rounded w-3/4"/>
           </div>
-          <div className="w-10 h-10 md:w-12 md:h-12 bg-[rgb(var(--color-bg-secondary))] rounded-xl"/>
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-700/50 rounded-xl"/>
         </div>
-        <div className="h-3 bg-[rgb(var(--color-bg-secondary))] rounded w-1/3"/>
+        <div className="h-3 bg-slate-700/50 rounded w-1/3"/>
       </div>
     )
   }
 
   return (
-    <div className="card-interactive group p-4 md:p-5">
+    <div className={`
+      bg-slate-900/50 border-2 ${borderClasses[color]} rounded-xl p-4 md:p-5
+      hover:bg-slate-800/50 hover:border-opacity-50 transition-all duration-200
+      backdrop-blur-sm cursor-pointer group
+    `}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <h3 className="text-[13px] font-semibold text-secondary mb-2">
