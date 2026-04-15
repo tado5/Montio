@@ -62,14 +62,13 @@ jobs:
           # Copy backend node_modules
           cp -r backend/node_modules production-deploy/api/
 
-          # Create .htaccess for routing
+          # Create .htaccess for React Router routing only
+          # NOTE: Backend runs separately in Docker container (not via .htaccess)
           cat > production-deploy/.htaccess << 'EOF'
           RewriteEngine On
 
-          # API requests -> backend
-          RewriteRule ^api/(.*)$ /api/server.js/$1 [L,QSA]
-
           # Frontend routing (React Router)
+          # Redirect all non-file/non-directory requests to index.html
           RewriteCond %{REQUEST_FILENAME} !-f
           RewriteCond %{REQUEST_FILENAME} !-d
           RewriteRule ^ index.html [L]
