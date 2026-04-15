@@ -62,3 +62,4 @@ backend/uploads/
 !backend/uploads/avatars/.gitkeep
 !backend/uploads/logos/.gitkeep
 SECURITY_INCIDENT.md
+TODO.md
