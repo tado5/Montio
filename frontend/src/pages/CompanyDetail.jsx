@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import SuperAdminLayout from '../components/SuperAdminLayout'
 import DeactivateCompanyModal from '../components/DeactivateCompanyModal'
+import DeleteCompanyModal from '../components/DeleteCompanyModal'
 import KPICard from '../components/KPICard'
 
 const CompanyDetail = () => {
@@ -37,7 +38,12 @@ const CompanyDetail = () => {
   const [error, setError] = useState('')
   const [data, setData] = useState(null)
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
+
+  // Pagination state
+  const [logsPage, setLogsPage] = useState(1)
+  const [logsLoading, setLogsLoading] = useState(false)
 
   useEffect(() => {
     fetchCompanyDetail()
@@ -54,6 +60,31 @@ const CompanyDetail = () => {
     }
   }
 
+  const loadMoreLogs = async () => {
+    if (logsLoading || !data?.logsPagination?.hasMore) return
+
+    setLogsLoading(true)
+    try {
+      const nextPage = logsPage + 1
+      const response = await api.get(`/api/companies/${id}/logs?page=${nextPage}&limit=10`)
+
+      setData(prev => ({
+        ...prev,
+        logs: [...prev.logs, ...response.data.logs],
+        logsPagination: {
+          total: response.data.pagination.total,
+          loaded: prev.logs.length + response.data.logs.length,
+          hasMore: response.data.pagination.page < response.data.pagination.pages
+        }
+      }))
+      setLogsPage(nextPage)
+    } catch (err) {
+      console.error('Error loading more logs:', err)
+    } finally {
+      setLogsLoading(false)
+    }
+  }
+
   const handleActivate = async () => {
     setActionLoading(true)
     try {
@@ -66,25 +97,9 @@ const CompanyDetail = () => {
     }
   }
 
-  const handleDelete = async () => {
-    if (!window.confirm(`Naozaj chcete TRVALO vymazať firmu "${data.company.name}"?\n\nTáto akcia je NEVRATNÁ a vymaže:\n- Firmu\n- Invitation token\n- Všetky súvisiace dáta\n\nNapíšte "DELETE" pre potvrdenie:`)) {
-      return
-    }
-
-    const confirmation = window.prompt('Napíšte "DELETE" pre potvrdenie:')
-    if (confirmation !== 'DELETE') {
-      return
-    }
-
-    setActionLoading(true)
-    try {
-      await api.delete(`/api/companies/${id}`)
-      // Redirect back to list after successful deletion
-      navigate('/superadmin')
-    } catch (err) {
-      setError(err.response?.data?.message || 'Chyba pri vymazávaní firmy')
-      setActionLoading(false)
-    }
+  const handleDeleteSuccess = () => {
+    // Redirect back to list after successful deletion
+    navigate('/superadmin')
   }
 
   const handleDeactivateSuccess = () => {
@@ -95,18 +110,22 @@ const CompanyDetail = () => {
     return new Date(dateString).toLocaleString('sk-SK')
   }
 
-  const getActionBadge = (action) => {
+  const getActionColor = (action) => {
     const colors = {
-      'user.login': 'bg-blue-500/10 border-blue-500/30 text-blue-400',
-      'user.logout': 'bg-slate-500/10 border-slate-500/30 text-slate-400',
-      'company.create': 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
-      'company.update': 'bg-orange-500/10 border-orange-500/30 text-orange-400',
-      'order.create': 'bg-orange-500/10 border-orange-500/30 text-orange-400',
-      'order.complete': 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
-      'invoice.create': 'bg-purple-500/10 border-purple-500/30 text-purple-400',
-      'invoice.paid': 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+      'user.login': 'blue',
+      'user.logout': 'slate',
+      'company.create': 'emerald',
+      'company.update': 'orange',
+      'company.invite': 'orange',
+      'company.activate': 'emerald',
+      'company.deactivate': 'red',
+      'company.delete': 'red',
+      'order.create': 'orange',
+      'order.complete': 'emerald',
+      'invoice.create': 'purple',
+      'invoice.paid': 'emerald',
     }
-    return colors[action] || 'bg-slate-500/10 border-slate-500/30 text-slate-400'
+    return colors[action] || 'slate'
   }
 
   if (loading) {
@@ -170,7 +189,7 @@ const CompanyDetail = () => {
         <div className="flex items-center gap-3">
           {company.status === 'pending' && (
             <button
-              onClick={handleDelete}
+              onClick={() => setIsDeleteModalOpen(true)}
               disabled={actionLoading}
               className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 rounded-lg transition-all text-sm font-mono font-bold text-red-400 hover:text-red-300 disabled:opacity-50"
             >
@@ -406,85 +425,76 @@ const CompanyDetail = () => {
 
       {/* Activity Log */}
       <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl overflow-hidden backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.5s' }}>
-        <div className="px-6 py-4 bg-slate-900/80 border-b border-slate-700/50">
+        <div className="px-4 py-3 bg-slate-900/80 border-b border-slate-700/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-orange-400" />
-              <h2 className="text-lg font-black text-white" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
-                ACTIVITY LOG
+              <Activity className="w-4 h-4 text-orange-400" />
+              <h2 className="text-sm font-black text-white uppercase tracking-wider" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+                Activity Log
               </h2>
             </div>
-            <span className="px-3 py-1 bg-orange-500/10 border border-orange-500/30 rounded-lg text-xs font-mono font-bold text-orange-400">
-              {logs.length}
+            <span className="text-xs font-mono text-slate-500">
+              {data?.logsPagination?.loaded || 0} / {data?.logsPagination?.total || 0}
             </span>
           </div>
-          <p className="text-xs font-mono text-slate-500 mt-1">System event timeline</p>
         </div>
-        <div className="p-6">
+        <div className="p-4">
           {logs.length === 0 ? (
-            <div className="text-center py-12">
-              <Activity className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-500 font-mono text-sm">No activity recorded</p>
+            <div className="text-center py-8">
+              <Activity className="w-10 h-10 text-slate-700 mx-auto mb-2" />
+              <p className="text-slate-600 text-xs">No activity</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {logs.map((log, index) => (
-                <div
-                  key={log.id}
-                  className="relative pl-8 border-l-2 border-slate-700/50 hover:border-orange-500/30 transition-all duration-200 group"
-                  style={{ animation: `slideInRight 0.3s ease-out ${index * 0.03}s both` }}
-                >
-                  {/* Timeline dot */}
-                  <div className={`absolute left-[-5px] top-0 w-2 h-2 rounded-full border-2 ${getActionBadge(log.action)} group-hover:scale-150 transition-transform duration-200`}></div>
+            <>
+              <div className="space-y-2">
+                {logs.map((log) => {
+                  const color = getActionColor(log.action)
+                  return (
+                    <div
+                      key={log.id}
+                      className="flex items-center gap-3 py-2 px-3 bg-slate-800/20 hover:bg-slate-800/40 rounded-lg border border-slate-800/50 hover:border-slate-700/50 transition-all duration-150"
+                    >
+                      {/* Color indicator */}
+                      <div className={`w-1 h-8 rounded-full bg-${color}-500/50 flex-shrink-0`}></div>
 
-                  {/* Log content */}
-                  <div className="pb-4 last:pb-0">
-                    <div className="bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/50 hover:border-orange-500/20 rounded-lg p-4 transition-all duration-200">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="w-8 h-8 rounded-lg overflow-hidden shadow-md bg-slate-700 flex-shrink-0">
-                            <img
-                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(log.user_email)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
-                              alt="Avatar"
-                              className="w-full h-full"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-white text-sm truncate">{log.user_email}</div>
-                            <div className="text-xs font-mono text-slate-500 uppercase">{log.user_role}</div>
-                          </div>
-                        </div>
-                        <span className={`px-2 py-1 text-[10px] font-mono font-bold rounded-lg border flex-shrink-0 ${getActionBadge(log.action)}`}>
-                          {log.action}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-wrap gap-3 text-xs font-mono">
-                        <div className="flex items-center gap-1.5 text-slate-400">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>{formatDate(log.created_at)}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-slate-400">
-                          <FileText className="w-3.5 h-3.5" />
-                          <span>
-                            {log.entity_type}
-                            {log.entity_id && <span className="text-slate-600"> #{log.entity_id}</span>}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className={`text-xs font-mono font-bold text-${color}-400`}>
+                            {log.action}
+                          </span>
+                          <span className="text-[10px] font-mono text-slate-600">•</span>
+                          <span className="text-[10px] font-mono text-slate-500 truncate">
+                            {log.user_email}
                           </span>
                         </div>
-                        {log.ip_address && (
-                          <div className="flex items-center gap-1.5 text-slate-400">
-                            <Globe className="w-3.5 h-3.5" />
-                            <span className="bg-slate-800/50 px-2 py-0.5 rounded border border-slate-700/50">
-                              {log.ip_address}
-                            </span>
-                          </div>
-                        )}
+                        <div className="text-[10px] font-mono text-slate-600">
+                          {formatDate(log.created_at)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  )
+                })}
+              </div>
+
+              {/* Load More Button */}
+              {data?.logsPagination?.hasMore && (
+                <button
+                  onClick={loadMoreLogs}
+                  disabled={logsLoading}
+                  className="w-full mt-3 py-2 bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/50 hover:border-orange-500/30 rounded-lg text-xs font-mono text-slate-400 hover:text-orange-400 transition-all duration-200 disabled:opacity-50"
+                >
+                  {logsLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Loading...
+                    </span>
+                  ) : (
+                    `Load More (${data.logsPagination.total - data.logsPagination.loaded} remaining)`
+                  )}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
