@@ -99,7 +99,8 @@ SMTP_PASSWORD=production-smtp-here
 
 **NIKDY:**
 ```markdown
-❌ SMTP_PASSWORD=***REMOVED***
+❌ SMTP_PASSWORD=actual-real-password-12345
+❌ DB_PASSWORD=my-secret-database-password
 ```
 
 ---
