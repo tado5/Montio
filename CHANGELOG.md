@@ -1,5 +1,49 @@
 # MONTIO - Changelog
 
+## [1.11.1] - 2026-04-15 - Production UI Fixes & Email System 📧
+
+### 🐛 UI Fixes
+- **Dark Mode:** Force dark mode permanently (removed light/dark toggle)
+- **Login Page:** Fixed theme persisting after logout (was switching to light)
+- **KPI Cards:** Dark slate background with color-coded borders (green/yellow/red/blue)
+- **Table Styling:** Dark slate background for companies table
+- **Dashboard:** Removed ID column from companies table (too long UUID)
+
+### ✨ Email System
+- **NodeMailer Integration:** Invitation emails now sent via SMTP
+  - Production: Sends real emails
+  - Development: Logs to console only
+- **Auto-detection:** Automatically detects production vs development environment
+- **Beautiful Email Template:** HTML email with MONTIO branding
+
+### 🔗 Invite System Improvements
+- **Auto URL Detection:** 
+  - Production: `https://montio.tsdigital.sk/register/{token}`
+  - Development: `http://localhost:3000/register/{token}`
+
+### 🗑️ Delete Functionality
+- **DELETE Endpoint:** Hard delete for pending companies
+- **UI Button:** "Vymazať" button in CompanyDetail (pending companies only)
+- **Security:** Double confirmation required (confirm + type "DELETE")
+- **Cascade Delete:** Removes company + invite token + related data
+- **404 Handling:** Deleted invitation links now return 404
+
+### 📦 Dependencies
+- Added `nodemailer` for email sending
+
+### 🔧 Backend Changes
+- `backend/utils/sendEmail.js` - Email sending utility
+- `backend/routes/companies.js` - Delete endpoint + invite link fixes
+- Environment auto-detection for URLs
+
+### 🎨 Frontend Changes
+- `frontend/src/context/ThemeContext.jsx` - Simplified to dark-only
+- `frontend/src/components/KPICard.jsx` - Dark slate styling
+- `frontend/src/pages/SuperAdminDashboard.jsx` - Table styling + removed ID column
+- `frontend/src/pages/CompanyDetail.jsx` - Delete button for pending companies
+
+---
+
 ## [1.10.0] - 2026-04-13 - User Profile & Employee Dashboard 👤
 
 ### ✨ Nové funkcie
