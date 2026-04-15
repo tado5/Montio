@@ -48,8 +48,13 @@ STATUS.md
 # Sensitive production files (credentials, secrets)
 ENV_FILE_PRODUCTION.txt
 *_PRODUCTION.txt
+*_PROD.txt
 credentials.txt
 secrets.txt
+passwords.txt
+*.pem
+*.key
+!*.pub
 
 # Uploads (user-generated content)
 backend/uploads/
