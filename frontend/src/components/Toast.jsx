@@ -21,6 +21,8 @@ const Toast = ({ id, type = 'info', message, duration = 5000, onClose }) => {
   const Icon = icons[type];
 
   useEffect(() => {
+    if (!duration) return; // Skip if no duration
+
     const interval = setInterval(() => {
       setProgress((prev) => {
         const newProgress = prev - (100 / (duration / 50));
@@ -34,7 +36,8 @@ const Toast = ({ id, type = 'info', message, duration = 5000, onClose }) => {
     }, 50);
 
     return () => clearInterval(interval);
-  }, [duration]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [duration, id]); // Added id to ensure effect runs for each toast
 
   const handleClose = () => {
     setIsExiting(true);
