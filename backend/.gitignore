@@ -1,1 +1,12 @@
-uploads/
+# Environment files
+.env
+.env.local
+.env.prod
+.env.production
+
+# Dependencies
+node_modules/
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
