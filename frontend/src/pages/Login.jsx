@@ -121,7 +121,10 @@ const Login = () => {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setError('') // Clear error when user starts typing
+                }}
                 className="input pl-11"
                 placeholder="vas@email.sk"
                 required
@@ -138,7 +141,10 @@ const Login = () => {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setError('') // Clear error when user starts typing
+                }}
                 className="input pl-11"
                 placeholder="••••••••"
                 required
