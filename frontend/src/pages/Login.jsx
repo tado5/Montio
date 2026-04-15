@@ -39,8 +39,8 @@ const Login = () => {
       setShowPasswordChange(true)
       setLoading(false)
     } else {
-      setError(result.message)
-      toast.error(result.message)
+      setError(result.message || 'Nesprávny email alebo heslo')
+      toast.error(result.message || 'Nesprávny email alebo heslo', { duration: 5000 })
       setLoading(false)
     }
   }
@@ -72,8 +72,8 @@ const Login = () => {
       toast.success('Prihlásenie úspešné!')
       navigate('/')
     } else {
-      setError(result.message)
-      toast.error(result.message)
+      setError(result.message || 'Nesprávny email alebo heslo')
+      toast.error(result.message || 'Nesprávny email alebo heslo', { duration: 5000 })
     }
 
     setLoading(false)
