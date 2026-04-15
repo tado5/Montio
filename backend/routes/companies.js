@@ -2,6 +2,7 @@ import express from 'express';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
 import { logActivity } from '../middleware/logger.js';
+import { sendInviteEmail } from '../utils/sendEmail.js';
 import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -61,11 +62,14 @@ router.post('/', verifyToken, requireRole('superadmin'), async (req, res) => {
     );
 
     // Generate invite link (Frontend URL, not backend)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    // Auto-detect production vs development
+    const frontendUrl = process.env.NODE_ENV === 'production'
+      ? 'https://montio.tsdigital.sk'
+      : 'http://localhost:3000';
     const inviteLink = `${frontendUrl}/register/${inviteToken}`;
 
-    // TODO: Send email via NodeMailer
-    // await sendInviteEmail(email, inviteLink);
+    // Send email (production only, dev just logs)
+    await sendInviteEmail(email, inviteLink);
 
     res.status(201).json({
       message: 'Pozvánka odoslaná.',
@@ -329,6 +333,64 @@ router.put('/:publicId/activate', verifyToken, requireRole('superadmin'), async 
 
   } catch (error) {
     console.error('Activate company error:', error);
+    res.status(500).json({ message: 'Chyba servera.' });
+  }
+});
+
+// DELETE /api/companies/:publicId - Delete pending company (superadmin only)
+router.delete('/:publicId', verifyToken, requireRole('superadmin'), async (req, res) => {
+  try {
+    const { publicId } = req.params;
+
+    // Get company
+    const [companies] = await pool.query(
+      'SELECT id, public_id, name, status, invite_token FROM companies WHERE public_id = ?',
+      [publicId]
+    );
+
+    if (companies.length === 0) {
+      return res.status(404).json({ message: 'Firma nenájdená.' });
+    }
+
+    const company = companies[0];
+
+    // Only allow deletion of pending companies
+    if (company.status !== 'pending') {
+      return res.status(400).json({
+        message: 'Nemožno vymazať aktívnu alebo neaktívnu firmu. Môžete vymazať len firmy so statusom "pending".'
+      });
+    }
+
+    // Hard delete company (cascade will handle related records if configured)
+    await pool.query('DELETE FROM companies WHERE id = ?', [company.id]);
+
+    // Log activity (use company_id = null since company is deleted)
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    await logActivity(
+      req.user.id,
+      'company.delete',
+      'company',
+      company.id,
+      {
+        company_name: company.name,
+        public_id: company.public_id,
+        invite_token: company.invite_token,
+        deleted_by: req.user.email
+      },
+      null,
+      ipAddress,
+      userAgent
+    );
+
+    res.json({
+      message: 'Firma bola vymazaná.',
+      company: { id: company.public_id, name: company.name }
+    });
+
+  } catch (error) {
+    console.error('Delete company error:', error);
     res.status(500).json({ message: 'Chyba servera.' });
   }
 });

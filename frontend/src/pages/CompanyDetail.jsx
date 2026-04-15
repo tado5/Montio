@@ -21,7 +21,8 @@ import {
   MapPin,
   Calendar,
   Hash,
-  AlertCircle
+  AlertCircle,
+  Trash2
 } from 'lucide-react'
 import SuperAdminLayout from '../components/SuperAdminLayout'
 import DeactivateCompanyModal from '../components/DeactivateCompanyModal'
@@ -61,6 +62,27 @@ const CompanyDetail = () => {
     } catch (err) {
       setError(err.response?.data?.message || 'Chyba pri aktivácii firmy')
     } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Naozaj chcete TRVALO vymazať firmu "${data.company.name}"?\n\nTáto akcia je NEVRATNÁ a vymaže:\n- Firmu\n- Invitation token\n- Všetky súvisiace dáta\n\nNapíšte "DELETE" pre potvrdenie:`)) {
+      return
+    }
+
+    const confirmation = window.prompt('Napíšte "DELETE" pre potvrdenie:')
+    if (confirmation !== 'DELETE') {
+      return
+    }
+
+    setActionLoading(true)
+    try {
+      await api.delete(`/api/companies/${id}`)
+      // Redirect back to list after successful deletion
+      navigate('/superadmin')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Chyba pri vymazávaní firmy')
       setActionLoading(false)
     }
   }
@@ -146,6 +168,16 @@ const CompanyDetail = () => {
         </button>
 
         <div className="flex items-center gap-3">
+          {company.status === 'pending' && (
+            <button
+              onClick={handleDelete}
+              disabled={actionLoading}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 rounded-lg transition-all text-sm font-mono font-bold text-red-400 hover:text-red-300 disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              Vymazať
+            </button>
+          )}
           {company.status === 'active' && (
             <button
               onClick={() => setIsDeactivateModalOpen(true)}

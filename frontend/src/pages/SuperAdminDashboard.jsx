@@ -236,7 +236,7 @@ const SuperAdminDashboard = () => {
               <p className="mt-3 text-sm text-secondary font-medium">Načítavanie...</p>
             </div>
           ) : (
-            <div className="bg-elevated border border-[rgb(var(--color-border-primary))] rounded-xl overflow-hidden shadow-sm">
+            <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl overflow-hidden shadow-sm backdrop-blur-sm">
               {filteredCompanies.length === 0 ? (
                 <div className="p-8 text-center">
                   <div className="w-12 h-12 mx-auto mb-3 bg-gradient-accent rounded-xl flex items-center justify-center">
@@ -264,15 +264,12 @@ const SuperAdminDashboard = () => {
                   )}
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-[rgb(var(--color-border-primary))]">
-                  <thead className="bg-[rgb(var(--color-bg-secondary))]">
+                <table className="min-w-full divide-y divide-slate-700/50">
+                  <thead className="bg-slate-800/50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide w-80">
-                        ID
-                      </th>
                       <th
                         onClick={() => handleSort('name')}
-                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-[rgb(var(--color-bg-primary))] transition-colors duration-200"
+                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-slate-700/50 transition-colors duration-200"
                       >
                         <div className="flex items-center gap-1.5">
                           Názov
@@ -284,7 +281,7 @@ const SuperAdminDashboard = () => {
                       </th>
                       <th
                         onClick={() => handleSort('created_at')}
-                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-[rgb(var(--color-bg-primary))] transition-colors duration-200 w-48"
+                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-slate-700/50 transition-colors duration-200 w-48"
                       >
                         <div className="flex items-center gap-1.5">
                           Vytvorené
@@ -293,7 +290,7 @@ const SuperAdminDashboard = () => {
                       </th>
                       <th
                         onClick={() => handleSort('status')}
-                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-[rgb(var(--color-bg-primary))] transition-colors duration-200 w-44"
+                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-slate-700/50 transition-colors duration-200 w-44"
                       >
                         <div className="flex items-center gap-1.5">
                           Status
@@ -305,18 +302,13 @@ const SuperAdminDashboard = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-elevated divide-y divide-[rgb(var(--color-border-primary))]">
+                  <tbody className="bg-slate-900/30 divide-y divide-slate-700/30">
                     {filteredCompanies.map((company, index) => (
                       <tr
                         key={company.public_id || company.id}
-                        className="hover:bg-[rgb(var(--color-bg-secondary))] transition-all duration-200 group"
+                        className="hover:bg-slate-800/50 transition-all duration-200 group"
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
-                        <td className="px-4 py-3">
-                          <span className="text-xs font-mono text-tertiary break-all">
-                            {company.public_id || 'N/A'}
-                          </span>
-                        </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             {company.logo_url && company.status === 'active' ? (

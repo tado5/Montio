@@ -1,60 +1,20 @@
-import { createContext, useState, useContext, useEffect } from 'react'
-import { api } from '../utils/apiClient'
-import { useAuth } from './AuthContext'
+import { createContext, useContext, useEffect } from 'react'
 
 const ThemeContext = createContext(null)
 
 export const ThemeProvider = ({ children }) => {
-  const { user, updateUser } = useAuth()
-  const [theme, setTheme] = useState(() => {
-    // Initialize from localStorage or user preference
-    if (typeof window !== 'undefined') {
-      const savedUser = localStorage.getItem('user')
-      if (savedUser) {
-        const parsedUser = JSON.parse(savedUser)
-        return parsedUser.theme || 'dark'
-      }
-      return localStorage.getItem('theme') || 'dark'
-    }
-    return 'dark'
-  })
+  // ALWAYS use dark mode - light mode is disabled
+  const theme = 'dark'
 
-  // Apply theme to document on mount and when theme changes
+  // Apply dark mode on mount
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [theme])
+    document.documentElement.classList.add('dark')
+  }, [])
 
-  // Load theme when user logs in (only once)
-  useEffect(() => {
-    if (user?.theme) {
-      setTheme(user.theme)
-    }
-  }, [user?.id]) // Only depend on user ID, not the whole user object
-
-  const toggleTheme = async () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light'
-    setTheme(newTheme)
-
-    // Save to localStorage for non-authenticated users
-    localStorage.setItem('theme', newTheme)
-
-    // Save to database if user is logged in
-    if (user) {
-      try {
-        await api.put('/api/auth/theme', { theme: newTheme })
-
-        // Update user in AuthContext and localStorage
-        if (updateUser) {
-          updateUser({ theme: newTheme })
-        }
-      } catch (error) {
-        console.error('Failed to save theme:', error)
-      }
-    }
+  // Toggle function disabled - always returns dark
+  const toggleTheme = () => {
+    // Dark mode only - toggle disabled
+    console.log('Theme toggle is disabled - dark mode only')
   }
 
   return (
