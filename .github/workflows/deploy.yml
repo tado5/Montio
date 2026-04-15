@@ -50,10 +50,11 @@ jobs:
 
           # Copy backend files (bez node_modules, pridáme ich potom)
           mkdir -p production-deploy/api
-          cp -r backend/*.js production-deploy/api/
+          cp -r backend/*.js production-deploy/api/ 2>/dev/null || true
           cp -r backend/config production-deploy/api/
           cp -r backend/middleware production-deploy/api/
           cp -r backend/routes production-deploy/api/
+          cp -r backend/utils production-deploy/api/
           cp backend/package.json production-deploy/api/
           cp backend/package-lock.json production-deploy/api/
           cp backend/.env.example production-deploy/api/.env.example
