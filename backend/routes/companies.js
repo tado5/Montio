@@ -117,7 +117,7 @@ router.get('/:publicId', verifyToken, requireRole('superadmin'), async (req, res
       [company.id]
     );
 
-    // Get activity logs for this company (last 50)
+    // Get activity logs for this company (last 10 for initial load)
     const [logs] = await pool.query(
       `SELECT al.id, al.action, al.entity_type, al.entity_id, al.details,
               al.ip_address, al.created_at,
@@ -126,7 +126,15 @@ router.get('/:publicId', verifyToken, requireRole('superadmin'), async (req, res
        LEFT JOIN users u ON al.user_id = u.id
        WHERE al.company_id = ? OR al.entity_type = 'company' AND al.entity_id = ?
        ORDER BY al.created_at DESC
-       LIMIT 50`,
+       LIMIT 10`,
+      [company.id, company.id]
+    );
+
+    // Get total logs count for pagination
+    const [logsCount] = await pool.query(
+      `SELECT COUNT(*) as count
+       FROM activity_logs
+       WHERE company_id = ? OR (entity_type = 'company' AND entity_id = ?)`,
       [company.id, company.id]
     );
 
@@ -155,6 +163,11 @@ router.get('/:publicId', verifyToken, requireRole('superadmin'), async (req, res
       },
       users,
       logs,
+      logsPagination: {
+        total: logsCount[0].count,
+        loaded: logs.length,
+        hasMore: logsCount[0].count > 10
+      },
       stats: {
         order_types: orderTypesCount[0].count,
         orders: ordersCount[0].count,
