@@ -45,6 +45,12 @@ docs/deployment/
 PLAN.md
 STATUS.md
 
+# Sensitive production files (credentials, secrets)
+ENV_FILE_PRODUCTION.txt
+*_PRODUCTION.txt
+credentials.txt
+secrets.txt
+
 # Uploads (user-generated content)
 backend/uploads/
 !backend/uploads/.gitkeep
