@@ -216,10 +216,10 @@ const SuperAdminDashboard = () => {
               {/* Add Company Button */}
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="px-4 py-2 bg-gradient-accent text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap flex items-center justify-center gap-2 text-sm"
+                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 text-base border-2 border-orange-400/30"
               >
-                <Mail className="w-4 h-4" />
-                Pozvať firmu
+                <Mail className="w-5 h-5" />
+                <span>Pozvať firmu</span>
               </button>
             </div>
           </div>
@@ -264,105 +264,167 @@ const SuperAdminDashboard = () => {
                   )}
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-slate-700/50">
-                  <thead className="bg-slate-800/50">
-                    <tr>
-                      <th
-                        onClick={() => handleSort('name')}
-                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-slate-700/50 transition-colors duration-200"
-                      >
-                        <div className="flex items-center gap-1.5">
-                          Názov
-                          <span className="text-accent-500">{getSortIcon('name')}</span>
-                        </div>
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide w-40">
-                        DIČ
-                      </th>
-                      <th
-                        onClick={() => handleSort('created_at')}
-                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-slate-700/50 transition-colors duration-200 w-48"
-                      >
-                        <div className="flex items-center gap-1.5">
-                          Vytvorené
-                          <span className="text-accent-500">{getSortIcon('created_at')}</span>
-                        </div>
-                      </th>
-                      <th
-                        onClick={() => handleSort('status')}
-                        className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-slate-700/50 transition-colors duration-200 w-44"
-                      >
-                        <div className="flex items-center gap-1.5">
-                          Status
-                          <span className="text-accent-500">{getSortIcon('status')}</span>
-                        </div>
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide w-40">
-                        Akcie
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-slate-900/30 divide-y divide-slate-700/30">
+                <>
+                  {/* Desktop Table - hidden on mobile */}
+                  <div className="hidden md:block">
+                    <table className="min-w-full divide-y divide-slate-700/50">
+                      <thead className="bg-slate-800/50">
+                        <tr>
+                          <th
+                            onClick={() => handleSort('name')}
+                            className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-slate-700/50 transition-colors duration-200"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              Názov
+                              <span className="text-accent-500">{getSortIcon('name')}</span>
+                            </div>
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide w-40">
+                            DIČ
+                          </th>
+                          <th
+                            onClick={() => handleSort('created_at')}
+                            className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-slate-700/50 transition-colors duration-200 w-48"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              Vytvorené
+                              <span className="text-accent-500">{getSortIcon('created_at')}</span>
+                            </div>
+                          </th>
+                          <th
+                            onClick={() => handleSort('status')}
+                            className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide cursor-pointer hover:bg-slate-700/50 transition-colors duration-200 w-44"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              Status
+                              <span className="text-accent-500">{getSortIcon('status')}</span>
+                            </div>
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wide w-40">
+                            Akcie
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-slate-900/30 divide-y divide-slate-700/30">
+                        {filteredCompanies.map((company, index) => (
+                          <tr
+                            key={company.public_id || company.id}
+                            className="hover:bg-slate-800/50 transition-all duration-200 group"
+                            style={{ animationDelay: `${index * 50}ms` }}
+                          >
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <div className="flex items-center gap-3">
+                                {company.logo_url && company.status === 'active' ? (
+                                  <img
+                                    src={company.logo_url}
+                                    alt={company.name}
+                                    className="w-8 h-8 rounded-lg object-cover shadow-sm group-hover:shadow-md transition-all duration-200"
+                                  />
+                                ) : (
+                                  <div className="w-8 h-8 bg-gradient-accent rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm group-hover:shadow-md transition-all duration-200">
+                                    {company.name.charAt(0)}
+                                  </div>
+                                )}
+                                <span className="text-sm font-semibold text-primary group-hover:text-accent-500 transition-colors duration-200">
+                                  {company.name}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-secondary">
+                              {company.dic || '-'}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-secondary">
+                              {company.created_at ? new Date(company.created_at).toLocaleDateString('sk-SK', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit'
+                              }) : '-'}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                company.status === 'active'
+                                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                                  : company.status === 'inactive'
+                                  ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                                  : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                              }`}>
+                                {company.status === 'active' && 'Aktívna'}
+                                {company.status === 'pending' && 'Čakajúca'}
+                                {company.status === 'inactive' && 'Neaktívna'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <button
+                                onClick={() => navigate(`/superadmin/company/${company.public_id}`)}
+                                className="px-3 py-1.5 bg-gradient-accent text-white text-sm font-semibold rounded-xl hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5"
+                              >
+                                <Eye className="w-4 h-4" />
+                                <span className="hidden sm:inline">Detail</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Cards - visible only on mobile */}
+                  <div className="md:hidden space-y-3">
                     {filteredCompanies.map((company, index) => (
-                      <tr
+                      <div
                         key={company.public_id || company.id}
-                        className="hover:bg-slate-800/50 transition-all duration-200 group"
+                        onClick={() => navigate(`/superadmin/company/${company.public_id}`)}
+                        className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 hover:bg-slate-800/50 transition-all duration-200 active:scale-[0.98] cursor-pointer"
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
                             {company.logo_url && company.status === 'active' ? (
                               <img
                                 src={company.logo_url}
                                 alt={company.name}
-                                className="w-8 h-8 rounded-lg object-cover shadow-sm group-hover:shadow-md transition-all duration-200"
+                                className="w-12 h-12 rounded-xl object-cover shadow-sm flex-shrink-0"
                               />
                             ) : (
-                              <div className="w-8 h-8 bg-gradient-accent rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm group-hover:shadow-md transition-all duration-200">
+                              <div className="w-12 h-12 bg-gradient-accent rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-sm flex-shrink-0">
                                 {company.name.charAt(0)}
                               </div>
                             )}
-                            <span className="text-sm font-semibold text-primary group-hover:text-accent-500 transition-colors duration-200">
-                              {company.name}
-                            </span>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-base font-bold text-white truncate">{company.name}</h3>
+                              <p className="text-xs text-slate-400 mt-0.5">DIČ: {company.dic || '-'}</p>
+                            </div>
                           </div>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-secondary">
-                          {company.dic || '-'}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-secondary">
-                          {company.created_at ? new Date(company.created_at).toLocaleDateString('sk-SK', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit'
-                          }) : '-'}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
                             company.status === 'active'
-                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                              ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30'
                               : company.status === 'inactive'
-                              ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                              : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                              ? 'bg-red-900/30 text-red-400 border border-red-500/30'
+                              : 'bg-yellow-900/30 text-yellow-400 border border-yellow-500/30'
                           }`}>
                             {company.status === 'active' && 'Aktívna'}
                             {company.status === 'pending' && 'Čakajúca'}
                             {company.status === 'inactive' && 'Neaktívna'}
                           </span>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <button
-                            onClick={() => navigate(`/superadmin/company/${company.public_id}`)}
-                            className="px-3 py-1.5 bg-gradient-accent text-white text-sm font-semibold rounded-xl hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5"
-                          >
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-700/50">
+                          <span>
+                            {company.created_at ? new Date(company.created_at).toLocaleDateString('sk-SK', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit'
+                            }) : '-'}
+                          </span>
+                          <div className="flex items-center gap-1.5 text-orange-400 font-semibold">
+                            <span>Otvoriť</span>
                             <Eye className="w-4 h-4" />
-                            <span className="hidden sm:inline">Detail</span>
-                          </button>
-                        </td>
-                      </tr>
+                          </div>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </>
               )}
             </div>
           )}

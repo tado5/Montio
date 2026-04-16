@@ -245,9 +245,9 @@ export default function Step2LogoBilling({ data, updateData, nextStep, prevStep,
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary"
+            className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
-            {loading ? 'Ukladám...' : 'Ďalej'}
+            {loading ? 'Ukladám...' : 'Ďalej →'}
           </button>
         </div>
       </form>
