@@ -52,13 +52,13 @@ const EmployeeSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleColla
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:relative left-0 h-screen z-40
+          fixed lg:relative left-0 z-40
           ${isCollapsed ? 'w-16' : 'w-64'}
           bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950
           flex flex-col
           transition-all duration-300 ease-in-out
           border-r border-emerald-500/20
-          ${isMobileMenuOpen ? 'translate-x-0 top-0' : '-translate-x-full lg:translate-x-0 lg:top-0'}
+          ${isMobileMenuOpen ? 'translate-x-0 top-[60px] h-[calc(100vh-60px)]' : '-translate-x-full lg:translate-x-0 lg:top-0 lg:h-screen'}
         `}
         style={{
           backgroundImage: `

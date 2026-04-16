@@ -382,8 +382,8 @@ const CompanyDetail = () => {
                     className="bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/50 hover:border-orange-500/30 rounded-lg p-4 transition-all duration-200 group"
                     style={{ animation: `slideInRight 0.3s ease-out ${index * 0.05}s both` }}
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 sm:gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 overflow-hidden">
                         <div className="w-10 h-10 rounded-lg overflow-hidden shadow-md bg-slate-700 flex-shrink-0">
                           <img
                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userItem.email)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
@@ -391,23 +391,23 @@ const CompanyDetail = () => {
                             className="w-full h-full"
                           />
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 overflow-hidden">
                           <div className="font-bold text-white text-sm truncate">
                             {userItem.first_name && userItem.last_name
                               ? `${userItem.first_name} ${userItem.last_name}`
                               : userItem.email}
                           </div>
-                          <div className="text-xs font-mono text-slate-400 truncate">
+                          <div className="text-xs font-mono text-slate-400 truncate break-all">
                             {userItem.email}
                           </div>
                           {userItem.position && (
-                            <div className="text-xs font-mono text-slate-500 mt-1">
+                            <div className="text-xs font-mono text-slate-500 mt-1 truncate">
                               {userItem.position}
                             </div>
                           )}
                         </div>
                       </div>
-                      <span className={`px-2 py-1 text-[10px] font-mono font-bold rounded border flex-shrink-0 ${
+                      <span className={`px-2 py-1 text-[10px] font-mono font-bold rounded border flex-shrink-0 whitespace-nowrap ${
                         userItem.role === 'companyadmin'
                           ? 'bg-purple-500/10 border-purple-500/30 text-purple-400'
                           : 'bg-blue-500/10 border-blue-500/30 text-blue-400'
