@@ -70,8 +70,8 @@ const SuperAdminSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleCol
         {/* Gradient overlay for depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-red-500/5 pointer-events-none"></div>
 
-        {/* Logo Section */}
-        <div className="relative px-3 py-2.5 border-b border-orange-500/20">
+        {/* Logo Section - Hidden on mobile */}
+        <div className="hidden lg:block relative px-3 py-2.5 border-b border-orange-500/20">
           {isCollapsed ? (
             <div className="w-10 h-10 mx-auto bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 border border-orange-400/30">
               <Terminal className="w-4 h-4 text-white" />
@@ -190,21 +190,21 @@ const SuperAdminSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleCol
         </nav>
 
         {/* Bottom actions */}
-        <div className="relative p-3 space-y-1.5 border-t border-orange-500/20">
+        <div className="relative p-2 lg:p-3 space-y-1 lg:space-y-1.5 border-t border-orange-500/20">
           {/* Help Button */}
           <button
             onClick={() => setIsInfoOpen(true)}
-            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-900/50 hover:bg-slate-800/50 border border-slate-700/50 hover:border-orange-500/30 rounded-lg transition-all text-[13px] font-mono text-slate-300 hover:text-white"
+            className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 lg:px-3 lg:py-2 bg-slate-900/50 hover:bg-slate-800/50 border border-slate-700/50 hover:border-orange-500/30 rounded-lg transition-all text-[11px] lg:text-[13px] font-mono text-slate-300 hover:text-white"
             title="System Information"
           >
-            <HelpCircle className="w-3.5 h-3.5" />
-            {!isCollapsed && <span>Help & Info</span>}
+            <HelpCircle className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
+            {!isCollapsed && <span className="hidden lg:inline">Help & Info</span>}
           </button>
 
-          {/* Collapse Toggle */}
+          {/* Collapse Toggle - Hidden on mobile */}
           <button
             onClick={onToggleCollapse}
-            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 hover:border-orange-500/50 rounded-lg transition-all text-[13px] font-mono font-bold text-orange-400 hover:text-orange-300"
+            className="hidden lg:flex w-full items-center justify-center gap-1.5 px-3 py-2 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 hover:border-orange-500/50 rounded-lg transition-all text-[13px] font-mono font-bold text-orange-400 hover:text-orange-300"
             title={isCollapsed ? 'Expand' : 'Collapse'}
           >
             {isCollapsed ? <ChevronsRight className="w-3.5 h-3.5" /> : <ChevronsLeft className="w-3.5 h-3.5" />}
