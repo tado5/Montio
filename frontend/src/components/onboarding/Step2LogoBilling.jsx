@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext'
 export default function Step2LogoBilling({ data, updateData, nextStep, prevStep, inviteToken }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { addToast } = useToast()
+  const toast = useToast()
 
   const [logoFile, setLogoFile] = useState(data.logo || null)
   const [logoPreview, setLogoPreview] = useState(data.logoPreview || null)
@@ -79,14 +79,14 @@ export default function Step2LogoBilling({ data, updateData, nextStep, prevStep,
         billingData
       })
 
-      addToast('Údaje uložené', 'success')
+      toast.success('Údaje uložené')
 
       // Go to next step
       nextStep()
     } catch (err) {
       const errorMsg = err.response?.data?.error || 'Chyba pri ukladaní'
       setError(errorMsg)
-      addToast(errorMsg, 'error')
+      toast.error(errorMsg)
     } finally {
       setLoading(false)
     }

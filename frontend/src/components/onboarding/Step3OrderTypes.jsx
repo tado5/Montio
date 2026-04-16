@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext'
 export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, inviteToken }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { addToast } = useToast()
+  const toast = useToast()
 
   const [orderTypes, setOrderTypes] = useState(
     data.orderTypes.length > 0
@@ -97,14 +97,14 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
       // Update parent state
       updateData({ orderTypes: cleanedOrderTypes })
 
-      addToast('Typy montáží uložené', 'success')
+      toast.success('Typy montáží uložené')
 
       // Go to next step
       nextStep()
     } catch (err) {
       const errorMsg = err.response?.data?.error || 'Chyba pri ukladaní'
       setError(errorMsg)
-      addToast(errorMsg, 'error')
+      toast.error(errorMsg)
     } finally {
       setLoading(false)
     }

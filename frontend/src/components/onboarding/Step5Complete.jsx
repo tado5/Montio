@@ -7,7 +7,7 @@ export default function Step5Complete({ data, inviteToken, email }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const { addToast } = useToast()
+  const toast = useToast()
 
   const [formState, setFormState] = useState({
     password: '',
@@ -55,7 +55,7 @@ export default function Step5Complete({ data, inviteToken, email }) {
       })
 
       setSuccess(true)
-      addToast('Registrácia dokončená!', 'success')
+      toast.success('Registrácia dokončená!')
 
       // Auto-login - save token and user
       const { user, token } = response.data
@@ -71,7 +71,7 @@ export default function Step5Complete({ data, inviteToken, email }) {
     } catch (err) {
       const errorMsg = err.response?.data?.error || 'Chyba pri dokončení registrácie'
       setError(errorMsg)
-      addToast(errorMsg, 'error')
+      toast.error(errorMsg)
       setLoading(false)
     }
   }
