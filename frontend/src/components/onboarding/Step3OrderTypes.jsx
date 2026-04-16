@@ -244,7 +244,7 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
           <button
             type="button"
             onClick={prevStep}
-            className="btn-outline"
+            className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <ArrowLeft className="w-4 h-4 inline mr-2" />
             Späť

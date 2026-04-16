@@ -112,6 +112,8 @@ router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
     const { inviteToken, billingData } = req.body
     const logoFile = req.file
 
+    console.log('📸 [Step2] Received:', { inviteToken: !!inviteToken, hasLogo: !!logoFile, billingData: !!billingData })
+
     // Find company
     const [companies] = await pool.query(
       'SELECT id, public_id FROM companies WHERE invite_token = ? AND status = ?',
@@ -119,6 +121,7 @@ router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
     )
 
     if (companies.length === 0) {
+      console.error('❌ [Step2] Invalid token:', inviteToken)
       return res.status(404).json({ error: 'Invalid token' })
     }
 
@@ -127,19 +130,30 @@ router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
 
     // Process logo if uploaded
     if (logoFile) {
-      const filename = `${Date.now()}-${company.public_id}.jpg`
-      const filepath = path.join(__dirname, '../uploads/logos', filename)
+      console.log('📸 [Step2] Processing logo for company:', company.public_id)
 
-      // Resize and optimize image
-      await sharp(logoFile.buffer)
-        .resize(200, 200, {
-          fit: 'contain',
-          background: { r: 255, g: 255, b: 255, alpha: 0 }
-        })
-        .jpeg({ quality: 90 })
-        .toFile(filepath)
+      try {
+        const filename = `${Date.now()}-${company.public_id}.jpg`
+        const filepath = path.join(__dirname, '../uploads/logos', filename)
 
-      logoUrl = `/uploads/logos/${filename}`
+        console.log('💾 [Step2] Saving logo to:', filepath)
+
+        // Resize and optimize image
+        await sharp(logoFile.buffer)
+          .resize(200, 200, {
+            fit: 'contain',
+            background: { r: 255, g: 255, b: 255, alpha: 0 }
+          })
+          .jpeg({ quality: 90 })
+          .toFile(filepath)
+
+        logoUrl = `/uploads/logos/${filename}`
+        console.log('✅ [Step2] Logo saved:', logoUrl)
+      } catch (sharpError) {
+        console.error('❌ [Step2] Sharp error:', sharpError)
+        // Continue without logo rather than failing
+        logoUrl = null
+      }
     }
 
     // Parse billing data if it's a string
