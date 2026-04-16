@@ -367,10 +367,10 @@ router.delete('/:publicId', verifyToken, requireRole('superadmin'), async (req, 
 
     const company = companies[0];
 
-    // Only allow deletion of pending companies
-    if (company.status !== 'pending') {
+    // Only allow deletion of pending or inactive companies (NOT active)
+    if (company.status === 'active') {
       return res.status(400).json({
-        message: 'Nemožno vymazať aktívnu alebo neaktívnu firmu. Môžete vymazať len firmy so statusom "pending".'
+        message: 'Nemožno vymazať aktívnu firmu. Najprv ju deaktivujte.'
       });
     }
 

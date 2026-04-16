@@ -208,14 +208,24 @@ const CompanyDetail = () => {
             </button>
           )}
           {company.status === 'inactive' && (
-            <button
-              onClick={handleActivate}
-              disabled={actionLoading}
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg transition-all text-sm font-mono font-bold text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
-            >
-              <CheckCircle className="w-4 h-4" />
-              Activate
-            </button>
+            <>
+              <button
+                onClick={handleActivate}
+                disabled={actionLoading}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg transition-all text-sm font-mono font-bold text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+              >
+                <CheckCircle className="w-4 h-4" />
+                Activate
+              </button>
+              <button
+                onClick={() => setIsDeleteModalOpen(true)}
+                disabled={actionLoading}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 rounded-lg transition-all text-sm font-mono font-bold text-red-400 hover:text-red-300 disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+                Vymazať
+              </button>
+            </>
           )}
         </div>
       </div>

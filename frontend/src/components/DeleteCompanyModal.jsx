@@ -115,7 +115,13 @@ const DeleteCompanyModal = ({ isOpen, onClose, company, onSuccess }) => {
               <div className="flex-1">
                 <p className="font-bold text-slate-100 text-lg">{company.name}</p>
                 <p className="text-xs font-mono text-slate-400">
-                  Status: <span className="text-orange-400 font-bold">PENDING</span>
+                  Status: <span className={`font-bold ${
+                    company.status === 'pending' ? 'text-orange-400' :
+                    company.status === 'inactive' ? 'text-red-400' :
+                    'text-emerald-400'
+                  }`}>
+                    {company.status?.toUpperCase()}
+                  </span>
                 </p>
               </div>
             </div>
