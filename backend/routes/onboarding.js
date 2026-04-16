@@ -282,13 +282,15 @@ router.post('/onboarding/complete', async (req, res) => {
       ]
     )
 
-    // Generate JWT token
+    // Generate JWT token with BOTH company_id (internal) and companyId (public_id)
     const token = jwt.sign(
       {
+        id: userId,
         userId,
         email: company.email,
         role: 'companyadmin',
-        companyId: company.public_id
+        company_id: company.id,  // Internal ID for DB queries
+        companyId: company.public_id  // Public ID for frontend
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
@@ -299,8 +301,10 @@ router.post('/onboarding/complete', async (req, res) => {
       user: {
         id: userId,
         email: company.email,
+        name: `${firstName} ${lastName}`.trim(),
         role: 'companyadmin',
-        companyId: company.public_id,
+        company_id: company.id,  // Internal ID for middleware
+        companyId: company.public_id,  // Public ID for frontend
         companyName: company.name,
         firstName,
         lastName,
