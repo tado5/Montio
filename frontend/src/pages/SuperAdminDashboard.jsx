@@ -317,19 +317,19 @@ const SuperAdminDashboard = () => {
                             style={{ animationDelay: `${index * 50}ms` }}
                           >
                             <td className="px-4 py-3 whitespace-nowrap">
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 min-w-0">
                                 {company.logo_url && company.status === 'active' ? (
                                   <img
                                     src={company.logo_url}
                                     alt={company.name}
-                                    className="w-8 h-8 rounded-lg object-cover shadow-sm group-hover:shadow-md transition-all duration-200"
+                                    className="w-8 h-8 rounded-lg object-contain bg-white shadow-sm group-hover:shadow-md transition-all duration-200 flex-shrink-0"
                                   />
                                 ) : (
-                                  <div className="w-8 h-8 bg-gradient-accent rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm group-hover:shadow-md transition-all duration-200">
-                                    {company.name.charAt(0)}
+                                  <div className="w-8 h-8 bg-gradient-accent rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm group-hover:shadow-md transition-all duration-200 flex-shrink-0">
+                                    {company.name.charAt(0).toUpperCase()}
                                   </div>
                                 )}
-                                <span className="text-sm font-semibold text-primary group-hover:text-accent-500 transition-colors duration-200">
+                                <span className="text-sm font-semibold text-primary group-hover:text-accent-500 transition-colors duration-200 truncate">
                                   {company.name}
                                 </span>
                               </div>
@@ -382,21 +382,21 @@ const SuperAdminDashboard = () => {
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
                         <div className="flex items-start justify-between gap-3 mb-3">
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="flex items-center gap-3 flex-1 min-w-0 overflow-hidden">
                             {company.logo_url && company.status === 'active' ? (
                               <img
                                 src={company.logo_url}
                                 alt={company.name}
-                                className="w-12 h-12 rounded-xl object-cover shadow-sm flex-shrink-0"
+                                className="w-12 h-12 rounded-xl object-contain bg-white shadow-sm flex-shrink-0"
                               />
                             ) : (
                               <div className="w-12 h-12 bg-gradient-accent rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-sm flex-shrink-0">
-                                {company.name.charAt(0)}
+                                {company.name.charAt(0).toUpperCase()}
                               </div>
                             )}
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 overflow-hidden">
                               <h3 className="text-base font-bold text-white truncate">{company.name}</h3>
-                              <p className="text-xs text-slate-400 mt-0.5">DIČ: {company.dic || '-'}</p>
+                              <p className="text-xs text-slate-400 mt-0.5 truncate">DIČ: {company.dic || '-'}</p>
                             </div>
                           </div>
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${

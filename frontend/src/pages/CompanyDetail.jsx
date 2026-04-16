@@ -231,25 +231,25 @@ const CompanyDetail = () => {
       </div>
 
       {/* Company Header Card */}
-      <div className="bg-slate-900/50 border border-orange-500/20 rounded-xl p-6 mb-6 backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.1s' }}>
-        <div className="flex items-center gap-4">
+      <div className="bg-slate-900/50 border border-orange-500/20 rounded-xl p-4 md:p-6 mb-6 backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="flex items-center gap-3 md:gap-4">
           {company.logo_url ? (
             <img
               src={company.logo_url}
               alt={company.name}
-              className="w-16 h-16 rounded-xl object-cover shadow-lg shadow-orange-500/20 border border-orange-500/30"
+              className="w-12 h-12 md:w-16 md:h-16 rounded-xl object-contain bg-white shadow-lg shadow-orange-500/20 border border-orange-500/30 flex-shrink-0"
             />
           ) : (
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-orange-500/30 border border-orange-400/30">
-              {company.name.charAt(0)}
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-white text-xl md:text-2xl font-black shadow-lg shadow-orange-500/30 border border-orange-400/30 flex-shrink-0">
+              {company.name.charAt(0).toUpperCase()}
             </div>
           )}
-          <div className="flex-1">
-            <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-1" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+          <div className="flex-1 min-w-0 overflow-hidden">
+            <h1 className="text-lg md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-1 truncate" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
               {company.name}
             </h1>
-            <div className="flex items-center gap-3">
-              <span className={`px-3 py-1 text-xs font-mono font-bold rounded-lg border ${
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <span className={`px-2 md:px-3 py-1 text-[10px] md:text-xs font-mono font-bold rounded-lg border whitespace-nowrap ${
                 company.status === 'active'
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                   : company.status === 'inactive'
@@ -260,7 +260,7 @@ const CompanyDetail = () => {
                 {company.status === 'pending' && '○ PENDING'}
                 {company.status === 'inactive' && '✕ INACTIVE'}
               </span>
-              <span className="text-xs font-mono text-slate-500">
+              <span className="text-[10px] md:text-xs font-mono text-slate-500 truncate">
                 ID: {company.public_id || company.id}
               </span>
             </div>
