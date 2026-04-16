@@ -7,6 +7,14 @@ import nodemailer from 'nodemailer';
 export const sendInviteEmail = async (email, inviteLink) => {
   const isProduction = process.env.NODE_ENV === 'production';
 
+  console.log('📧 [sendInviteEmail] Called with:', { email, isProduction });
+  console.log('🔍 [sendInviteEmail] SMTP Config:', {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    user: process.env.SMTP_USER ? '***' + process.env.SMTP_USER.slice(-10) : 'NOT SET',
+    pass: process.env.SMTP_PASSWORD ? '***' + process.env.SMTP_PASSWORD.slice(-4) : 'NOT SET'
+  });
+
   // Development mode - just log (no real email)
   if (!isProduction) {
     console.log('📧 [DEV MODE] Email would be sent to:', email);
