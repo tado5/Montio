@@ -7,8 +7,18 @@ import PasswordChangeModal from '../components/PasswordChangeModal'
 import tsdigitalLogo from '../assets/tsdigital-logo.svg'
 
 const Login = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState(() => {
+    // Load saved email from localStorage if "Remember Me" was checked
+    return localStorage.getItem('montio_remember_email') || ''
+  })
+  const [password, setPassword] = useState(() => {
+    // Load saved password from localStorage if "Remember Me" was checked
+    return localStorage.getItem('montio_remember_password') || ''
+  })
+  const [rememberMe, setRememberMe] = useState(() => {
+    // Check if user had "Remember Me" enabled
+    return localStorage.getItem('montio_remember_me') === 'true'
+  })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
@@ -25,6 +35,18 @@ const Login = () => {
     e.preventDefault()
     setError('')
     setLoading(true)
+
+    // Save credentials if "Remember Me" is checked
+    if (rememberMe) {
+      localStorage.setItem('montio_remember_me', 'true')
+      localStorage.setItem('montio_remember_email', email)
+      localStorage.setItem('montio_remember_password', password)
+    } else {
+      // Clear saved credentials if unchecked
+      localStorage.removeItem('montio_remember_me')
+      localStorage.removeItem('montio_remember_email')
+      localStorage.removeItem('montio_remember_password')
+    }
 
     const result = await login(email, password)
 
@@ -150,6 +172,23 @@ const Login = () => {
                 required
               />
             </div>
+          </div>
+
+          {/* Remember Me checkbox */}
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 text-accent-500 bg-elevated border-primary rounded focus:ring-2 focus:ring-accent-500 cursor-pointer"
+            />
+            <label
+              htmlFor="rememberMe"
+              className="text-sm text-secondary font-medium cursor-pointer select-none"
+            >
+              Zapamätať si ma
+            </label>
           </div>
 
           <button

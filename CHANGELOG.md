@@ -1,5 +1,43 @@
 # MONTIO - Changelog
 
+## [1.11.2] - 2026-04-16 - Remember Me Feature 🔐
+
+### ✨ New Features
+- **Remember Me Checkbox** - Save login credentials for easier testing
+  - Checkbox "Zapamätať si ma" on login page
+  - Auto-fill email and password on return
+  - localStorage-based persistence
+  - Per-device and per-browser storage
+
+### 🎯 Use Case
+- **Testing on multiple devices** (mobile, tablet, desktop)
+- **Quick access** without re-entering credentials
+- **Development & Staging** convenience feature
+
+### ⚠️ Security Notes
+- **Plain text password storage** in localStorage
+- **Only for testing purposes** - not recommended for production users
+- **Each device stores separately** (iPhone ≠ Desktop)
+
+### 📝 Documentation
+- **REMEMBER_ME_FEATURE.md** - Complete implementation guide
+  - Security considerations
+  - Usage instructions
+  - Browser compatibility
+  - Testing checklist
+  - Alternative solutions
+
+### 🔧 Technical Details
+- **File:** `frontend/src/pages/Login.jsx`
+- **Storage keys:**
+  - `montio_remember_me` (boolean)
+  - `montio_remember_email` (string)
+  - `montio_remember_password` (string)
+- **Auto-load** on component mount
+- **Clear on uncheck** or logout
+
+---
+
 ## [1.11.1] - 2026-04-15 - Production UI Fixes & Email System 📧
 
 ### 🐛 UI Fixes
