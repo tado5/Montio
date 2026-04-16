@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext'
 export default function Step1BasicInfo({ data, updateData, nextStep, inviteToken, email }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { addToast } = useToast()
+  const toast = useToast()
 
   const [formState, setFormState] = useState({
     name: data.name || '',
@@ -60,14 +60,14 @@ export default function Step1BasicInfo({ data, updateData, nextStep, inviteToken
       // Update parent state
       updateData(formState)
 
-      addToast('Údaje uložené', 'success')
+      toast.success('Údaje uložené')
 
       // Go to next step
       nextStep()
     } catch (err) {
       const errorMsg = err.response?.data?.error || 'Chyba pri ukladaní'
       setError(errorMsg)
-      addToast(errorMsg, 'error')
+      toast.error(errorMsg)
     } finally {
       setLoading(false)
     }
