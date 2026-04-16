@@ -16,7 +16,7 @@ export default function Step4Preview({ data, updateData, nextStep, prevStep, goT
             </div>
             <button
               onClick={() => goToStep(0)}
-              className="btn-ghost px-3 py-1.5 text-sm flex items-center gap-1"
+              className="px-3 py-1.5 text-sm flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200"
             >
               <Edit2 className="w-4 h-4" />
               Upraviť
@@ -51,7 +51,7 @@ export default function Step4Preview({ data, updateData, nextStep, prevStep, goT
             </div>
             <button
               onClick={() => goToStep(1)}
-              className="btn-ghost px-3 py-1.5 text-sm flex items-center gap-1"
+              className="px-3 py-1.5 text-sm flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200"
             >
               <Edit2 className="w-4 h-4" />
               Upraviť
@@ -96,7 +96,7 @@ export default function Step4Preview({ data, updateData, nextStep, prevStep, goT
             </div>
             <button
               onClick={() => goToStep(2)}
-              className="btn-ghost px-3 py-1.5 text-sm flex items-center gap-1"
+              className="px-3 py-1.5 text-sm flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200"
             >
               <Edit2 className="w-4 h-4" />
               Upraviť
@@ -153,11 +153,11 @@ export default function Step4Preview({ data, updateData, nextStep, prevStep, goT
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-between pt-6">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6">
         <button
           type="button"
           onClick={prevStep}
-          className="btn-outline"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-105 active:scale-95"
         >
           <ArrowLeft className="w-4 h-4 inline mr-2" />
           Späť
@@ -165,7 +165,7 @@ export default function Step4Preview({ data, updateData, nextStep, prevStep, goT
         <button
           type="button"
           onClick={nextStep}
-          className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+          className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
         >
           Dokončiť registráciu →
         </button>
