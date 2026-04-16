@@ -12,7 +12,8 @@ import {
   Mail,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Filter
 } from 'lucide-react'
 import { api } from '../utils/apiClient'
 import SuperAdminLayout from '../components/SuperAdminLayout'
@@ -188,7 +189,7 @@ const SuperAdminDashboard = () => {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto items-stretch">
               {/* Search */}
               <div className="relative flex-1 lg:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tertiary" />
@@ -197,28 +198,31 @@ const SuperAdminDashboard = () => {
                   placeholder="Hľadať firmu..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-elevated border border-primary/20 focus:border-accent-500 rounded-xl text-sm text-primary placeholder:text-tertiary transition-all duration-200"
+                  className="w-full h-full pl-10 pr-4 py-2.5 bg-elevated border border-primary/20 focus:border-accent-500 rounded-xl text-sm text-primary placeholder:text-tertiary transition-all duration-200"
                 />
               </div>
 
               {/* Filter */}
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 bg-elevated border border-primary/20 focus:border-accent-500 rounded-xl text-sm text-primary transition-all duration-200"
-              >
-                <option value="all">Všetky stavy</option>
-                <option value="active">Aktívne</option>
-                <option value="pending">Čakajúce</option>
-                <option value="inactive">Neaktívne</option>
-              </select>
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tertiary pointer-events-none" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="appearance-none pl-10 pr-10 py-2.5 bg-elevated border border-primary/20 focus:border-accent-500 rounded-xl text-sm text-primary transition-all duration-200 cursor-pointer"
+                >
+                  <option value="all">Všetky stavy</option>
+                  <option value="active">Aktívne</option>
+                  <option value="pending">Čakajúce</option>
+                  <option value="inactive">Neaktívne</option>
+                </select>
+              </div>
 
               {/* Add Company Button */}
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 text-base border-2 border-orange-400/30"
+                className="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 text-sm border-2 border-orange-400/30"
               >
-                <Mail className="w-5 h-5" />
+                <Mail className="w-4 h-4" />
                 <span>Pozvať firmu</span>
               </button>
             </div>
@@ -369,12 +373,12 @@ const SuperAdminDashboard = () => {
                   </div>
 
                   {/* Mobile Cards - visible only on mobile */}
-                  <div className="md:hidden space-y-3">
+                  <div className="md:hidden p-3 space-y-3">
                     {filteredCompanies.map((company, index) => (
                       <div
                         key={company.public_id || company.id}
                         onClick={() => navigate(`/superadmin/company/${company.public_id}`)}
-                        className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 hover:bg-slate-800/50 transition-all duration-200 active:scale-[0.98] cursor-pointer"
+                        className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 hover:bg-slate-800/50 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-sm"
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
                         <div className="flex items-start justify-between gap-3 mb-3">
