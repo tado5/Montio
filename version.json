@@ -1,11 +1,23 @@
 {
-  "version": "1.9.0",
-  "buildNumber": 17,
-  "buildDate": "2026-04-13",
+  "version": "1.11.2",
+  "buildNumber": 18,
+  "buildDate": "2026-04-16",
   "name": "MONTIO APP",
   "description": "Company Management System",
   "author": "TSDigital",
   "changelog": {
+    "1.11.2": {
+      "date": "2026-04-16",
+      "type": "minor",
+      "changes": [
+        "🔐 Remember Me Feature - Save login credentials for easier testing",
+        "✅ Checkbox 'Zapamätať si ma' on login page",
+        "💾 Auto-fill email and password on return (localStorage)",
+        "📱 Per-device and per-browser storage support",
+        "📝 REMEMBER_ME_FEATURE.md documentation created",
+        "⚠️ Security note: Plain text storage - testing only"
+      ]
+    },
     "1.9.0": {
       "date": "2026-04-13",
       "type": "minor",
