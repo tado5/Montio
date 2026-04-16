@@ -20,7 +20,6 @@ const Calendar = () => {
   const fetchCalendarEvents = async (start = null, end = null) => {
     try {
       setLoading(true)
-      
 
       let url = '/api/orders/calendar'
       const params = []
@@ -32,9 +31,7 @@ const Calendar = () => {
         url += `?${params.join('&')}`
       }
 
-      const response = await api.get(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const response = await api.get(url)
 
       setEvents(response.data.events)
       setError(null)
@@ -97,7 +94,7 @@ const Calendar = () => {
         </div>
         <button
           onClick={() => fetchCalendarEvents()}
-          className="btn-primary"
+          className="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
         >
           <RefreshCw className="w-4 h-4 inline mr-2" />
           Obnoviť
@@ -245,7 +242,7 @@ const Calendar = () => {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="btn-outline flex-1"
+                className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 Zavrieť
               </button>
@@ -254,7 +251,7 @@ const Calendar = () => {
                   // TODO: Navigate to order detail
                   console.log('Navigate to order:', selectedEvent.id)
                 }}
-                className="btn-primary flex-1"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 Otvoriť detail
               </button>
