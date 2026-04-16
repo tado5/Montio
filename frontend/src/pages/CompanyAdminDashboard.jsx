@@ -31,10 +31,8 @@ const CompanyAdminDashboard = () => {
   const fetchDashboardStats = async () => {
     try {
       setLoading(true)
-      
-      const response = await api.get('/api/dashboard/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+
+      const response = await api.get('/api/dashboard/stats')
       setStats(response.data.stats)
       setError(null)
     } catch (err) {
