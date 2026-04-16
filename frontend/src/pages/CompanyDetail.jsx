@@ -516,6 +516,14 @@ const CompanyDetail = () => {
         company={company}
         onSuccess={handleDeactivateSuccess}
       />
+
+      {/* Delete Modal */}
+      <DeleteCompanyModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        company={company}
+        onSuccess={handleDeleteSuccess}
+      />
     </SuperAdminLayout>
   )
 }
