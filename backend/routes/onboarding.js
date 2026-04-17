@@ -162,10 +162,16 @@ router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
       : billingData
 
     // Update company
-    await pool.query(
+    const [updateResult] = await pool.query(
       'UPDATE companies SET logo_url = ?, billing_data = ? WHERE id = ?',
       [logoUrl, JSON.stringify(parsedBillingData), company.id]
     )
+
+    console.log('✅ [Step2] DB Updated:', {
+      companyId: company.id,
+      logoUrl,
+      affectedRows: updateResult.affectedRows
+    })
 
     res.json({ success: true, logoUrl })
   } catch (error) {
