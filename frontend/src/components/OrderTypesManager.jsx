@@ -53,10 +53,14 @@ const OrderTypesManager = () => {
 
   const handleEdit = (orderType) => {
     setSelectedOrderType(orderType)
+    // Convert checklist to string array (handle both formats: string[] and {item, required}[])
+    const checklistArray = orderType.default_checklist.length > 0
+      ? orderType.default_checklist.map(item => typeof item === 'string' ? item : item.item)
+      : ['']
     setFormData({
       name: orderType.name,
       description: orderType.description || '',
-      checklist: orderType.default_checklist.length > 0 ? orderType.default_checklist : ['']
+      checklist: checklistArray
     })
     setShowEditModal(true)
   }
@@ -194,12 +198,16 @@ const OrderTypesManager = () => {
                   Checklist ({orderType.default_checklist.length} položiek):
                 </p>
                 <ul className="space-y-1">
-                  {orderType.default_checklist.slice(0, 3).map((item, idx) => (
-                    <li key={idx} className="text-xs text-secondary flex items-start gap-1">
-                      <span className="text-emerald-600 dark:text-emerald-400">✓</span>
-                      <span className="truncate">{item}</span>
-                    </li>
-                  ))}
+                  {orderType.default_checklist.slice(0, 3).map((item, idx) => {
+                    const itemText = typeof item === 'string' ? item : item.item
+                    const isRequired = typeof item === 'object' ? item.required : true
+                    return (
+                      <li key={idx} className="text-xs text-secondary flex items-start gap-1">
+                        <span className="text-emerald-600 dark:text-emerald-400">✓</span>
+                        <span className="truncate">{itemText}</span>
+                      </li>
+                    )
+                  })}
                   {orderType.default_checklist.length > 3 && (
                     <li className="text-xs text-tertiary italic">
                       ...a ďalšie {orderType.default_checklist.length - 3}
