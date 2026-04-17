@@ -74,6 +74,8 @@ const CompanySettingsManager = () => {
       const res = await api.get('/api/company/settings')
 
       const { company } = res.data
+      console.log('⚙️ [Settings] Company data loaded:', company)
+      console.log('📸 [Settings] Logo URL:', company.logo_url)
       setCompany(company)
 
       // Set basic form
