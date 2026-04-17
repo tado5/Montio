@@ -24,12 +24,17 @@ const CreateOrderPage = () => {
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
 
+  const [isCompanyClient, setIsCompanyClient] = useState(false)
   const [formData, setFormData] = useState({
     order_type_id: '',
     client_name: '',
     client_email: '',
     client_phone: '',
     client_address: '',
+    client_is_company: false,
+    client_company_name: '',
+    client_ico: '',
+    client_dic: '',
     notes: ''
   })
 
@@ -185,10 +190,26 @@ const CreateOrderPage = () => {
             </h2>
 
             <div className="space-y-4">
+              {/* Client Type Toggle */}
+              <div className="flex items-center gap-3 p-3 bg-secondary/5 rounded-lg">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isCompanyClient}
+                    onChange={(e) => {
+                      setIsCompanyClient(e.target.checked)
+                      setFormData(prev => ({ ...prev, client_is_company: e.target.checked }))
+                    }}
+                    className="w-4 h-4 text-accent-600 rounded focus:ring-2 focus:ring-accent-500"
+                  />
+                  <span className="text-sm font-medium text-secondary">Klient je firma</span>
+                </label>
+              </div>
+
               {/* Client Name */}
               <div>
                 <label className="block text-sm font-semibold text-secondary mb-2">
-                  Meno / Názov firmy <span className="text-red-500">*</span>
+                  {isCompanyClient ? 'Kontaktná osoba' : 'Meno klienta'} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
@@ -197,7 +218,7 @@ const CreateOrderPage = () => {
                     name="client_name"
                     value={formData.client_name}
                     onChange={handleChange}
-                    placeholder="Ján Novák / Firma s.r.o."
+                    placeholder={isCompanyClient ? "Ján Novák (kontaktná osoba)" : "Ján Novák"}
                     className={`input pl-10 ${errors.client_name ? 'border-red-500' : ''}`}
                     required
                   />
@@ -209,6 +230,57 @@ const CreateOrderPage = () => {
                   </p>
                 )}
               </div>
+
+              {/* Company Fields */}
+              {isCompanyClient && (
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold text-secondary mb-2">
+                      Názov firmy <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="client_company_name"
+                      value={formData.client_company_name}
+                      onChange={handleChange}
+                      placeholder="ABC Firma s.r.o."
+                      className="input"
+                      required={isCompanyClient}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-secondary mb-2">
+                        IČO <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="client_ico"
+                        value={formData.client_ico}
+                        onChange={handleChange}
+                        placeholder="12345678"
+                        className="input"
+                        required={isCompanyClient}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-secondary mb-2">
+                        DIČ
+                      </label>
+                      <input
+                        type="text"
+                        name="client_dic"
+                        value={formData.client_dic}
+                        onChange={handleChange}
+                        placeholder="SK1234567890"
+                        className="input"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Email */}
               <div>
