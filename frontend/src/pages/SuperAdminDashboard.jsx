@@ -320,7 +320,7 @@ const SuperAdminDashboard = () => {
                           >
                             <td className="px-4 py-3 whitespace-nowrap">
                               <div className="flex items-center gap-3 min-w-0">
-                                {company.logo_url && company.status === 'active' ? (
+                                {company.logo_url ? (
                                   <img
                                     src={`${API_URL.replace('/api', '')}${company.logo_url}`}
                                     alt={company.name}
