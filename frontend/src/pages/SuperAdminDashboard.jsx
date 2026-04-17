@@ -42,6 +42,8 @@ const SuperAdminDashboard = () => {
   const fetchCompanies = async () => {
     try {
       const response = await api.get('/api/auth/companies')
+      console.log('🏢 [SuperAdmin] Companies loaded:', response.data)
+      console.log('🖼️ [SuperAdmin] First company logo_url:', response.data[0]?.logo_url)
       setCompanies(response.data)
       setFilteredCompanies(response.data)
       setLoading(false)
