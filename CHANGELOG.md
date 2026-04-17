@@ -1,5 +1,252 @@
 # MONTIO - Changelog
 
+## [1.12.0] - 2026-04-17 - FÁZA 5: Zákazky Wizard ⭐ 95% HOTOVO
+
+### ✨ Nové funkcie
+
+**5-Stage Order Workflow (Survey → Quote → Installation → Completion):**
+
+**Backend API (14 endpoints):**
+- ✅ **Orders CRUD:**
+  - `GET /api/orders` - Zoznam zákaziek s filtrom
+  - `GET /api/orders/:id` - Detail zákazky
+  - `POST /api/orders` - Vytvorenie zákazky
+  - `PUT /api/orders/:id` - Aktualizácia zákazky
+  - `DELETE /api/orders/:id` - Vymazanie zákazky
+- ✅ **Survey Stage:**
+  - `POST /api/orders/:id/survey` - Vytvorenie survey stage
+  - `PUT /api/orders/:id/survey` - Aktualizácia survey
+- ✅ **Quote Stage:**
+  - `POST /api/orders/:id/quote` - Vytvorenie quote + quote_link generovanie
+  - `PUT /api/orders/:id/quote` - Aktualizácia quote
+- ✅ **Installation Stage:**
+  - `POST /api/orders/:id/installation` - Vytvorenie installation stage
+  - `PUT /api/orders/:id/installation` - Aktualizácia installation
+- ✅ **Completion Stage:**
+  - `POST /api/orders/:id/completion` - Dokončenie + status change
+  - `PUT /api/orders/:id/completion` - Aktualizácia completion
+- ✅ **Public Quote API (bez autentifikácie):**
+  - `GET /api/orders/public/quote/:quoteLink` - Načítanie ponuky pre klienta
+  - `POST /api/orders/public/quote/:quoteLink/sign` - Podpísanie ponuky klientom
+    - Uloží `client_signature_data` a `client_signed_at`
+    - Zmení status zákazky: `quote` → `assigned`
+    - Vytvorí notifikáciu pre company admin
+
+**Frontend Pages (8 nových súborov):**
+- ✅ **CreateOrderPage.jsx** (300+ riadkov)
+  - Formulár pre vytvorenie zákazky
+  - Výber order type, klient info (meno, email, telefón, adresa)
+  - Toggle: Fyzická osoba / Firma (IČO, DIČ)
+  - Priradenie zamestnanca, plánovaný dátum, poznámky
+- ✅ **OrdersPage.jsx** (250+ riadkov)
+  - Zoznam všetkých zákaziek
+  - Search & filter (status, order type, employee)
+  - Status badges s farbami, grid layout
+- ✅ **OrderDetailPage.jsx** (450+ riadkov)
+  - Detail zákazky (klient, order type, status)
+  - 4 Stage tlačidlá: Survey, Quote, Installation, Completion
+  - Activity Timeline komponent
+  - Edit/Delete order buttons
+- ✅ **SurveyStagePage.jsx** (450+ riadkov)
+  - Obhliadka - prvý krok workflow
+  - Upload fotiek (multi-select, max 5MB)
+  - Auto-load checklist z order_type
+  - Checkbox completion tracking, notes, signature pad
+- ✅ **QuoteStagePage.jsx** (550+ riadkov)
+  - Cenová ponúka - druhý krok
+  - Dynamické pridávanie materiálov a práce (názov, cena)
+  - VAT rate (default 20%, editovateľné)
+  - Auto-calculation: subtotal, VAT amount, total price
+  - **Public quote link generovanie** (crypto random)
+  - Copy to clipboard + display link
+  - Signature pad (zamestnanca)
+- ✅ **InstallationStagePage.jsx** (500+ riadkov)
+  - Montáž - tretí krok
+  - Before/After photos upload
+  - Photo type marking (before/after)
+  - Checklist completion (z order_type)
+  - Status update: `in_progress`
+- ✅ **CompletionStagePage.jsx** (400+ riadkov)
+  - Dokončenie - finálny krok
+  - Final photos upload
+  - Final checklist completion
+  - **Status update: `completed`** (konečný stav)
+- ✅ **ClientQuoteViewPage.jsx** (510 riadkov) - ⭐ VEREJNÁ STRÁNKA
+  - **Bez autentifikácie** - prístupná pre klientov cez unique link
+  - Route: `/quote/:quoteLink`
+  - Dark header & footer (konzistentný dizajn)
+  - Company branding (logo, názov, IČO, DIČ, kontakt)
+  - Trust badge "Overená ponuka"
+  - Client info display
+  - Survey data zobrazenie (notes, fotky z obhliadky)
+  - Quote items display (materiály, práca, VAT, total price)
+  - **Two-column signatures:**
+    - LEFT: Company signature (zamestnanca) - read-only
+    - RIGHT: Client signature pad (react-signature-canvas)
+  - Signature validation (musí byť vyplnený)
+  - Submit button: "Potvrdiť a podpísať ponuku"
+  - **Success screen** po podpísaní: "Ponuka podpísaná! 🎉"
+  - **READ-ONLY mode** po podpísaní:
+    - Zelená notifikácia: "Cenová ponuka bola podpísaná dňa..."
+    - Client signature zobrazený v zelenej karte
+    - Žiadny signature pad, žiadne submit button
+  - **Trvalá dostupnosť:** Link funguje aj o týždeň/mesiac
+  - Footer trust badges (SSL, overená firma, právny dokument)
+  - Responzívny dizajn (mobile/tablet/desktop)
+
+**Frontend Components:**
+- ✅ **OrderActivityTimeline.jsx** (140 riadkov)
+  - Timeline zobrazenie všetkých stage akcií
+  - Ikony pre každý stage (CheckCircle, FileText, Wrench)
+  - User info (kto vytvoril), timestamp (dátum a čas)
+
+### 🗄️ Database Changes
+
+**Migration súbory vytvorené:**
+- ✅ `add_client_company_fields.sql`
+- ✅ `add_quote_link.sql`
+- ✅ `add_user_id_to_order_stages.sql`
+- ✅ `add_client_signed_at.sql`
+- ✅ `PRODUCTION_2026-04-17_phase5_SIMPLE.sql` - konsolidovaný production script
+
+**Orders Table - 5 nových stĺpcov:**
+```sql
+ALTER TABLE orders ADD COLUMN quote_link VARCHAR(255) UNIQUE;
+ALTER TABLE orders ADD COLUMN client_is_company BOOLEAN DEFAULT FALSE;
+ALTER TABLE orders ADD COLUMN client_company_name VARCHAR(255);
+ALTER TABLE orders ADD COLUMN client_ico VARCHAR(20);
+ALTER TABLE orders ADD COLUMN client_dic VARCHAR(20);
+```
+
+**Order_Stages Table - 3 nové stĺpce:**
+```sql
+ALTER TABLE order_stages ADD COLUMN user_id INT;
+ALTER TABLE order_stages ADD FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE order_stages ADD COLUMN client_signature_data LONGTEXT;
+ALTER TABLE order_stages ADD COLUMN client_signed_at TIMESTAMP NULL;
+```
+
+**Production Deployment:**
+- ✅ **Migrácia spustená na produkcii** (phpMyAdmin)
+- ✅ Všetkých 8 stĺpcov vytvorených
+- ✅ Foreign keys OK
+- ✅ Žiadne chyby
+
+### 🔧 Refactoring & Code Quality
+
+**Nové utility súbory (zatiaľ nepoužité):**
+- ✅ `hooks/useSignature.js` (25 riadkov) - Eliminuje 4x duplicitu z stage pages
+- ✅ `hooks/usePhotoUpload.js` (30 riadkov) - Eliminuje 3x duplicitu z stage pages
+- ✅ `utils/stageHelpers.js` (30 riadkov) - Shared constants a utilities (MAX_FILE_SIZE, validateFileSize, readFileAsDataURL)
+- ✅ `constants/business.js` (15 riadkov) - Business logic constants (VAT_RATE, MAX_FILE_SIZE, MAX_PHOTOS)
+
+**Code Cleanup:**
+- ✅ **17 debug console.log statements** odstránených (všetky stage pages)
+- ✅ **Unused imports** vymazané (validateRequired, handleError, safeFileOperation)
+- ✅ **FRONTEND_URL env variable** namiesto hardcoded URLs
+- ✅ **2 backup súbory** vymazané (NotificationsPage.jsx.bak, CompanyAdminDashboard.EXAMPLE.jsx)
+- ✅ **Migrations consolidation:** database/migrations/ → backend/migrations/ (10 súborov total)
+
+### 📊 Štatistiky kódu
+
+**Počet riadkov kódu (FÁZA 5):**
+- **Backend:** ~600 riadkov (orders.js routes)
+- **Frontend Pages:** ~2,500 riadkov (8 súborov)
+- **Frontend Components:** ~150 riadkov (1 súbor)
+- **Hooks & Utils:** ~100 riadkov (4 súbory)
+- **TOTAL:** ~3,350 riadkov nového kódu
+
+**Súbory vytvorené/upravené:**
+- ✅ **18 súborov zmenených**
+- ✅ **10 nových súborov**
+- ✅ **4 migračné súbory**
+- ✅ **+3,609 riadkov** (feature)
+- ✅ **-659 riadkov** (cleanup)
+
+### 🔔 Notifications Integration
+
+- ✅ Import `createNotification` z notifications.js
+- ✅ Notifikácia pre company admin po podpísaní ponuky klientom
+- ✅ Typ: `order.client_signature`
+- ✅ Zobrazuje sa v NotificationBell
+
+### 📦 Dependencies
+
+**Nové frontend dependencies:**
+```json
+{
+  "react-signature-canvas": "^1.0.6"  // Client signature pad
+}
+```
+
+### 🎯 ČO ZOSTÁVA DOKONČIŤ (5% - neblokujúce)
+
+**HIGH Priority (2-3 hodiny):**
+1. **Refactor Stage Pages na použitie hooks** (1.5 hodiny)
+   - SurveyStagePage.jsx → useSignature, usePhotoUpload
+   - QuoteStagePage.jsx → useSignature, VAT_RATE z business.js
+   - InstallationStagePage.jsx → useSignature, usePhotoUpload
+   - CompletionStagePage.jsx → useSignature, usePhotoUpload
+
+2. **LoadingSpinner component** (30 min)
+   - Extrahovať do `components/LoadingSpinner.jsx`
+   - Použiť v 5 stage pages + CreateOrderPage + OrderDetailPage
+
+3. **orderUtils.js** (30 min)
+   - Extrahovať `getStatusBadge()` function
+   - Použiť v OrderDetailPage + OrdersPage
+
+**MEDIUM Priority (optional):**
+4. **Email Service Integration** - Quote email notifikácia pre klienta
+5. **Photo Compression** - Integrovať `browser-image-compression`
+6. **Copy Link Error Handling** - Fallback pre clipboard API
+
+### 🚀 Deployment Status
+
+**Lokálne (Development):**
+- ✅ Backend: localhost:3001 - FUNGUJE
+- ✅ Frontend: localhost:3000 - FUNGUJE
+- ✅ Database: MariaDB local - FUNGUJE
+- ✅ Všetky features testované ✅
+
+**Production (montio.tsdigital.sk):**
+- ✅ **Database migration:** HOTOVÁ (8 stĺpcov vytvorených)
+- ⏳ **Backend deploy:** Potrebuje restart (docker/pm2)
+- ⏳ **Frontend build:** Potrebuje GitHub Actions deploy
+- ⏳ **Testing:** Po deployi otestovať workflow
+
+### 📝 Dokumentácia
+
+- ✅ `FAZA5_SUMMARY.md` (588 riadkov) - Kompletná dokumentácia celej FÁZY 5
+  - Workflow diagrams, code stats, deployment status
+  - Všetkých 43 commitov s file changes
+  - Čo je hotové (95%) a čo zostáva (5% refactoring)
+
+### 🎉 VÝSLEDOK
+
+**FÁZA 5 Status: 95% HOTOVÁ**
+
+✅ **Hotové (CORE functionality):**
+- Orders CRUD ✅
+- Survey Stage ✅
+- Quote Stage ✅
+- Installation Stage ✅
+- Completion Stage ✅
+- **PUBLIC QUOTE PAGE** ✅ ⭐ NOVÉ!
+- Client signatures ✅
+- Notifications ✅
+- Database migrations ✅
+- Production ready ✅
+
+⏳ **Zostáva (REFACTORING - neblokujúce):**
+- Integrácia useSignature/usePhotoUpload hooks
+- LoadingSpinner component
+- VAT_RATE constants usage
+- Email notifications (optional)
+- Photo compression (optional)
+
+---
+
 ## [1.11.2] - 2026-04-16 - Remember Me Feature 🔐
 
 ### ✨ New Features
