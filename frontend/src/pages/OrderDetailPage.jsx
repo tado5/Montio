@@ -105,44 +105,50 @@ const OrderDetailPage = () => {
     <CompanyAdminLayout>
       <div className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div className="flex items-center gap-4">
+        <div className="space-y-4 mb-6">
+          {/* Back button and title */}
+          <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/company/orders')}
               className="btn btn-ghost p-2"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-display font-bold text-primary">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl md:text-3xl font-display font-bold text-primary truncate">
                 {order.order_number}
               </h1>
-              <p className="text-sm text-tertiary mt-1">{order.order_type_name}</p>
+              <p className="text-xs md:text-sm text-tertiary mt-1">{order.order_type_name}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {getStatusBadge(order.status)}
-            <button
-              onClick={() => navigate(`/company/orders/${id}/edit`)}
-              className="btn btn-secondary flex items-center gap-2"
-            >
-              <Edit2 className="w-4 h-4" />
-              Upraviť
-            </button>
-            <button
-              onClick={() => setShowDeleteModal(true)}
-              className="btn bg-red-500 hover:bg-red-600 text-white flex items-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" />
-              Vymazať
-            </button>
+          {/* Status and actions */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div className="sm:flex-1">
+              {getStatusBadge(order.status)}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate(`/company/orders/${id}/edit`)}
+                className="btn btn-secondary flex-1 sm:flex-initial flex items-center justify-center gap-2 text-sm"
+              >
+                <Edit2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Upraviť</span>
+              </button>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="btn bg-red-500 hover:bg-red-600 text-white flex-1 sm:flex-initial flex items-center justify-center gap-2 text-sm"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Vymazať</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Main Info */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
             {/* Client Info */}
             <div className="card p-6">
               <h2 className="text-lg font-display font-bold text-primary mb-4 flex items-center gap-2">
@@ -206,10 +212,10 @@ const OrderDetailPage = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {/* Order Info */}
-            <div className="card p-6">
-              <h2 className="text-lg font-display font-bold text-primary mb-4">Informácie</h2>
+            <div className="card p-4 md:p-6">
+              <h2 className="text-base md:text-lg font-display font-bold text-primary mb-3 md:mb-4">Informácie</h2>
 
               <div className="space-y-3 text-sm">
                 <div>
@@ -265,25 +271,25 @@ const OrderDetailPage = () => {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="card p-6">
-              <h2 className="text-lg font-display font-bold text-primary mb-4">Akcie</h2>
+            {/* Actions - Mobile optimized */}
+            <div className="card p-4 md:p-6">
+              <h2 className="text-base md:text-lg font-display font-bold text-primary mb-3 md:mb-4">Akcie</h2>
 
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 lg:grid-cols-1 gap-2 md:gap-3">
                 <button
                   onClick={() => setShowSurveyModal(true)}
-                  className="btn btn-primary w-full"
+                  className="btn btn-primary w-full text-sm md:text-base py-3"
                 >
-                  Obhliadka
+                  📋 Obhliadka
                 </button>
-                <button className="btn btn-secondary w-full" disabled>
-                  Cenová ponuka
+                <button className="btn btn-secondary w-full text-sm md:text-base py-3" disabled>
+                  💰 Ponuka
                 </button>
-                <button className="btn btn-secondary w-full" disabled>
-                  Montáž
+                <button className="btn btn-secondary w-full text-sm md:text-base py-3" disabled>
+                  🔧 Montáž
                 </button>
-                <button className="btn btn-secondary w-full" disabled>
-                  Dokončenie
+                <button className="btn btn-secondary w-full text-sm md:text-base py-3" disabled>
+                  ✅ Dokončenie
                 </button>
               </div>
             </div>
