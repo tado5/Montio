@@ -13,6 +13,7 @@ import OrderTypesPage from './pages/OrderTypesPage'
 import OrdersPage from './pages/OrdersPage'
 import CreateOrderPage from './pages/CreateOrderPage'
 import OrderDetailPage from './pages/OrderDetailPage'
+import EditOrderPage from './pages/EditOrderPage'
 import EmployeesPage from './pages/EmployeesPage'
 import CompanySettingsPage from './pages/CompanySettingsPage'
 import ProfilePage from './pages/ProfilePage'
@@ -122,6 +123,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
                   <OrderDetailPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/orders/:id/edit"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
+                  <EditOrderPage />
                 </ProtectedRoute>
               }
             />
