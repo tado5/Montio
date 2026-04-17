@@ -20,6 +20,7 @@ import { api } from '../utils/apiClient'
 import CompanyAdminLayout from '../components/CompanyAdminLayout'
 import SurveyStageModal from '../components/SurveyStageModal'
 import QuoteStageModal from '../components/QuoteStageModal'
+import InstallationStageModal from '../components/InstallationStageModal'
 
 const OrderDetailPage = () => {
   const { id } = useParams()
@@ -31,6 +32,7 @@ const OrderDetailPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showSurveyModal, setShowSurveyModal] = useState(false)
   const [showQuoteModal, setShowQuoteModal] = useState(false)
+  const [showInstallationModal, setShowInstallationModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -72,6 +74,11 @@ const OrderDetailPage = () => {
 
   const handleQuoteSuccess = () => {
     setShowQuoteModal(false)
+    fetchOrderDetail()
+  }
+
+  const handleInstallationSuccess = () => {
+    setShowInstallationModal(false)
     fetchOrderDetail()
   }
 
@@ -295,7 +302,10 @@ const OrderDetailPage = () => {
                 >
                   💰 Ponuka
                 </button>
-                <button className="btn btn-secondary w-full text-sm md:text-base py-3" disabled>
+                <button
+                  onClick={() => setShowInstallationModal(true)}
+                  className="btn btn-primary w-full text-sm md:text-base py-3"
+                >
                   🔧 Montáž
                 </button>
                 <button className="btn btn-secondary w-full text-sm md:text-base py-3" disabled>
@@ -370,6 +380,16 @@ const OrderDetailPage = () => {
             orderId={id}
             onClose={() => setShowQuoteModal(false)}
             onSuccess={handleQuoteSuccess}
+          />
+        )}
+
+        {/* Installation Stage Modal */}
+        {showInstallationModal && (
+          <InstallationStageModal
+            orderId={id}
+            orderType={order}
+            onClose={() => setShowInstallationModal(false)}
+            onSuccess={handleInstallationSuccess}
           />
         )}
       </div>
