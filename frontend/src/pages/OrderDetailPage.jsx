@@ -22,6 +22,7 @@ import SurveyStageModal from '../components/SurveyStageModal'
 import QuoteStageModal from '../components/QuoteStageModal'
 import InstallationStageModal from '../components/InstallationStageModal'
 import CompletionStageModal from '../components/CompletionStageModal'
+import OrderStagesTimeline from '../components/OrderStagesTimeline'
 
 const OrderDetailPage = () => {
   const { id } = useParams()
@@ -29,6 +30,7 @@ const OrderDetailPage = () => {
   const toast = useToast()
 
   const [order, setOrder] = useState(null)
+  const [stages, setStages] = useState([])
   const [loading, setLoading] = useState(true)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showSurveyModal, setShowSurveyModal] = useState(false)
@@ -47,6 +49,7 @@ const OrderDetailPage = () => {
       const response = await api.get(`/api/orders/${id}`)
       console.log('📦 [OrderDetail] Loaded:', response.data)
       setOrder(response.data.order)
+      setStages(response.data.stages || [])
     } catch (err) {
       console.error('❌ [OrderDetail] Fetch error:', err)
       toast.error('Nepodarilo sa načítať zákazku.')
@@ -222,14 +225,20 @@ const OrderDetailPage = () => {
 
             {/* Notes */}
             {order.notes && (
-              <div className="card p-6">
-                <h2 className="text-lg font-display font-bold text-primary mb-4 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-accent-500" />
+              <div className="card p-4 md:p-6">
+                <h2 className="text-base md:text-lg font-display font-bold text-primary mb-3 md:mb-4 flex items-center gap-2">
+                  <FileText className="w-4 h-4 md:w-5 md:h-5 text-accent-500" />
                   Poznámky
                 </h2>
                 <p className="text-sm text-secondary whitespace-pre-line">{order.notes}</p>
               </div>
             )}
+
+            {/* Stages Timeline */}
+            <div className="card p-4 md:p-6">
+              <h2 className="text-base md:text-lg font-display font-bold text-primary mb-3 md:mb-4">História etáp</h2>
+              <OrderStagesTimeline stages={stages} />
+            </div>
           </div>
 
           {/* Sidebar */}

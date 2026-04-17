@@ -150,7 +150,27 @@ router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), ensureC
 
     const order = orders[0];
 
-    res.json({ order });
+    // Get order stages
+    const [stages] = await pool.query(
+      'SELECT * FROM order_stages WHERE order_id = ? ORDER BY completed_at DESC',
+      [id]
+    );
+
+    // Parse JSON fields in stages
+    const formattedStages = stages.map(stage => ({
+      ...stage,
+      checklist_data: typeof stage.checklist_data === 'string'
+        ? JSON.parse(stage.checklist_data)
+        : stage.checklist_data,
+      photos: typeof stage.photos === 'string'
+        ? JSON.parse(stage.photos)
+        : stage.photos
+    }));
+
+    res.json({
+      order,
+      stages: formattedStages
+    });
 }));
 
 // GET /api/orders - Get all orders for company with filters
