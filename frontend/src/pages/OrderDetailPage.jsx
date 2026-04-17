@@ -19,6 +19,7 @@ import {
 import { api } from '../utils/apiClient'
 import CompanyAdminLayout from '../components/CompanyAdminLayout'
 import SurveyStageModal from '../components/SurveyStageModal'
+import QuoteStageModal from '../components/QuoteStageModal'
 
 const OrderDetailPage = () => {
   const { id } = useParams()
@@ -29,6 +30,7 @@ const OrderDetailPage = () => {
   const [loading, setLoading] = useState(true)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showSurveyModal, setShowSurveyModal] = useState(false)
+  const [showQuoteModal, setShowQuoteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -65,6 +67,11 @@ const OrderDetailPage = () => {
 
   const handleSurveySuccess = () => {
     setShowSurveyModal(false)
+    fetchOrderDetail()
+  }
+
+  const handleQuoteSuccess = () => {
+    setShowQuoteModal(false)
     fetchOrderDetail()
   }
 
@@ -282,7 +289,10 @@ const OrderDetailPage = () => {
                 >
                   📋 Obhliadka
                 </button>
-                <button className="btn btn-secondary w-full text-sm md:text-base py-3" disabled>
+                <button
+                  onClick={() => setShowQuoteModal(true)}
+                  className="btn btn-primary w-full text-sm md:text-base py-3"
+                >
                   💰 Ponuka
                 </button>
                 <button className="btn btn-secondary w-full text-sm md:text-base py-3" disabled>
@@ -351,6 +361,15 @@ const OrderDetailPage = () => {
             orderType={order}
             onClose={() => setShowSurveyModal(false)}
             onSuccess={handleSurveySuccess}
+          />
+        )}
+
+        {/* Quote Stage Modal */}
+        {showQuoteModal && (
+          <QuoteStageModal
+            orderId={id}
+            onClose={() => setShowQuoteModal(false)}
+            onSuccess={handleQuoteSuccess}
           />
         )}
       </div>
