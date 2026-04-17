@@ -69,7 +69,6 @@ const SurveyStagePage = () => {
           setSignatureData(surveyStage.signature_data)
         }
 
-        console.log('📝 [SurveyStage] Loaded existing survey data')
       }
     } catch (err) {
       console.error('❌ [SurveyStage] Fetch error:', err)
@@ -159,7 +158,6 @@ const SurveyStagePage = () => {
           photos: photosWithData,
           signature_data: signatureData
         })
-        console.log('✅ [SurveyStage] Survey updated')
         toast.success('Obhliadka aktualizovaná.')
       } else {
         // Create new stage
@@ -169,7 +167,6 @@ const SurveyStagePage = () => {
           photos: photosWithData,
           signature_data: signatureData
         })
-        console.log('✅ [SurveyStage] Survey completed')
         toast.success('Obhliadka dokončená.')
       }
 

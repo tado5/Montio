@@ -39,7 +39,6 @@ const OrdersPage = () => {
       if (statusFilter !== 'all') params.status = statusFilter
 
       const response = await api.get('/api/orders', { params })
-      console.log('📦 [Orders] Loaded:', response.data)
       setOrders(response.data.orders)
     } catch (err) {
       console.error('❌ [Orders] Fetch error:', err)

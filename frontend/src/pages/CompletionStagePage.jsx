@@ -65,7 +65,6 @@ const CompletionStagePage = () => {
           setSignatureData(completionStage.signature_data)
         }
 
-        console.log('📝 [CompletionStage] Loaded existing data')
       }
     } catch (err) {
       console.error('❌ [CompletionStage] Fetch error:', err)
@@ -127,7 +126,6 @@ const CompletionStagePage = () => {
           checklist_data: completionData,
           signature_data: signatureData
         })
-        console.log('✅ [CompletionStage] Order updated')
         toast.success('Dokončenie aktualizované.')
       } else {
         await api.post(`/api/orders/${id}/stage`, {
@@ -135,7 +133,6 @@ const CompletionStagePage = () => {
           checklist_data: completionData,
           signature_data: signatureData
         })
-        console.log('✅ [CompletionStage] Order completed')
         toast.success('Zákazka dokončená! 🎉')
       }
 

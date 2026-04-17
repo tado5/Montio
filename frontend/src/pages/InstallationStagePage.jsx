@@ -72,7 +72,6 @@ const InstallationStagePage = () => {
         }
 
         if (installationStage.signature_data) setSignatureData(installationStage.signature_data)
-        console.log('📝 [InstallationStage] Loaded existing data')
       }
 
       // Initialize checklist from order type if not loaded
@@ -201,7 +200,6 @@ const InstallationStagePage = () => {
           photos: allPhotos,
           signature_data: signatureData
         })
-        console.log('✅ [InstallationStage] Installation updated')
         toast.success('Montáž aktualizovaná.')
       } else {
         await api.post(`/api/orders/${id}/stage`, {
@@ -210,7 +208,6 @@ const InstallationStagePage = () => {
           photos: allPhotos,
           signature_data: signatureData
         })
-        console.log('✅ [InstallationStage] Installation completed')
         toast.success('Montáž dokončená.')
       }
 

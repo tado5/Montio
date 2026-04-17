@@ -39,7 +39,6 @@ const OrderDetailPage = () => {
     try {
       setLoading(true)
       const response = await api.get(`/api/orders/${id}`)
-      console.log('📦 [OrderDetail] Loaded:', response.data)
       setOrder(response.data.order)
       setActivityLogs(response.data.activity_logs || [])
     } catch (err) {
