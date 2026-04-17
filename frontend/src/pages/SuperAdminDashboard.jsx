@@ -15,7 +15,7 @@ import {
   ArrowDown,
   Filter
 } from 'lucide-react'
-import { api } from '../utils/apiClient'
+import { api, API_URL } from '../utils/apiClient'
 import SuperAdminLayout from '../components/SuperAdminLayout'
 import CreateCompanyModal from '../components/CreateCompanyModal'
 import KPICard from '../components/KPICard'
@@ -320,7 +320,7 @@ const SuperAdminDashboard = () => {
                               <div className="flex items-center gap-3 min-w-0">
                                 {company.logo_url && company.status === 'active' ? (
                                   <img
-                                    src={company.logo_url}
+                                    src={`${API_URL.replace('/api', '')}${company.logo_url}`}
                                     alt={company.name}
                                     className="w-8 h-8 rounded-lg object-contain bg-white shadow-sm group-hover:shadow-md transition-all duration-200 flex-shrink-0"
                                   />
