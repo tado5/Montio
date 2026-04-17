@@ -28,7 +28,7 @@ const CompanyAdminSidebar = ({ isMobileMenuOpen, onClose, isCollapsed, onToggleC
     { Icon: LayoutDashboard, label: 'Dashboard', path: '/company', description: 'Prehľad firmy' },
     { Icon: Calendar, label: 'Kalendár', path: '/company/calendar', description: 'Plánovanie úloh' },
     { Icon: Wrench, label: 'Typy montáží', path: '/company/order-types', description: 'Konfigurácia' },
-    { Icon: FileText, label: 'Zákazky', path: '/company/orders', disabled: true, description: 'Správa zákaziek' },
+    { Icon: FileText, label: 'Zákazky', path: '/company/orders', description: 'Správa zákaziek' },
     { Icon: Users, label: 'Zamestnanci', path: '/company/employees', description: 'Tím management' },
     { Icon: Receipt, label: 'Faktúry', path: '/company/invoices', disabled: true, description: 'Fakturácia' },
     { Icon: Settings, label: 'Nastavenia', path: '/company/settings', description: 'Konfigurácia firmy' },
