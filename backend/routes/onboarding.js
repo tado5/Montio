@@ -6,6 +6,7 @@ import multer from 'multer'
 import sharp from 'sharp'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import fs from 'fs'
 
 const router = express.Router()
 const __filename = fileURLToPath(import.meta.url)
@@ -134,9 +135,16 @@ router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
 
       try {
         const filename = `${Date.now()}-${company.public_id}.jpg`
-        const filepath = path.join(__dirname, '../uploads/logos', filename)
+        const uploadsDir = path.join(__dirname, '../uploads/logos')
+        const filepath = path.join(uploadsDir, filename)
 
         console.log('💾 [Step2] Saving logo to:', filepath)
+
+        // Create directory if not exists
+        if (!fs.existsSync(uploadsDir)) {
+          console.log('📁 [Step2] Creating uploads directory:', uploadsDir)
+          fs.mkdirSync(uploadsDir, { recursive: true })
+        }
 
         // Resize and optimize image
         await sharp(logoFile.buffer)
