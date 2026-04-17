@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { api } from '../utils/apiClient'
 import CompanyAdminLayout from '../components/CompanyAdminLayout'
+import SurveyStageModal from '../components/SurveyStageModal'
 
 const OrderDetailPage = () => {
   const { id } = useParams()
@@ -27,6 +28,7 @@ const OrderDetailPage = () => {
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showSurveyModal, setShowSurveyModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -59,6 +61,11 @@ const OrderDetailPage = () => {
       toast.error(err.response?.data?.message || 'Nepodarilo sa vymazať zákazku.')
       setDeleting(false)
     }
+  }
+
+  const handleSurveySuccess = () => {
+    setShowSurveyModal(false)
+    fetchOrderDetail()
   }
 
   const getStatusBadge = (status) => {
@@ -263,7 +270,10 @@ const OrderDetailPage = () => {
               <h2 className="text-lg font-display font-bold text-primary mb-4">Akcie</h2>
 
               <div className="space-y-2">
-                <button className="btn btn-primary w-full">
+                <button
+                  onClick={() => setShowSurveyModal(true)}
+                  className="btn btn-primary w-full"
+                >
                   Obhliadka
                 </button>
                 <button className="btn btn-secondary w-full" disabled>
@@ -326,6 +336,16 @@ const OrderDetailPage = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Survey Stage Modal */}
+        {showSurveyModal && (
+          <SurveyStageModal
+            orderId={id}
+            orderType={order}
+            onClose={() => setShowSurveyModal(false)}
+            onSuccess={handleSurveySuccess}
+          />
         )}
       </div>
     </CompanyAdminLayout>
