@@ -52,8 +52,6 @@ const CompanyDetail = () => {
   const fetchCompanyDetail = async () => {
     try {
       const response = await api.get(`/api/companies/${id}`)
-      console.log('🏢 [CompanyDetail] Data loaded:', response.data)
-      console.log('🖼️ [CompanyDetail] Logo URL:', response.data.company?.logo_url)
       setData(response.data)
       setLoading(false)
     } catch (err) {
