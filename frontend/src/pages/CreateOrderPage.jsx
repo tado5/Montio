@@ -45,7 +45,6 @@ const CreateOrderPage = () => {
   const fetchOrderTypes = async () => {
     try {
       const response = await api.get('/api/order-types')
-      console.log('📦 [CreateOrder] Order types loaded:', response.data)
       setOrderTypes(response.data.orderTypes)
     } catch (err) {
       console.error('❌ [CreateOrder] Fetch error:', err)
@@ -107,7 +106,6 @@ const CreateOrderPage = () => {
         notes: formData.notes.trim() || null
       })
 
-      console.log('✅ [CreateOrder] Order created:', response.data)
       toast.success('Zákazka bola vytvorená.')
 
       // Redirect to order detail

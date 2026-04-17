@@ -81,7 +81,6 @@ const QuoteStagePage = () => {
           setSignatureData(quoteStage.signature_data)
         }
 
-        console.log('📝 [QuoteStage] Loaded existing quote data')
       }
     } catch (err) {
       console.error('❌ [QuoteStage] Fetch error:', err)
@@ -202,7 +201,6 @@ const QuoteStagePage = () => {
           checklist_data: quoteData,
           signature_data: signatureData
         })
-        console.log('✅ [QuoteStage] Quote updated')
         toast.success('Cenová ponuka aktualizovaná.')
       } else {
         // Create new stage
@@ -211,7 +209,6 @@ const QuoteStagePage = () => {
           checklist_data: quoteData,
           signature_data: signatureData
         })
-        console.log('✅ [QuoteStage] Quote created')
       }
 
       // Update order with scheduled date and total price (backend generates quote_link)
@@ -230,7 +227,6 @@ const QuoteStagePage = () => {
           quoteLinkToken = orderResponse.data.order.quote_link
         }
 
-        console.log('✅ [QuoteStage] Quote completed')
 
         // Show link modal
         // Use env variable if set, otherwise use current origin (works on dev and prod)
