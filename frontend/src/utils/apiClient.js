@@ -1,15 +1,20 @@
 import axios from 'axios';
 
 /**
+ * API Base URL
+ */
+export const API_URL = import.meta.env.VITE_API_URL || (
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:3001'
+    : window.location.origin
+);
+
+/**
  * Centralized API client with interceptors
  * Eliminates duplicate token handling
  */
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || (
-    window.location.hostname === 'localhost'
-      ? 'http://localhost:3001'
-      : window.location.origin
-  ),
+  baseURL: API_URL,
   timeout: 30000, // 30 seconds
   headers: {
     'Content-Type': 'application/json'

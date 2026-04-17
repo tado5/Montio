@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { api } from '../utils/apiClient'
+import { api, API_URL } from '../utils/apiClient'
 
 const CompanySettingsManager = () => {
   const [loading, setLoading] = useState(true)

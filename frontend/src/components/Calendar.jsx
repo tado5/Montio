@@ -267,20 +267,36 @@ const Calendar = () => {
         }
         .fc-theme-standard .fc-toolbar {
           margin-bottom: 1.5rem;
-          gap: 1rem;
+          gap: 0.5rem;
+          flex-wrap: wrap;
         }
         .fc-toolbar-chunk {
           display: flex;
-          gap: 0.5rem;
+          gap: 0.25rem;
+          flex-wrap: wrap;
         }
         .fc-button {
           background: linear-gradient(to right, rgb(249 115 22), rgb(234 88 12)) !important;
           border: none !important;
           font-weight: bold !important;
-          padding: 0.5rem 1rem !important;
+          padding: 0.375rem 0.75rem !important;
           border-radius: 0.75rem !important;
           text-transform: none !important;
-          margin: 0 0.25rem !important;
+          margin: 0.125rem !important;
+          font-size: 0.875rem !important;
+        }
+        @media (max-width: 640px) {
+          .fc-button {
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.75rem !important;
+            border-radius: 0.5rem !important;
+          }
+          .fc-toolbar-title {
+            font-size: 1rem !important;
+          }
+          .fc-toolbar-chunk {
+            gap: 0.125rem;
+          }
         }
         .fc-button:hover {
           transform: scale(1.05);
@@ -290,7 +306,7 @@ const Calendar = () => {
           opacity: 0.9 !important;
         }
         .fc-button-group {
-          gap: 0.25rem;
+          gap: 0.125rem;
         }
         .fc-event {
           cursor: pointer;

@@ -32,10 +32,8 @@ const OrderTypesManager = () => {
   const fetchOrderTypes = async () => {
     try {
       setLoading(true)
-      
-      const response = await api.get('/api/order-types', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+
+      const response = await api.get('/api/order-types')
       setOrderTypes(response.data.orderTypes)
     } catch (err) {
       console.error('Fetch order types error:', err)
@@ -83,18 +81,13 @@ const OrderTypesManager = () => {
   const handleSubmitCreate = async (e) => {
     e.preventDefault()
     try {
-      
       const cleanChecklist = formData.checklist.filter(item => item.trim() !== '')
 
-      await api.post(
-        '/api/order-types',
-        {
-          name: formData.name,
-          description: formData.description,
-          checklist: cleanChecklist
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.post('/api/order-types', {
+        name: formData.name,
+        description: formData.description,
+        checklist: cleanChecklist
+      })
 
       setShowCreateModal(false)
       fetchOrderTypes()
@@ -108,18 +101,13 @@ const OrderTypesManager = () => {
   const handleSubmitEdit = async (e) => {
     e.preventDefault()
     try {
-      
       const cleanChecklist = formData.checklist.filter(item => item.trim() !== '')
 
-      await api.put(
-        `/api/order-types/${selectedOrderType.id}`,
-        {
-          name: formData.name,
-          description: formData.description,
-          checklist: cleanChecklist
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.put(`/api/order-types/${selectedOrderType.id}`, {
+        name: formData.name,
+        description: formData.description,
+        checklist: cleanChecklist
+      })
 
       setShowEditModal(false)
       fetchOrderTypes()
@@ -134,10 +122,7 @@ const OrderTypesManager = () => {
     try {
       
 
-      await api.delete(
-        `/api/order-types/${selectedOrderType.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.delete(`/api/order-types/${selectedOrderType.id}`)
 
       setShowDeleteModal(false)
       fetchOrderTypes()
