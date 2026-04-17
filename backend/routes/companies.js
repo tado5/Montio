@@ -374,7 +374,40 @@ router.delete('/:publicId', verifyToken, requireRole('superadmin'), async (req, 
       });
     }
 
-    // Hard delete company (cascade will handle related records if configured)
+    // Manual cascade delete (since FK constraints don't have ON DELETE CASCADE)
+    // Delete in correct order to avoid FK violations
+
+    // 1. Delete invoices (FK: company_id, order_id)
+    await pool.query('DELETE FROM invoices WHERE company_id = ?', [company.id]);
+
+    // 2. Delete order_stages (FK: order_id)
+    await pool.query(
+      'DELETE FROM order_stages WHERE order_id IN (SELECT id FROM orders WHERE company_id = ?)',
+      [company.id]
+    );
+
+    // 3. Delete orders (FK: company_id, order_type_id, assigned_employee_id)
+    await pool.query('DELETE FROM orders WHERE company_id = ?', [company.id]);
+
+    // 4. Delete employees (FK: company_id, user_id)
+    await pool.query('DELETE FROM employees WHERE company_id = ?', [company.id]);
+
+    // 5. Delete order_types (FK: company_id)
+    await pool.query('DELETE FROM order_types WHERE company_id = ?', [company.id]);
+
+    // 6. Delete activity_logs (FK: company_id)
+    await pool.query('DELETE FROM activity_logs WHERE company_id = ?', [company.id]);
+
+    // 7. Delete notifications (FK: user_id in company)
+    await pool.query(
+      'DELETE FROM notifications WHERE user_id IN (SELECT id FROM users WHERE company_id = ?)',
+      [company.id]
+    );
+
+    // 8. Delete users (FK: company_id)
+    await pool.query('DELETE FROM users WHERE company_id = ?', [company.id]);
+
+    // 9. Finally, delete company
     await pool.query('DELETE FROM companies WHERE id = ?', [company.id]);
 
     // Log activity (use company_id = null since company is deleted)
