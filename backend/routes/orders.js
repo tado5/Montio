@@ -4,9 +4,192 @@ import { verifyToken, requireRole } from '../middleware/auth.js';
 import { ensureCompanyId } from '../middleware/companyMiddleware.js';
 import { asyncHandler } from '../utils/errorHandler.js';
 import { logActivity } from '../middleware/logger.js';
+import { createNotification } from './notifications.js';
 import crypto from 'crypto';
 
 const router = express.Router();
+
+// PUBLIC ROUTES - Quote viewing and signing by client
+
+// GET /api/public/quote/:quoteLink - Public view for client
+router.get('/public/quote/:quoteLink', asyncHandler(async (req, res) => {
+    const { quoteLink } = req.params;
+
+    // Get order with quote stage
+    const [orders] = await pool.query(
+      `SELECT
+        o.id,
+        o.order_number,
+        o.client_name,
+        o.client_email,
+        o.client_phone,
+        o.client_address,
+        o.total_price,
+        o.scheduled_date,
+        ot.name as order_type_name,
+        c.name as company_name,
+        c.ico,
+        c.dic,
+        c.address as company_address,
+        c.email as company_email,
+        c.logo_url as company_logo,
+        c.contact_data
+      FROM orders o
+      LEFT JOIN order_types ot ON o.order_type_id = ot.id
+      LEFT JOIN companies c ON o.company_id = c.id
+      WHERE o.quote_link = ?`,
+      [quoteLink]
+    );
+
+    if (orders.length === 0) {
+      return res.status(404).json({ message: 'Cenová ponuka nebola nájdená.' });
+    }
+
+    const order = orders[0];
+
+    // Parse contact_data to get phone
+    let companyPhone = null;
+    if (order.contact_data) {
+      try {
+        const contactData = typeof order.contact_data === 'string'
+          ? JSON.parse(order.contact_data)
+          : order.contact_data;
+        companyPhone = contactData.phone;
+      } catch (e) {
+        console.error('Error parsing contact_data:', e);
+      }
+    }
+
+    // Add parsed phone to order object
+    order.company_phone = companyPhone;
+
+    // Get quote stage
+    const [stages] = await pool.query(
+      `SELECT * FROM order_stages
+       WHERE order_id = ? AND stage = 'quote'
+       ORDER BY completed_at DESC LIMIT 1`,
+      [order.id]
+    );
+
+    if (stages.length === 0) {
+      return res.status(404).json({ message: 'Cenová ponuka ešte nebola vytvorená.' });
+    }
+
+    const quoteStage = stages[0];
+    const quoteData = typeof quoteStage.checklist_data === 'string'
+      ? JSON.parse(quoteStage.checklist_data)
+      : quoteStage.checklist_data;
+
+    // Get survey data if exists
+    const [surveyStages] = await pool.query(
+      `SELECT * FROM order_stages
+       WHERE order_id = ? AND stage = 'survey'
+       ORDER BY completed_at DESC LIMIT 1`,
+      [order.id]
+    );
+
+    let surveyData = null;
+    if (surveyStages.length > 0) {
+      const surveyStage = surveyStages[0];
+      const checklist = typeof surveyStage.checklist_data === 'string'
+        ? JSON.parse(surveyStage.checklist_data)
+        : surveyStage.checklist_data;
+      const photos = typeof surveyStage.photos === 'string'
+        ? JSON.parse(surveyStage.photos)
+        : surveyStage.photos;
+
+      surveyData = {
+        notes: checklist?.notes || null,
+        photos: photos || [],
+        created_at: surveyStage.completed_at
+      };
+    }
+
+    res.json({
+      order,
+      quote: {
+        ...quoteData,
+        company_signature: quoteStage.signature_data,
+        client_signature: quoteStage.client_signature_data,
+        client_signed_at: quoteStage.client_signed_at,
+        created_at: quoteStage.completed_at
+      },
+      survey: surveyData
+    });
+}));
+
+// POST /api/public/quote/:quoteLink/sign - Client signs the quote
+router.post('/public/quote/:quoteLink/sign', asyncHandler(async (req, res) => {
+    const { quoteLink } = req.params;
+    const { signature_data } = req.body;
+
+    if (!signature_data) {
+      return res.status(400).json({ message: 'Podpis je povinný.' });
+    }
+
+    // Get order
+    const [orders] = await pool.query(
+      'SELECT id, order_number, company_id FROM orders WHERE quote_link = ?',
+      [quoteLink]
+    );
+
+    if (orders.length === 0) {
+      return res.status(404).json({ message: 'Cenová ponuka nebola nájdená.' });
+    }
+
+    const order = orders[0];
+    const orderId = order.id;
+
+    // Update quote stage with client signature and timestamp
+    await pool.query(
+      `UPDATE order_stages
+       SET client_signature_data = ?, client_signed_at = NOW()
+       WHERE order_id = ? AND stage = 'quote'`,
+      [signature_data, orderId]
+    );
+
+    // Update order status to 'assigned' (ready for installation assignment)
+    await pool.query(
+      'UPDATE orders SET status = ? WHERE id = ?',
+      ['assigned', orderId]
+    );
+
+    // Log client signature activity
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    await logActivity(
+      null, // No user_id for public client signature
+      'order.client_signature',
+      'order',
+      orderId,
+      {
+        order_number: order.order_number,
+        signed_at: new Date().toISOString(),
+        quote_link: quoteLink
+      },
+      order.company_id,
+      ipAddress,
+      req.headers['user-agent']
+    );
+
+    // Send notification to company admin(s) about client signature
+    const [admins] = await pool.query(
+      'SELECT id FROM users WHERE company_id = ? AND role = ?',
+      [order.company_id, 'companyadmin']
+    );
+
+    for (const admin of admins) {
+      await createNotification(
+        admin.id,
+        'order.client_signature',
+        'Cenová ponuka podpísaná klientom',
+        `Klient podpísal cenovú ponuku pre zákazku ${order.order_number}. Zákazka je pripravená na priradenie montážnika.`,
+        null,
+        null
+      );
+    }
+
+    res.json({ message: 'Cenová ponuka bola podpísaná.' });
+}));
 
 // GET /api/orders/calendar - Get orders for calendar view
 router.get('/calendar', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
@@ -150,26 +333,30 @@ router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), ensureC
 
     const order = orders[0];
 
-    // Get order stages
-    const [stages] = await pool.query(
-      'SELECT * FROM order_stages WHERE order_id = ? ORDER BY completed_at DESC',
+    // Get order activity logs (complete history)
+    const [activityLogs] = await pool.query(
+      `SELECT
+        al.*,
+        u.name as user_name
+      FROM activity_logs al
+      LEFT JOIN users u ON al.user_id = u.id
+      WHERE al.entity_type = 'order' AND al.entity_id = ?
+      ORDER BY al.created_at DESC`,
       [id]
     );
 
-    // Parse JSON fields in stages
-    const formattedStages = stages.map(stage => ({
-      ...stage,
-      checklist_data: typeof stage.checklist_data === 'string'
-        ? JSON.parse(stage.checklist_data)
-        : stage.checklist_data,
-      photos: typeof stage.photos === 'string'
-        ? JSON.parse(stage.photos)
-        : stage.photos
+    // Parse details JSON
+    const formattedLogs = activityLogs.map(log => ({
+      ...log,
+      details: typeof log.details === 'string'
+        ? JSON.parse(log.details)
+        : log.details,
+      user_name: log.user_name || 'Neznámy'
     }));
 
     res.json({
       order,
-      stages: formattedStages
+      activity_logs: formattedLogs
     });
 }));
 
@@ -224,6 +411,10 @@ router.post('/', verifyToken, requireRole('companyadmin', 'employee'), ensureCom
       client_email,
       client_phone,
       client_address,
+      client_is_company,
+      client_company_name,
+      client_ico,
+      client_dic,
       notes
     } = req.body;
 
@@ -258,10 +449,12 @@ router.post('/', verifyToken, requireRole('companyadmin', 'employee'), ensureCom
     const [result] = await pool.query(
       `INSERT INTO orders
        (company_id, order_type_id, order_number, client_name, client_email,
-        client_phone, client_address, status, notes, unique_link)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'survey', ?, ?)`,
+        client_phone, client_address, client_is_company, client_company_name,
+        client_ico, client_dic, status, notes, unique_link)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'survey', ?, ?)`,
       [companyId, order_type_id, orderNumber, client_name, client_email,
-       client_phone, client_address, notes, uniqueLink]
+       client_phone, client_address, client_is_company || false, client_company_name || null,
+       client_ico || null, client_dic || null, notes, uniqueLink]
     );
 
     // Log activity
@@ -357,6 +550,18 @@ router.put('/:id', verifyToken, requireRole('companyadmin', 'employee'), ensureC
       params.push(notes);
     }
 
+    // Generate quote_link if not exists and we're updating scheduled_date or total_price
+    let generatedQuoteLink = null;
+    if ((scheduled_date !== undefined || total_price !== undefined)) {
+      // Check if quote_link already exists
+      const [existing] = await pool.query('SELECT quote_link FROM orders WHERE id = ?', [id]);
+      if (existing.length > 0 && !existing[0].quote_link) {
+        generatedQuoteLink = crypto.randomBytes(16).toString('hex');
+        updates.push('quote_link = ?');
+        params.push(generatedQuoteLink);
+      }
+    }
+
     if (updates.length === 0) {
       return res.status(400).json({ message: 'Žiadne údaje na aktualizáciu.' });
     }
@@ -383,7 +588,10 @@ router.put('/:id', verifyToken, requireRole('companyadmin', 'employee'), ensureC
       userAgent
     );
 
-    res.json({ message: 'Zákazka aktualizovaná.' });
+    res.json({
+      message: 'Zákazka aktualizovaná.',
+      quote_link: generatedQuoteLink
+    });
 }));
 
 // POST /api/orders/:id/stage - Add new stage to order
@@ -408,16 +616,17 @@ router.post('/:id/stage', verifyToken, requireRole('companyadmin', 'employee'), 
       return res.status(404).json({ message: 'Zákazka nenájdená.' });
     }
 
-    // Create stage
+    // Create stage with user_id
     const [result] = await pool.query(
-      `INSERT INTO order_stages (order_id, stage, checklist_data, photos, signature_data)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO order_stages (order_id, stage, checklist_data, photos, signature_data, user_id)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         id,
         stage,
         JSON.stringify(checklist_data || {}),
         JSON.stringify(photos || []),
-        signature_data || null
+        signature_data || null,
+        userId
       ]
     );
 
@@ -434,16 +643,57 @@ router.post('/:id/stage', verifyToken, requireRole('companyadmin', 'employee'), 
       [statusMap[stage], id]
     );
 
-    // Log activity
+    // Log activity with user info
     const ipAddress = req.ip || req.connection.remoteAddress;
     const userAgent = req.headers['user-agent'];
+
+    // Get user info for logging
+    const [users] = await pool.query(
+      'SELECT name FROM users WHERE id = ?',
+      [userId]
+    );
+    const userName = users.length > 0 ? users[0].name : 'Neznámy';
+
+    // Build stage-specific details for logging
+    const logDetails = {
+      stage,
+      order_number: orders[0].order_number,
+      created_by: userName
+    };
+
+    // Add stage-specific info
+    switch (stage) {
+      case 'survey':
+        if (photos && photos.length > 0) logDetails.photos_count = photos.length;
+        if (checklist_data?.notes) logDetails.has_notes = true;
+        logDetails.signed_by = 'klient';
+        break;
+      case 'quote':
+        if (checklist_data?.total_price) logDetails.total_price = checklist_data.total_price;
+        if (checklist_data?.scheduled_date) logDetails.scheduled_date = checklist_data.scheduled_date;
+        logDetails.signed_by = 'technik';
+        break;
+      case 'installation':
+        if (photos && photos.length > 0) {
+          const beforeCount = photos.filter(p => p.type === 'before').length;
+          const afterCount = photos.filter(p => p.type === 'after').length;
+          logDetails.photos_before = beforeCount;
+          logDetails.photos_after = afterCount;
+        }
+        logDetails.signed_by = 'klient';
+        break;
+      case 'completion':
+        if (checklist_data?.client_satisfaction) logDetails.satisfaction = checklist_data.client_satisfaction;
+        logDetails.signed_by = 'klient';
+        break;
+    }
 
     await logActivity(
       userId,
       'order.stage_complete',
       'order',
       parseInt(id),
-      { stage, order_number: orders[0].order_number },
+      logDetails,
       companyId,
       ipAddress,
       userAgent
@@ -453,6 +703,125 @@ router.post('/:id/stage', verifyToken, requireRole('companyadmin', 'employee'), 
       message: 'Etapa zákazky dokončená.',
       stage_id: result.insertId
     });
+}));
+
+// PUT /api/orders/:id/stage/:stageId - Update existing stage
+router.put('/:id/stage/:stageId', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
+    const { id, stageId } = req.params;
+    const companyId = req.company_id;
+    const userId = req.user.id;
+    const { checklist_data, photos, signature_data } = req.body;
+
+    // Verify order belongs to company
+    const [orders] = await pool.query(
+      'SELECT id, order_number FROM orders WHERE id = ? AND company_id = ?',
+      [id, companyId]
+    );
+
+    if (orders.length === 0) {
+      return res.status(404).json({ message: 'Zákazka nenájdená.' });
+    }
+
+    // Verify stage belongs to order
+    const [stages] = await pool.query(
+      'SELECT id, stage FROM order_stages WHERE id = ? AND order_id = ?',
+      [stageId, id]
+    );
+
+    if (stages.length === 0) {
+      return res.status(404).json({ message: 'Etapa nenájdená.' });
+    }
+
+    const existingStage = stages[0];
+
+    // Update stage
+    const updates = [];
+    const params = [];
+
+    if (checklist_data !== undefined) {
+      updates.push('checklist_data = ?');
+      params.push(JSON.stringify(checklist_data));
+    }
+    if (photos !== undefined) {
+      updates.push('photos = ?');
+      params.push(JSON.stringify(photos));
+    }
+    if (signature_data !== undefined) {
+      updates.push('signature_data = ?');
+      params.push(signature_data);
+    }
+
+    if (updates.length > 0) {
+      params.push(stageId);
+      await pool.query(
+        `UPDATE order_stages SET ${updates.join(', ')} WHERE id = ?`,
+        params
+      );
+    }
+
+    // Log activity with details of what changed
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    // Get user info for logging
+    const [users] = await pool.query(
+      'SELECT name FROM users WHERE id = ?',
+      [userId]
+    );
+    const userName = users.length > 0 ? users[0].name : 'Neznámy';
+
+    // Determine what was changed based on stage type
+    const changes = [];
+    if (checklist_data !== undefined) {
+      const stageName = existingStage.stage;
+      switch (stageName) {
+        case 'survey':
+          changes.push('poznámky z obhliadky');
+          break;
+        case 'quote':
+          changes.push('ponuka (cena, dátum, materiály)');
+          break;
+        case 'installation':
+          changes.push('poznámky z montáže');
+          break;
+        case 'completion':
+          changes.push('hodnotenie a záručné podmienky');
+          break;
+        default:
+          changes.push('údaje');
+      }
+    }
+    if (photos !== undefined && photos.length > 0) {
+      changes.push(`fotky (${photos.length})`);
+    }
+    if (signature_data !== undefined) {
+      // Determine who signed based on stage
+      const stageName = existingStage.stage;
+      if (stageName === 'quote') {
+        changes.push('podpis technika');
+      } else {
+        changes.push('podpis klienta');
+      }
+    }
+
+    await logActivity(
+      userId,
+      'order.stage_update',
+      'order',
+      parseInt(id),
+      {
+        stage_id: stageId,
+        stage: existingStage.stage,
+        order_number: orders[0].order_number,
+        updated_by: userName,
+        changes: changes.join(', ')
+      },
+      companyId,
+      ipAddress,
+      userAgent
+    );
+
+    res.json({ message: 'Etapa aktualizovaná.' });
 }));
 
 // DELETE /api/orders/:id - Delete order (companyadmin only)

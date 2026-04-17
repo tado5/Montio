@@ -14,6 +14,11 @@ import OrdersPage from './pages/OrdersPage'
 import CreateOrderPage from './pages/CreateOrderPage'
 import OrderDetailPage from './pages/OrderDetailPage'
 import EditOrderPage from './pages/EditOrderPage'
+import SurveyStagePage from './pages/SurveyStagePage'
+import QuoteStagePage from './pages/QuoteStagePage'
+import InstallationStagePage from './pages/InstallationStagePage'
+import CompletionStagePage from './pages/CompletionStagePage'
+import ClientQuoteViewPage from './pages/ClientQuoteViewPage'
 import EmployeesPage from './pages/EmployeesPage'
 import CompanySettingsPage from './pages/CompanySettingsPage'
 import ProfilePage from './pages/ProfilePage'
@@ -54,6 +59,7 @@ function App() {
             <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register/:inviteToken" element={<OnboardingWizard />} />
+            <Route path="/quote/:quoteLink" element={<ClientQuoteViewPage />} />
 
             <Route
               path="/superadmin"
@@ -132,6 +138,42 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
                   <EditOrderPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/orders/:id/survey"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
+                  <SurveyStagePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/orders/:id/quote"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
+                  <QuoteStagePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/orders/:id/installation"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
+                  <InstallationStagePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/orders/:id/completion"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
+                  <CompletionStagePage />
                 </ProtectedRoute>
               }
             />

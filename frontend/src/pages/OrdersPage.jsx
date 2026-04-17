@@ -53,8 +53,8 @@ const OrdersPage = () => {
     const statusMap = {
       survey: { label: 'Obhliadka', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' },
       quote: { label: 'Cenová ponuka', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
-      assigned: { label: 'Priradené', color: 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' },
-      in_progress: { label: 'Prebieha', color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' },
+      assigned: { label: 'Čaká na priradenie', color: 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' },
+      in_progress: { label: 'V montáži', color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' },
       completed: { label: 'Dokončené', color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' },
       cancelled: { label: 'Zrušené', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' }
     }
@@ -166,10 +166,17 @@ const OrdersPage = () => {
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="font-display font-bold text-lg text-primary mb-1">
-                      {order.order_number}
-                    </h3>
-                    <p className="text-sm text-secondary">{order.order_type_name}</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-display font-bold text-lg text-primary">
+                        {order.order_type_name}
+                      </h3>
+                      {order.status === 'assigned' && (
+                        <span className="px-2 py-0.5 bg-green-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                          ✓ Schválené
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-tertiary font-mono">{order.order_number}</p>
                   </div>
                   {getStatusBadge(order.status)}
                 </div>
