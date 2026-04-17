@@ -62,10 +62,7 @@ router.post('/', verifyToken, requireRole('superadmin'), async (req, res) => {
     );
 
     // Generate invite link (Frontend URL, not backend)
-    // Auto-detect production vs development
-    const frontendUrl = process.env.NODE_ENV === 'production'
-      ? 'https://montio.tsdigital.sk'
-      : 'http://localhost:3000';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const inviteLink = `${frontendUrl}/register/${inviteToken}`;
 
     // Send email (production only, dev just logs)

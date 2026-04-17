@@ -3,7 +3,7 @@ import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
 import { ensureCompanyId } from '../middleware/companyMiddleware.js';
 import { asyncHandler } from '../utils/errorHandler.js';
-import { isValidEmail, validateRequired } from '../utils/validation.js';
+import { isValidEmail } from '../utils/validation.js';
 import { ERROR_MESSAGES } from '../config/constants.js';
 import { logActivity } from '../middleware/logger.js';
 import { createNotification } from './notifications.js';

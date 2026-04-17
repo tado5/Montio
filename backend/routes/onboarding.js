@@ -113,8 +113,6 @@ router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
     const { inviteToken, billingData } = req.body
     const logoFile = req.file
 
-    console.log('📸 [Step2] Received:', { inviteToken: !!inviteToken, hasLogo: !!logoFile, billingData: !!billingData })
-
     // Find company
     const [companies] = await pool.query(
       'SELECT id, public_id FROM companies WHERE invite_token = ? AND status = ?',
@@ -131,18 +129,13 @@ router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
 
     // Process logo if uploaded
     if (logoFile) {
-      console.log('📸 [Step2] Processing logo for company:', company.public_id)
-
       try {
         const filename = `${Date.now()}-${company.public_id}.jpg`
         const uploadsDir = path.join(__dirname, '../uploads/logos')
         const filepath = path.join(uploadsDir, filename)
 
-        console.log('💾 [Step2] Saving logo to:', filepath)
-
         // Create directory if not exists
         if (!fs.existsSync(uploadsDir)) {
-          console.log('📁 [Step2] Creating uploads directory:', uploadsDir)
           fs.mkdirSync(uploadsDir, { recursive: true })
         }
 
@@ -156,7 +149,6 @@ router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
           .toFile(filepath)
 
         logoUrl = `/uploads/logos/${filename}`
-        console.log('✅ [Step2] Logo saved:', logoUrl)
       } catch (sharpError) {
         console.error('❌ [Step2] Sharp error:', sharpError)
         // Continue without logo rather than failing
@@ -170,16 +162,10 @@ router.post('/onboarding/step2', upload.single('logo'), async (req, res) => {
       : billingData
 
     // Update company
-    const [updateResult] = await pool.query(
+    await pool.query(
       'UPDATE companies SET logo_url = ?, billing_data = ? WHERE id = ?',
       [logoUrl, JSON.stringify(parsedBillingData), company.id]
     )
-
-    console.log('✅ [Step2] DB Updated:', {
-      companyId: company.id,
-      logoUrl,
-      affectedRows: updateResult.affectedRows
-    })
 
     res.json({ success: true, logoUrl })
   } catch (error) {
