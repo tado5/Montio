@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { api } from '../utils/apiClient'
+import { api, API_URL } from '../utils/apiClient'
 import {
   Building2,
   Users,
@@ -235,7 +235,7 @@ const CompanyDetail = () => {
         <div className="flex items-center gap-3 md:gap-4">
           {company.logo_url ? (
             <img
-              src={company.logo_url}
+              src={`${API_URL.replace('/api', '')}${company.logo_url}`}
               alt={company.name}
               className="w-12 h-12 md:w-16 md:h-16 rounded-xl object-contain bg-white shadow-lg shadow-orange-500/20 border border-orange-500/30 flex-shrink-0"
             />
