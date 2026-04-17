@@ -240,11 +240,11 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
         )}
 
         {/* Buttons */}
-        <div className="flex justify-between pt-4">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4">
           <button
             type="button"
             onClick={prevStep}
-            className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <ArrowLeft className="w-4 h-4 inline mr-2" />
             Späť
@@ -252,7 +252,7 @@ export default function Step3OrderTypes({ data, updateData, nextStep, prevStep, 
           <button
             type="submit"
             disabled={loading}
-            className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {loading ? 'Ukladám...' : 'Ďalej →'}
           </button>

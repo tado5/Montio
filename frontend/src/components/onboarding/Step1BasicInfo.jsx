@@ -183,11 +183,11 @@ export default function Step1BasicInfo({ data, updateData, nextStep, inviteToken
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-end pt-4">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
           <button
             type="submit"
             disabled={loading}
-            className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {loading ? 'Ukladám...' : 'Ďalej →'}
           </button>
