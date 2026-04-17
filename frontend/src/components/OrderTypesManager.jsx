@@ -32,11 +32,14 @@ const OrderTypesManager = () => {
   const fetchOrderTypes = async () => {
     try {
       setLoading(true)
+      console.log('🔄 [OrderTypes] Fetching order types...')
 
       const response = await api.get('/api/order-types')
+      console.log('✅ [OrderTypes] Response:', response.data)
       setOrderTypes(response.data.orderTypes)
     } catch (err) {
-      console.error('Fetch order types error:', err)
+      console.error('❌ [OrderTypes] Fetch error:', err)
+      console.error('❌ [OrderTypes] Error response:', err.response?.data)
       toast.error('Nepodarilo sa načítať typy montáží.')
     } finally {
       setLoading(false)
