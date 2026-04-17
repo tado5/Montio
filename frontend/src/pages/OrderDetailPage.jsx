@@ -21,6 +21,7 @@ import CompanyAdminLayout from '../components/CompanyAdminLayout'
 import SurveyStageModal from '../components/SurveyStageModal'
 import QuoteStageModal from '../components/QuoteStageModal'
 import InstallationStageModal from '../components/InstallationStageModal'
+import CompletionStageModal from '../components/CompletionStageModal'
 
 const OrderDetailPage = () => {
   const { id } = useParams()
@@ -33,6 +34,7 @@ const OrderDetailPage = () => {
   const [showSurveyModal, setShowSurveyModal] = useState(false)
   const [showQuoteModal, setShowQuoteModal] = useState(false)
   const [showInstallationModal, setShowInstallationModal] = useState(false)
+  const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -79,6 +81,11 @@ const OrderDetailPage = () => {
 
   const handleInstallationSuccess = () => {
     setShowInstallationModal(false)
+    fetchOrderDetail()
+  }
+
+  const handleCompletionSuccess = () => {
+    setShowCompletionModal(false)
     fetchOrderDetail()
   }
 
@@ -308,7 +315,10 @@ const OrderDetailPage = () => {
                 >
                   🔧 Montáž
                 </button>
-                <button className="btn btn-secondary w-full text-sm md:text-base py-3" disabled>
+                <button
+                  onClick={() => setShowCompletionModal(true)}
+                  className="btn bg-green-500 hover:bg-green-600 text-white w-full text-sm md:text-base py-3"
+                >
                   ✅ Dokončenie
                 </button>
               </div>
@@ -390,6 +400,15 @@ const OrderDetailPage = () => {
             orderType={order}
             onClose={() => setShowInstallationModal(false)}
             onSuccess={handleInstallationSuccess}
+          />
+        )}
+
+        {/* Completion Stage Modal */}
+        {showCompletionModal && (
+          <CompletionStageModal
+            orderId={id}
+            onClose={() => setShowCompletionModal(false)}
+            onSuccess={handleCompletionSuccess}
           />
         )}
       </div>
