@@ -11,6 +11,8 @@ import EmployeeDashboard from './pages/EmployeeDashboard'
 import CalendarPage from './pages/CalendarPage'
 import OrderTypesPage from './pages/OrderTypesPage'
 import OrdersPage from './pages/OrdersPage'
+import CreateOrderPage from './pages/CreateOrderPage'
+import OrderDetailPage from './pages/OrderDetailPage'
 import EmployeesPage from './pages/EmployeesPage'
 import CompanySettingsPage from './pages/CompanySettingsPage'
 import ProfilePage from './pages/ProfilePage'
@@ -102,6 +104,24 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
                   <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/orders/new"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
+                  <CreateOrderPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/company/orders/:id"
+              element={
+                <ProtectedRoute allowedRoles={['companyadmin', 'employee']}>
+                  <OrderDetailPage />
                 </ProtectedRoute>
               }
             />
