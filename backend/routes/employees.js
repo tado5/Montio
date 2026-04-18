@@ -106,7 +106,7 @@ router.post('/', verifyToken, requireRole('companyadmin'), ensureCompanyId, asyn
       // Create user account
       const [userResult] = await connection.query(
         `INSERT INTO users (name, email, password_hash, role, company_id, position, theme, created_at)
-         VALUES (?, ?, ?, 'employee', ?, ?, 'light', NOW())`,
+         VALUES (?, ?, ?, 'employee', ?, ?, 'dark', NOW())`,
         [name, email, hashedPassword, companyId, position]
       );
 
