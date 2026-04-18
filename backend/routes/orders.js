@@ -354,9 +354,27 @@ router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), ensureC
       user_name: log.user_name || 'Neznámy'
     }));
 
+    // Get order stages
+    const [stages] = await pool.query(
+      `SELECT * FROM order_stages WHERE order_id = ? ORDER BY completed_at DESC`,
+      [id]
+    );
+
+    // Parse stage data
+    const formattedStages = stages.map(stage => ({
+      ...stage,
+      checklist_data: typeof stage.checklist_data === 'string'
+        ? JSON.parse(stage.checklist_data)
+        : stage.checklist_data,
+      photos: typeof stage.photos === 'string'
+        ? JSON.parse(stage.photos)
+        : stage.photos
+    }));
+
     res.json({
       order,
-      activity_logs: formattedLogs
+      activity_logs: formattedLogs,
+      stages: formattedStages
     });
 }));
 
