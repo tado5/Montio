@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `invoices` (
 -- Activity Logs table (Audit Trail)
 CREATE TABLE IF NOT EXISTS `activity_logs` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `user_id` INT NOT NULL,
+  `user_id` INT NULL,
   `company_id` INT NULL,
   `action` VARCHAR(100) NOT NULL,
   `entity_type` VARCHAR(50) NOT NULL,
