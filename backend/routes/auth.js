@@ -270,144 +270,132 @@ router.get('/profile', verifyToken, asyncHandler(async (req, res) => {
 }));
 
 // PUT /api/auth/profile - Update current user profile
-router.put('/profile', verifyToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { name, email, phone } = req.body;
+router.put('/profile', verifyToken, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { name, email, phone } = req.body;
 
-    if (!name || !email) {
-      return res.status(400).json({ message: 'Meno a email sú povinné.' });
-    }
-
-    // Check if email already exists (excluding current user)
-    const [existingUsers] = await pool.query(
-      'SELECT id FROM users WHERE email = ? AND id != ?',
-      [email, userId]
-    );
-
-    if (existingUsers.length > 0) {
-      return res.status(400).json({ message: 'Email už existuje.' });
-    }
-
-    // Update user (name and email only - position is set automatically by role)
-    await pool.query(
-      'UPDATE users SET name = ?, email = ? WHERE id = ?',
-      [name, email, userId]
-    );
-
-    // Update employee phone if exists
-    if (phone !== undefined) {
-      await pool.query(
-        'UPDATE employees SET phone = ? WHERE user_id = ?',
-        [phone || null, userId]
-      );
-    }
-
-    // Log activity
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    const userAgent = req.headers['user-agent'];
-
-    await logActivity(
-      userId,
-      'user.profile_update',
-      'user',
-      userId,
-      { name, email, phone },
-      req.user.company_id,
-      ipAddress,
-      userAgent
-    );
-
-    res.json({
-      message: 'Profil aktualizovaný.',
-      profile: { name, email, phone }
-    });
-
-  } catch (error) {
-    console.error('Update profile error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
+  if (!name || !email) {
+    return res.status(400).json({ message: 'Meno a email sú povinné.' });
   }
-});
+
+  // Check if email already exists (excluding current user)
+  const [existingUsers] = await pool.query(
+    'SELECT id FROM users WHERE email = ? AND id != ?',
+    [email, userId]
+  );
+
+  if (existingUsers.length > 0) {
+    return res.status(400).json({ message: 'Email už existuje.' });
+  }
+
+  // Update user (name and email only - position is set automatically by role)
+  await pool.query(
+    'UPDATE users SET name = ?, email = ? WHERE id = ?',
+    [name, email, userId]
+  );
+
+  // Update employee phone if exists
+  if (phone !== undefined) {
+    await pool.query(
+      'UPDATE employees SET phone = ? WHERE user_id = ?',
+      [phone || null, userId]
+    );
+  }
+
+  // Log activity
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.headers['user-agent'];
+
+  await logActivity(
+    userId,
+    'user.profile_update',
+    'user',
+    userId,
+    { name, email, phone },
+    req.user.company_id,
+    ipAddress,
+    userAgent
+  );
+
+  res.json({
+    message: 'Profil aktualizovaný.',
+    profile: { name, email, phone }
+  });
+}));
 
 // PUT /api/auth/profile/password - Change password
-router.put('/profile/password', verifyToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { currentPassword, newPassword } = req.body;
+router.put('/profile/password', verifyToken, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { currentPassword, newPassword } = req.body;
 
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: 'Aktuálne a nové heslo sú povinné.' });
-    }
-
-    if (newPassword.length < 6) {
-      return res.status(400).json({ message: 'Nové heslo musí mať aspoň 6 znakov.' });
-    }
-
-    // Get current password hash
-    const [users] = await pool.query(
-      'SELECT password_hash FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (users.length === 0) {
-      return res.status(404).json({ message: 'Používateľ nenájdený.' });
-    }
-
-    // Verify current password
-    const isValid = await bcrypt.compare(currentPassword, users[0].password_hash);
-
-    if (!isValid) {
-      return res.status(401).json({ message: 'Nesprávne aktuálne heslo.' });
-    }
-
-    // Hash new password
-    const newPasswordHash = await bcrypt.hash(newPassword, 10);
-
-    // Update password
-    await pool.query(
-      'UPDATE users SET password_hash = ? WHERE id = ?',
-      [newPasswordHash, userId]
-    );
-
-    // Log activity
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    const userAgent = req.headers['user-agent'];
-
-    await logActivity(
-      userId,
-      'user.password_change',
-      'user',
-      userId,
-      { success: true },
-      req.user.company_id,
-      ipAddress,
-      userAgent
-    );
-
-    res.json({ message: 'Heslo bolo zmenené.' });
-
-  } catch (error) {
-    console.error('Change password error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'Aktuálne a nové heslo sú povinné.' });
   }
-});
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: 'Nové heslo musí mať aspoň 6 znakov.' });
+  }
+
+  // Get current password hash
+  const [users] = await pool.query(
+    'SELECT password_hash FROM users WHERE id = ?',
+    [userId]
+  );
+
+  if (users.length === 0) {
+    return res.status(404).json({ message: 'Používateľ nenájdený.' });
+  }
+
+  // Verify current password
+  const isValid = await bcrypt.compare(currentPassword, users[0].password_hash);
+
+  if (!isValid) {
+    return res.status(401).json({ message: 'Nesprávne aktuálne heslo.' });
+  }
+
+  // Hash new password
+  const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+  // Update password
+  await pool.query(
+    'UPDATE users SET password_hash = ? WHERE id = ?',
+    [newPasswordHash, userId]
+  );
+
+  // Log activity
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.headers['user-agent'];
+
+  await logActivity(
+    userId,
+    'user.password_change',
+    'user',
+    userId,
+    { success: true },
+    req.user.company_id,
+    ipAddress,
+    userAgent
+  );
+
+  res.json({ message: 'Heslo bolo zmenené.' });
+}));
 
 // PUT /api/auth/avatar - Upload user avatar
-router.put('/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+router.put('/avatar', verifyToken, upload.single('avatar'), asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  if (!req.file) {
+    return res.status(400).json({ message: 'Súbor s avatárom je povinný.' });
+  }
+
+  const uploadsDir = path.join(__dirname, '../uploads/avatars');
+
+  // Create uploads directory if it doesn't exist
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
   try {
-    const userId = req.user.id;
-
-    if (!req.file) {
-      return res.status(400).json({ message: 'Súbor s avatárom je povinný.' });
-    }
-
-    const uploadsDir = path.join(__dirname, '../uploads/avatars');
-
-    // Create uploads directory if it doesn't exist
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
     // Resize and optimize with sharp
     const filename = `avatar-${userId}-${Date.now()}.webp`;
     const outputPath = path.join(uploadsDir, filename);
@@ -462,68 +450,58 @@ router.put('/avatar', verifyToken, upload.single('avatar'), async (req, res) => 
       message: 'Avatar aktualizovaný.',
       avatarUrl
     });
-
   } catch (error) {
-    console.error('Avatar upload error:', error);
-
     // Clean up file if error occurs
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
-
-    res.status(500).json({ message: 'Chyba pri nahrávaní avatara.' });
+    throw error; // Re-throw to asyncHandler
   }
-});
+}));
 
 // DELETE /api/auth/avatar - Delete user avatar
-router.delete('/avatar', verifyToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
+router.delete('/avatar', verifyToken, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
 
-    // Get current avatar
-    const [users] = await pool.query(
-      'SELECT avatar_url FROM users WHERE id = ?',
-      [userId]
-    );
+  // Get current avatar
+  const [users] = await pool.query(
+    'SELECT avatar_url FROM users WHERE id = ?',
+    [userId]
+  );
 
-    if (users.length === 0) {
-      return res.status(404).json({ message: 'Používateľ nenájdený.' });
-    }
-
-    if (users[0].avatar_url) {
-      const avatarPath = path.join(__dirname, '..', users[0].avatar_url);
-      if (fs.existsSync(avatarPath)) {
-        fs.unlinkSync(avatarPath);
-      }
-    }
-
-    // Remove avatar_url from database
-    await pool.query(
-      'UPDATE users SET avatar_url = NULL WHERE id = ?',
-      [userId]
-    );
-
-    // Log activity
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    const userAgent = req.headers['user-agent'];
-
-    await logActivity(
-      userId,
-      'user.avatar_delete',
-      'user',
-      userId,
-      {},
-      req.user.company_id,
-      ipAddress,
-      userAgent
-    );
-
-    res.json({ message: 'Avatar vymazaný.' });
-
-  } catch (error) {
-    console.error('Avatar delete error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
+  if (users.length === 0) {
+    return res.status(404).json({ message: 'Používateľ nenájdený.' });
   }
-});
+
+  if (users[0].avatar_url) {
+    const avatarPath = path.join(__dirname, '..', users[0].avatar_url);
+    if (fs.existsSync(avatarPath)) {
+      fs.unlinkSync(avatarPath);
+    }
+  }
+
+  // Remove avatar_url from database
+  await pool.query(
+    'UPDATE users SET avatar_url = NULL WHERE id = ?',
+    [userId]
+  );
+
+  // Log activity
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.headers['user-agent'];
+
+  await logActivity(
+    userId,
+    'user.avatar_delete',
+    'user',
+    userId,
+    {},
+    req.user.company_id,
+    ipAddress,
+    userAgent
+  );
+
+  res.json({ message: 'Avatar vymazaný.' });
+}));
 
 export default router;
