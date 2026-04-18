@@ -351,7 +351,7 @@ router.get('/:id', verifyToken, requireRole('companyadmin', 'employee'), ensureC
       details: typeof log.details === 'string'
         ? JSON.parse(log.details)
         : log.details,
-      user_name: log.user_name || 'Neznámy'
+      user_name: log.user_name || (log.action === 'order.client_signature' ? 'Klient' : 'Neznámy')
     }));
 
     // Get order stages
