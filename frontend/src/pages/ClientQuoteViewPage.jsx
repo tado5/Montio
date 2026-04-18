@@ -17,7 +17,10 @@ import {
 import axios from 'axios'
 import SignatureCanvas from 'react-signature-canvas'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+// Use production URL if on production domain, otherwise fallback to env or localhost
+const API_URL = window.location.hostname === 'montio.tsdigital.sk'
+  ? 'https://montio.tsdigital.sk'
+  : (import.meta.env.VITE_API_URL || 'http://localhost:3001')
 
 const ClientQuoteViewPage = () => {
   const { quoteLink } = useParams()
