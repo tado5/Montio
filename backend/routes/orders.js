@@ -156,20 +156,27 @@ router.post('/public/quote/:quoteLink/sign', asyncHandler(async (req, res) => {
 
     // Log client signature activity
     const ipAddress = req.ip || req.connection.remoteAddress;
-    await logActivity(
-      null, // No user_id for public client signature
-      'order.client_signature',
-      'order',
-      orderId,
-      {
-        order_number: order.order_number,
-        signed_at: new Date().toISOString(),
-        quote_link: quoteLink
-      },
-      order.company_id,
-      ipAddress,
-      req.headers['user-agent']
-    );
+    try {
+      console.log('🔵 Logging client signature activity for order:', orderId);
+      await logActivity(
+        null, // No user_id for public client signature
+        'order.client_signature',
+        'order',
+        orderId,
+        {
+          order_number: order.order_number,
+          signed_at: new Date().toISOString(),
+          quote_link: quoteLink
+        },
+        order.company_id,
+        ipAddress,
+        req.headers['user-agent']
+      );
+      console.log('✅ Activity logged successfully');
+    } catch (logError) {
+      console.error('❌ CRITICAL: Failed to log client signature activity:', logError);
+      // Continue anyway - don't fail the signature
+    }
 
     // Send notification to company admin(s) about client signature
     const [admins] = await pool.query(
