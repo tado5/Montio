@@ -191,6 +191,18 @@ router.post('/public/quote/:quoteLink/sign', asyncHandler(async (req, res) => {
     res.json({ message: 'Cenová ponuka bola podpísaná.' });
 }));
 
+// DEBUG: Get raw activity logs for order
+router.get('/:id/debug-logs', verifyToken, requireRole('companyadmin'), asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const [logs] = await pool.query(
+      `SELECT * FROM activity_logs WHERE entity_type = 'order' AND entity_id = ? ORDER BY created_at DESC`,
+      [id]
+    );
+
+    res.json({ logs });
+}));
+
 // GET /api/orders/calendar - Get orders for calendar view
 router.get('/calendar', verifyToken, requireRole('companyadmin', 'employee'), ensureCompanyId, asyncHandler(async (req, res) => {
     const userId = req.user.id;
