@@ -29,34 +29,34 @@ const __dirname = path.dirname(__filename);
 const router = express.Router();
 
 // POST /api/auth/register
-router.post('/register', async (req, res) => {
+router.post('/register', asyncHandler(async (req, res) => {
+  const { email, password, invite_token } = req.body;
+
+  if (!email || !password || !invite_token) {
+    return res.status(400).json({ message: 'Všetky polia sú povinné.' });
+  }
+
+  // Kontrola invite tokenu
+  const [companies] = await pool.query(
+    'SELECT id, status FROM companies WHERE invite_token = ?',
+    [invite_token]
+  );
+
+  if (companies.length === 0) {
+    return res.status(400).json({ message: 'Neplatný registračný token.' });
+  }
+
+  const company = companies[0];
+
+  if (company.status !== 'pending') {
+    return res.status(400).json({ message: 'Tento token už bol použitý.' });
+  }
+
+  // Hash hesla
+  const password_hash = await bcrypt.hash(password, 10);
+
+  // Vytvorenie používateľa - Handle duplicate email
   try {
-    const { email, password, invite_token } = req.body;
-
-    if (!email || !password || !invite_token) {
-      return res.status(400).json({ message: 'Všetky polia sú povinné.' });
-    }
-
-    // Kontrola invite tokenu
-    const [companies] = await pool.query(
-      'SELECT id, status FROM companies WHERE invite_token = ?',
-      [invite_token]
-    );
-
-    if (companies.length === 0) {
-      return res.status(400).json({ message: 'Neplatný registračný token.' });
-    }
-
-    const company = companies[0];
-
-    if (company.status !== 'pending') {
-      return res.status(400).json({ message: 'Tento token už bol použitý.' });
-    }
-
-    // Hash hesla
-    const password_hash = await bcrypt.hash(password, 10);
-
-    // Vytvorenie používateľa
     const [result] = await pool.query(
       'INSERT INTO users (email, password_hash, role, company_id) VALUES (?, ?, ?, ?)',
       [email, password_hash, 'companyadmin', company.id]
@@ -72,15 +72,13 @@ router.post('/register', async (req, res) => {
       message: 'Registrácia úspešná.',
       user_id: result.insertId
     });
-
   } catch (error) {
-    console.error('Register error:', error);
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({ message: 'Email už existuje.' });
     }
-    res.status(500).json({ message: 'Chyba servera.' });
+    throw error; // Re-throw to asyncHandler
   }
-});
+}));
 
 // POST /api/auth/login (with rate limiting)
 router.post('/login', loginRateLimiter, asyncHandler(async (req, res) => {
