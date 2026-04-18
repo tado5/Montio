@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# Frontend routing (React Router)
+# Redirect all non-file/non-directory requests to index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
