@@ -156,6 +156,11 @@ router.post('/public/quote/:quoteLink/sign', asyncHandler(async (req, res) => {
 
     // Log client signature activity
     const ipAddress = req.ip || req.connection.remoteAddress;
+    console.log('🔵 [Client Signature] Logging activity:', {
+      orderId,
+      order_number: order.order_number,
+      company_id: order.company_id
+    });
     await logActivity(
       null, // No user_id for public client signature
       'order.client_signature',
@@ -170,6 +175,7 @@ router.post('/public/quote/:quoteLink/sign', asyncHandler(async (req, res) => {
       ipAddress,
       req.headers['user-agent']
     );
+    console.log('✅ [Client Signature] Activity logged successfully');
 
     // Send notification to company admin(s) about client signature
     const [admins] = await pool.query(
