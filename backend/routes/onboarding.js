@@ -238,7 +238,7 @@ router.post('/onboarding/complete', asyncHandler(async (req, res) => {
   const fullName = `${firstName} ${lastName}`.trim()
   const [result] = await pool.query(
     'INSERT INTO users (email, password_hash, name, position, role, company_id, theme) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [company.email, hashedPassword, fullName, 'Správca firmy', 'companyadmin', company.id, 'light']
+    [company.email, hashedPassword, fullName, 'Správca firmy', 'companyadmin', company.id, 'dark']
   )
 
   const userId = result.insertId
@@ -288,7 +288,7 @@ router.post('/onboarding/complete', asyncHandler(async (req, res) => {
       companyName: company.name,
       firstName,
       lastName,
-      theme: 'light'
+      theme: 'dark'
     },
     token
   })
