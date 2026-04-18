@@ -28,7 +28,8 @@ describe('Orders API Tests', () => {
     companyId = companyResult.insertId;
 
     // Create company admin user
-    const bcrypt = await import('bcryptjs');
+    const bcryptModule = await import('bcryptjs');
+    const bcrypt = bcryptModule.default;
     const hashedPassword = await bcrypt.hash('password123', 10);
     const [userResult] = await pool.query(
       `INSERT INTO users (email, password_hash, name, role, company_id)
