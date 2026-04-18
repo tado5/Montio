@@ -197,95 +197,77 @@ router.post('/login', loginRateLimiter, asyncHandler(async (req, res) => {
 }));
 
 // GET /api/auth/companies (superadmin only)
-router.get('/companies', verifyToken, requireRole('superadmin'), async (req, res) => {
-  try {
-    const [companies] = await pool.query(
-      'SELECT id, public_id, name, logo_url, ico, dic, address, status, created_at FROM companies ORDER BY created_at DESC'
-    );
+router.get('/companies', verifyToken, requireRole('superadmin'), asyncHandler(async (req, res) => {
+  const [companies] = await pool.query(
+    'SELECT id, public_id, name, logo_url, ico, dic, address, status, created_at FROM companies ORDER BY created_at DESC'
+  );
 
-    res.json(companies);
-
-  } catch (error) {
-    console.error('Get companies error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
-  }
-});
+  res.json(companies);
+}));
 
 // PUT /api/auth/theme - Update user theme preference
-router.put('/theme', verifyToken, async (req, res) => {
-  try {
-    const { theme } = req.body;
+router.put('/theme', verifyToken, asyncHandler(async (req, res) => {
+  const { theme } = req.body;
 
-    if (!theme || !['light', 'dark'].includes(theme)) {
-      return res.status(400).json({ message: 'Neplatná hodnota témy.' });
-    }
-
-    await pool.query(
-      'UPDATE users SET theme = ? WHERE id = ?',
-      [theme, req.user.id]
-    );
-
-    // Log theme change
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    const userAgent = req.headers['user-agent'];
-
-    logActivity(
-      req.user.id,
-      'user.theme_change',
-      'user',
-      req.user.id,
-      { theme },
-      req.user.company_id,
-      ipAddress,
-      userAgent
-    ).catch(err => console.error('Theme change logging failed:', err));
-
-    res.json({ message: 'Téma bola zmenená.', theme });
-
-  } catch (error) {
-    console.error('Update theme error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
+  if (!theme || !['light', 'dark'].includes(theme)) {
+    return res.status(400).json({ message: 'Neplatná hodnota témy.' });
   }
-});
+
+  await pool.query(
+    'UPDATE users SET theme = ? WHERE id = ?',
+    [theme, req.user.id]
+  );
+
+  // Log theme change
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.headers['user-agent'];
+
+  logActivity(
+    req.user.id,
+    'user.theme_change',
+    'user',
+    req.user.id,
+    { theme },
+    req.user.company_id,
+    ipAddress,
+    userAgent
+  ).catch(err => console.error('Theme change logging failed:', err));
+
+  res.json({ message: 'Téma bola zmenená.', theme });
+}));
 
 // GET /api/auth/profile - Get current user profile
-router.get('/profile', verifyToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
+router.get('/profile', verifyToken, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
 
-    // Get user profile with company info if applicable
-    const [users] = await pool.query(
-      `SELECT
-        u.id,
-        u.name,
-        u.email,
-        u.role,
-        u.position,
-        u.theme,
-        u.created_at,
-        c.name as company_name,
-        c.public_id as company_public_id,
-        e.phone
-      FROM users u
-      LEFT JOIN companies c ON u.company_id = c.id
-      LEFT JOIN employees e ON u.id = e.user_id
-      WHERE u.id = ?`,
-      [userId]
-    );
+  // Get user profile with company info if applicable
+  const [users] = await pool.query(
+    `SELECT
+      u.id,
+      u.name,
+      u.email,
+      u.role,
+      u.position,
+      u.theme,
+      u.created_at,
+      c.name as company_name,
+      c.public_id as company_public_id,
+      e.phone
+    FROM users u
+    LEFT JOIN companies c ON u.company_id = c.id
+    LEFT JOIN employees e ON u.id = e.user_id
+    WHERE u.id = ?`,
+    [userId]
+  );
 
-    if (users.length === 0) {
-      return res.status(404).json({ message: 'Používateľ nenájdený.' });
-    }
-
-    const profile = users[0];
-
-    res.json({ profile });
-
-  } catch (error) {
-    console.error('Get profile error:', error);
-    res.status(500).json({ message: 'Chyba servera.' });
+  if (users.length === 0) {
+    return res.status(404).json({ message: 'Používateľ nenájdený.' });
   }
-});
+
+  const profile = users[0];
+
+  res.json({ profile });
+}));
 
 // PUT /api/auth/profile - Update current user profile
 router.put('/profile', verifyToken, async (req, res) => {
