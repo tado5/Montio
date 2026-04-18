@@ -20,7 +20,8 @@ describe('Companies & Onboarding Tests', () => {
 
   // Setup: Create superadmin
   beforeAll(async () => {
-    const bcrypt = await import('bcryptjs');
+    const bcryptModule = await import('bcryptjs');
+    const bcrypt = bcryptModule.default;
     const hashedPassword = await bcrypt.hash('superadmin123', 10);
 
     const [result] = await pool.query(
