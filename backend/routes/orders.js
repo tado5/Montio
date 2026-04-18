@@ -630,6 +630,16 @@ router.post('/:id/stage', verifyToken, requireRole('companyadmin', 'employee'), 
       ]
     );
 
+    // Generate quote_link when creating quote stage (if not exists)
+    let generatedQuoteLink = null;
+    if (stage === 'quote') {
+      const [existing] = await pool.query('SELECT quote_link FROM orders WHERE id = ?', [id]);
+      if (existing.length > 0 && !existing[0].quote_link) {
+        generatedQuoteLink = crypto.randomBytes(16).toString('hex');
+        await pool.query('UPDATE orders SET quote_link = ? WHERE id = ?', [generatedQuoteLink, id]);
+      }
+    }
+
     // Update order status based on stage
     const statusMap = {
       'survey': 'survey',
@@ -701,7 +711,8 @@ router.post('/:id/stage', verifyToken, requireRole('companyadmin', 'employee'), 
 
     res.status(201).json({
       message: 'Etapa zákazky dokončená.',
-      stage_id: result.insertId
+      stage_id: result.insertId,
+      quote_link: generatedQuoteLink
     });
 }));
 
